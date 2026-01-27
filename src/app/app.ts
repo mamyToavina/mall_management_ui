@@ -7,6 +7,7 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
+
 export class App {
-  protected readonly title = signal('projet1');
+  protected readonly title = signal('m1p13mean-Toavina-Irchad');
 }
