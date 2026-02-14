@@ -1,0 +1,23 @@
+.footer{
+  height: var(--footer-h);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.inner{
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 520px){
+  .right{ display: none; }
+  .inner{ font-size: 12px; }
+}

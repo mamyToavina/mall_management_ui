@@ -1,1 +1,47 @@
 /* You can add global styles to this file, and also import other style files */
+:root{
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+
+  --shadow: 0 10px 30px rgba(2,6,23,.08);
+
+  --header-h: 64px;
+  --footer-h: 56px;
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 84px;
+
+  --radius: 14px;
+  --container-pad: 16px;
+}
+
+[data-theme="dark"]{
+  --bg: #0b1220;
+  --surface: #0f172a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --border: rgba(148,163,184,.18);
+  --primary: #60a5fa;
+
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+*{ box-sizing: border-box; }
+html, body{ height: 100%; }
+body{
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a{ color: inherit; text-decoration: none; }
+button{ font: inherit; }
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); border:0;
+}
