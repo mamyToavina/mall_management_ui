@@ -20,13 +20,11 @@ export function timeAgo(isoDate: string, now = new Date()): string {
 }
 
 export function formatAriary(amount: number): string {
-  // “Ar” (Ariary). Si tu veux MGA officiel: Intl + currency 'MGA' (selon support).
   const n = Number.isFinite(amount) ? amount : 0;
   return `${new Intl.NumberFormat('fr-FR').format(n)} Ar`;
 }
 
 export function resolveAvatarUrl(avatarPath?: string | null): string {
   if (!avatarPath) return 'https://i.pravatar.cc/96?img=12';
-  // si backend renvoie "/uploads/..." => on garde relatif (proxy) ou ajoute host si besoin
   return avatarPath.startsWith('http') ? avatarPath : avatarPath;
 }

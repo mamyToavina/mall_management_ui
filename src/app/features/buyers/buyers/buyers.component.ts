@@ -1,5 +1,5 @@
-import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
-import { DatePipe, NgIf, NgFor, CommonModule } from '@angular/common';
+import { Component, DestroyRef, Injector, inject, signal, computed, OnInit, afterNextRender } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BuyerCardModalComponent } from './buyers-card-modal';
@@ -10,19 +10,28 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
 @Component({
   selector: 'app-buyers-page',
   standalone: true,
-  imports: [CommonModule,DatePipe, BuyerCardModalComponent],
+  imports: [CommonModule, BuyerCardModalComponent],
   template: `
     <section class="page">
       <header class="top">
         <div>
           <h1>Gestion acheteur</h1>
-          <p class="sub">Liste des utilisateurs (role USER) avec filtres, pagination et actions.</p>
+          <p class="sub">Liste des comptes acheteurs</p>
         </div>
 
-        <div class="stats" *ngIf="meta() as m">
-          <div class="pill"><span>Total</span><strong>{{ m.total }}</strong></div>
-          <div class="pill"><span>Page</span><strong>{{ m.page }}/{{ m.pages }}</strong></div>
-        </div>
+        @if (meta(); as m) {
+          <div class="stats">
+            <div class="pill">
+              <span>Total</span>
+              <strong>{{ m.total }}</strong>
+            </div>
+
+            <div class="pill">
+              <span>Page</span>
+              <strong>{{ m.page }}/{{ m.pages }}</strong>
+            </div>
+          </div>
+        }
       </header>
 
       <div class="card">
@@ -166,9 +175,12 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
   `,
   styleUrls: ['./buyers.component.css']
 })
+
 export class BuyersPageComponent {
+
   private api = inject(BuyersApiService);
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
 
   // state
   readonly buyers = signal<BuyerDto[]>([]);
@@ -212,32 +224,40 @@ export class BuyersPageComponent {
     return pages;
   });
 
-  // refresh trigger (pour forcer reload sans changer query)
   private readonly refreshTick = signal(0);
 
   constructor() {
-    // stream = query + refreshTick
-    const query$ = toObservable(computed(() => [this.query(), this.refreshTick()] as const));
+    console.log("mandeha an");
+    afterNextRender(() => {
+      const query$ = toObservable(
+        computed(() => [this.query(), this.refreshTick()] as const),
+        { injector: this.injector } // ✅ important
+      );
 
-    query$
-      .pipe(
-        // debounce surtout utile sur search
-        debounceTime(150),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        switchMap(([q]) => {
-          this.loading.set(true);
-          return this.api.getBuyers(q).pipe(
-            catchError(() => of({ data: [], meta: { total: 0, page: q.page, limit: q.limit, pages: 1 } }))
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((res) => {
-        this.buyers.set(res.data);
-        this.meta.set(res.meta);
-        this.loading.set(false);
-      });
+      query$
+        .pipe(
+          debounceTime(150),
+          distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+          switchMap(([q]) => {
+            this.loading.set(true);
+            return this.api.getBuyers(q).pipe(
+              catchError((err) => {
+                console.error('GET BUYERS FAILED', err);
+                return of({ data: [], meta: { total: 0, page: q.page, limit: q.limit, pages: 1 } });
+              })
+            );
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe((res) => {
+          console.log("ito ny solution an");
+          this.buyers.set(res.data ?? []);
+          this.meta.set(res.meta ?? null);
+          this.loading.set(false);
+        });
+    });
   }
+  
 
   onSearch(v: string) {
     this.search.set(v);
@@ -313,3 +333,4 @@ export class BuyersPageComponent {
     }
   }
 }
+
