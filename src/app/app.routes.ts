@@ -5,13 +5,22 @@ export const routes: Routes = [
   {
     path: '',
     component: AppShellComponent,
-    loadChildren: () =>
-      import('./features/buyers/buyers.routes')
-        .then(m => m.BUYERS_ROUTES)
+    children: [
+      {
+        path: 'buyers',
+        loadChildren: () =>
+          import('./features/buyers/buyers.routes').then(m => m.BUYERS_ROUTES),
+      },
+      {
+        path: 'boxes',
+        loadChildren: () =>
+          import('./features/boxes/boxes.routes').then(m => m.BOXES_ROUTES),
+      },
+
+      // route par défaut quand on arrive sur "/"
+      { path: '', redirectTo: 'buyers', pathMatch: 'full' },
+    ],
   },
-  // Exemple login (optionnel)
-  // { path: 'login', loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent) },
 
-  { path: '**', redirectTo: 'buyers' }
+  { path: '**', redirectTo: '' },
 ];
-

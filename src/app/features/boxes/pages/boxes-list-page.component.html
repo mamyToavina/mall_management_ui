@@ -1,0 +1,198 @@
+<div class="p-4">
+    <h2 class="text-xl font-semibold mb-4">Boxes</h2>
+  
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+      <div class="border rounded p-3">
+        <div class="text-sm text-gray-500">Total</div>
+        <div class="text-2xl font-bold">{{ stats().total }}</div>
+      </div>
+  
+      <div class="border rounded p-3">
+        <div class="text-sm text-gray-500">Libres</div>
+        <div class="text-2xl font-bold">{{ stats().free }}</div>
+      </div>
+  
+      <div class="border rounded p-3">
+        <div class="text-sm text-gray-500">Occupés</div>
+        <div class="text-2xl font-bold">{{ stats().occupied }}</div>
+      </div>
+    </div>
+  
+    <!-- Filters -->
+    <div class="border rounded p-3 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+  
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-gray-600">Étage</span>
+          <input
+            type="number"
+            class="border rounded px-2 py-1"
+            [value]="floor() ?? ''"
+            (input)="onFloor(($any($event.target).value))"
+            placeholder="ex: 1"
+          />
+        </label>
+  
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-gray-600">Surface min</span>
+          <input
+            type="number"
+            class="border rounded px-2 py-1"
+            [value]="minSurface() ?? ''"
+            (input)="onMinSurface(($any($event.target).value))"
+            placeholder="ex: 10"
+          />
+        </label>
+  
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-gray-600">Surface max</span>
+          <input
+            type="number"
+            class="border rounded px-2 py-1"
+            [value]="maxSurface() ?? ''"
+            (input)="onMaxSurface(($any($event.target).value))"
+            placeholder="ex: 50"
+          />
+        </label>
+  
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-gray-600">Statut</span>
+          <select
+            class="border rounded px-2 py-1"
+            [value]="status()"
+            (change)="onStatus(($any($event.target).value))"
+          >
+            <option value="">Tous</option>
+            <option value="libre">Libre</option>
+            <option value="occupied">Occupé</option>
+          </select>
+        </label>
+  
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-gray-600">Loyer min</span>
+          <input
+            type="number"
+            class="border rounded px-2 py-1"
+            [value]="minRent() ?? ''"
+            (input)="onMinRent(($any($event.target).value))"
+            placeholder="ex: 100000"
+          />
+        </label>
+  
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-gray-600">Loyer max</span>
+          <input
+            type="number"
+            class="border rounded px-2 py-1"
+            [value]="maxRent() ?? ''"
+            (input)="onMaxRent(($any($event.target).value))"
+            placeholder="ex: 500000"
+          />
+        </label>
+  
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-gray-600">Limit</span>
+          <select
+            class="border rounded px-2 py-1"
+            [value]="limit()"
+            (change)="onLimit(($any($event.target).value))"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+  
+      </div>
+  
+      <div class="flex gap-2 mt-3">
+        <button class="border rounded px-3 py-1" (click)="refresh()">Actualiser</button>
+        <button class="border rounded px-3 py-1" (click)="resetAll()">Reset</button>
+      </div>
+    </div>
+  
+    <!-- State -->
+    @if (loading()) {
+      <div class="py-6">Chargement...</div>
+    }
+  
+    <!-- Table -->
+    @if (!loading()) {
+      <div class="border rounded overflow-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="text-left p-2">Numéro</th>
+              <th class="text-left p-2">Étage</th>
+              <th class="text-left p-2">Surface</th>
+              <th class="text-left p-2">Loyer</th>
+              <th class="text-left p-2">Compteur</th>
+              <th class="text-left p-2">Statut</th>
+              <th class="text-left p-2">Action</th>
+            </tr>
+          </thead>
+  
+          <tbody>
+            @for (b of boxes(); track b._id) {
+              <tr class="border-t">
+                <td class="p-2 font-medium">{{ b.number }}</td>
+                <td class="p-2">{{ b.floor }}</td>
+                <td class="p-2">{{ b.surface }}</td>
+                <td class="p-2">{{ b.monthlyRent }}</td>
+                <td class="p-2">{{ b.electricityMeterNumber || '-' }}</td>
+                <td class="p-2">
+                  <span class="px-2 py-1 rounded border">
+                    {{ badgeStatus(b) }}
+                  </span>
+                </td>
+                <!--<td class="p-2">
+                  <button class="border rounded px-3 py-1" (click)="openBox(b._id)">
+                    Détails
+                  </button>
+                </td>-->
+                <td class="p-2" (click)="$event.stopPropagation()">
+                  <div class="row-actions">
+                    <button class="border rounded px-3 py-1" (click)="openBox(b._id)">Détails</button>
+                    <button class="border rounded px-3 py-1" [routerLink]="['/boxes', b._id, 'edit']">Modifier</button>
+                  </div>
+                </td>
+                
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="p-4 text-center text-gray-500">Aucun résultat</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  
+    <!-- Pagination -->
+    @if (meta() && meta()!.pages > 1) {
+      <div class="flex items-center gap-2 mt-4">
+        <button
+          class="border rounded px-3 py-1"
+          (click)="goTo(meta()!.page - 1)"
+          [disabled]="meta()!.page === 1"
+        >
+          Précédent
+        </button>
+  
+        <div class="text-sm text-gray-700">
+          Page {{ meta()!.page }} / {{ meta()!.pages }} — Total: {{ meta()!.total }}
+        </div>
+  
+        <button
+          class="border rounded px-3 py-1"
+          (click)="goTo(meta()!.page + 1)"
+          [disabled]="meta()!.page === meta()!.pages"
+        >
+          Suivant
+        </button>
+      </div>
+    }
+  </div>
+  

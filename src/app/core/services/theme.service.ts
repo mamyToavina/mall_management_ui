@@ -13,11 +13,9 @@ export class ThemeService {
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
 
-    // ✅ Ne lit localStorage/window que dans le navigateur
-    const initial = this.isBrowser ? this.readInitialModeBrowser() : 'light';
+    const initial = this.isBrowser ? this.readInitialModeBrowser() : 'dark';
     this.mode.set(initial);
 
-    // ✅ N'applique le thème (document) que dans le navigateur
     if (this.isBrowser) this.applyTheme(initial);
   }
 
@@ -36,7 +34,6 @@ export class ThemeService {
   }
 
   private applyTheme(mode: ThemeMode) {
-    // double-sécurité
     if (!this.isBrowser) return;
     document.documentElement.setAttribute('data-theme', mode);
   }
