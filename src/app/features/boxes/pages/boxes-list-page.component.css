@@ -1,0 +1,214 @@
+/* =========================
+   Theme mapping (Tailwind-like)
+   ========================= */
+
+/* Layout spacing */
+.p-4 { padding: var(--container-pad); }
+.mb-4 { margin-bottom: 14px; }
+.mt-3 { margin-top: 10px; }
+.mt-4 { margin-top: 14px; }
+.py-6 { padding: 18px 0; }
+.p-2 { padding: 12px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.px-2 { padding-left: 10px; padding-right: 10px; }
+.py-1 { padding-top: 8px; padding-bottom: 8px; }
+.px-3 { padding-left: 12px; padding-right: 12px; }
+
+/* Typography */
+.text-xl { font-size: 20px; }
+.text-2xl { font-size: 24px; }
+.text-sm { font-size: 12px; }
+.font-semibold { font-weight: 800; }
+.font-bold { font-weight: 900; }
+.font-medium { font-weight: 800; }
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-gray-500, .text-gray-600, .text-gray-700 {
+  color: var(--muted);
+}
+
+/* Display helpers */
+.w-full { width: 100%; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-2 { gap: 10px; }
+.overflow-auto { overflow: auto; }
+
+/* Grid helpers */
+.grid { display: grid; gap: 10px; }
+.grid-cols-1 { grid-template-columns: 1fr; }
+.md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  .md\:grid-cols-3 { grid-template-columns: 1fr; }
+  .md\:grid-cols-4 { grid-template-columns: 1fr; }
+}
+
+/* Cards / panels */
+.border {
+  border: 1px solid var(--border);
+}
+.rounded {
+  border-radius: var(--radius);
+}
+.border.rounded {
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+/* Inputs/select */
+input, select {
+  height: 40px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0 12px;
+  outline: none;
+}
+
+input::placeholder {
+  color: color-mix(in oklab, var(--muted) 70%, transparent);
+  font-weight: 600;
+}
+
+input:focus, select:focus {
+  border-color: color-mix(in oklab, var(--primary) 55%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 18%, transparent);
+}
+
+/* Labels inside filter blocks */
+label.flex.flex-col.gap-1 {
+  gap: 6px;
+}
+label > span {
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+/* Buttons */
+button.border.rounded {
+  height: 40px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: transform .06s ease, background .15s ease, border-color .15s ease;
+}
+
+button.border.rounded:active {
+  transform: translateY(1px);
+}
+
+button.border.rounded:hover {
+  border-color: color-mix(in oklab, var(--primary) 35%, var(--border));
+  background: color-mix(in oklab, var(--surface) 88%, var(--primary) 8%);
+}
+
+button[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Filter container spacing + responsive buttons row */
+.border.rounded.p-3.mb-4 {
+  padding: 12px;
+}
+.flex.gap-2.mt-3 {
+  flex-wrap: wrap;
+}
+
+.row-actions{
+    display: inline-flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+  
+
+/* Table */
+table {
+  border-collapse: collapse;
+}
+
+table.w-full.text-sm {
+  min-width: 820px; /* évite casse sur mobile, scroll horizontal */
+  color: var(--text);
+}
+
+thead.bg-gray-50 {
+  background: color-mix(in oklab, var(--surface) 88%, var(--primary) 6%);
+}
+
+th, td {
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+thead th {
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+tbody tr.border-t {
+  border-top: 1px solid var(--border);
+}
+
+tbody tr:hover {
+  background: color-mix(in oklab, var(--surface) 85%, var(--primary) 6%);
+}
+
+/* Status badge inside table */
+tbody td span.px-2.py-1.rounded.border {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 12px;
+  padding: 6px 10px;
+  background: color-mix(in oklab, var(--surface) 80%, var(--primary) 8%);
+}
+
+/* Empty state */
+td.text-gray-500 {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+/* Pagination row */
+.flex.items-center.gap-2.mt-4 {
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* Container title look */
+h2.text-xl.font-semibold.mb-4 {
+  margin: 0 0 14px;
+  font-weight: 900;
+}
+
+/* Make top stats feel like dashboard cards */
+.grid.grid-cols-1.md\:grid-cols-3.gap-3.mb-4 > div.border.rounded.p-3 {
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+/* Slightly larger stat number */
+.grid.grid-cols-1.md\:grid-cols-3.gap-3.mb-4 .text-2xl.font-bold {
+  margin-top: 6px;
+  letter-spacing: .2px;
+}
+
+/* Mobile: reduce padding and improve table handling */
+@media (max-width: 520px) {
+  .p-4 { padding: 12px; }
+  .p-3 { padding: 10px; }
+  table.w-full.text-sm { min-width: 760px; }
+}

@@ -21,7 +21,7 @@
 
 .nav-item{
   display: grid;
-  grid-template-columns: 40px 1fr;
+  grid-template-columns: 40px 1fr auto;
   align-items: center;
   gap: 10px;
   height: 44px;
@@ -29,6 +29,8 @@
   border-radius: 12px;
   border: 1px solid transparent;
   color: var(--text);
+  background: transparent;
+  cursor: pointer;
 }
 
 .nav-item:hover{
@@ -51,20 +53,104 @@
 }
 
 .label{
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
-/* Collapsed (desktop): icon-only */
+.nav-toggle{
+  /* button reset look */
+  text-align: left;
+  width: 100%;
+}
+
+.chevron{
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--muted);
+  transition: transform .15s ease;
+}
+
+.nav-group.open .chevron{
+  transform: rotate(180deg);
+}
+
+/* Submenu */
+.subnav{
+  display: grid;
+  gap: 6px;
+  margin-left: 6px;
+  padding-left: 10px;
+  border-left: 1px dashed color-mix(in oklab, var(--border) 70%, transparent);
+
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height .18s ease, opacity .18s ease;
+}
+
+.subnav.open{
+  max-height: 240px;
+  opacity: 1;
+  padding-top: 6px;
+}
+
+.sub-item{
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  color: var(--text);
+}
+
+.sub-item:hover{
+  border-color: var(--border);
+  background: color-mix(in oklab, var(--surface) 86%, var(--primary) 6%);
+}
+
+.sub-item.active{
+  border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface));
+}
+
+.sub-icon{
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.sub-label{
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Collapsed sidebar: icon only (desktop) */
 .sidebar.desktop.collapsed .nav-item{
   grid-template-columns: 40px;
   justify-content: center;
 }
-.sidebar.desktop.collapsed .label{
+.sidebar.desktop.collapsed .label,
+.sidebar.desktop.collapsed .chevron{
   display: none;
 }
+.sidebar.desktop.collapsed .subnav{
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0;
+}
 
-/* Mobile drawer (hidden by default) */
+/* Mobile drawer */
 .sidebar.mobile{
   display: none;
   position: fixed;
@@ -90,7 +176,7 @@
 
 .mobile-title{
   padding: 14px 12px 8px;
-  font-weight: 800;
+  font-weight: 900;
   color: var(--muted);
   letter-spacing: .2px;
 }

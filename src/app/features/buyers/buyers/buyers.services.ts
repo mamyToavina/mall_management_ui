@@ -27,7 +27,6 @@ export class BuyersApiService {
 
     return this.http.get<PaginatedResponse<BuyerDto>>(this.baseUrl, { params }).pipe(
       tap((res) => {
-        // ✅ Log du JSON réel
         console.log('✅ RESPONSE JSON:', res);
         console.log('✅ RESPONSE JSON (pretty):', JSON.stringify(res, null, 2));
       }),
