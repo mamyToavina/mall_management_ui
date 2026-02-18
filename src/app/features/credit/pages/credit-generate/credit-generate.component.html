@@ -1,0 +1,27 @@
+<div class="container">
+    <h2>Génération de crédits</h2>
+  
+    <form [formGroup]="generateForm" (ngSubmit)="generate()">
+      <label>Montant:</label>
+      <select formControlName="value">
+        <option *ngFor="let amt of amounts" [value]="amt">{{ amt }} Ar</option>
+      </select>
+  
+      <label>Nombre de crédits:</label>
+      <input type="number" formControlName="quantity" min="1" max="100">
+  
+      <button type="submit">Générer</button>
+    </form>
+  
+    <hr>
+  
+    <h3>Crédits générés</h3>
+    <div class="credit-list">
+      <app-credit-card
+        *ngFor="let c of credits"
+        [credit]="c"
+        (print)="printCredit(c)">
+      </app-credit-card>
+    </div>
+  </div>
+  

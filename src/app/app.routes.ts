@@ -17,6 +17,12 @@ export const routes: Routes = [
           import('./features/boxes/boxes.routes').then(m => m.BOXES_ROUTES),
       },
 
+      {
+        path: 'credits',
+        loadChildren: () =>
+          import('./features/credit/credit.routes').then(m => m.CREDIT_ROUTES),
+      },
+
       // route par défaut quand on arrive sur "/"
       { path: '', redirectTo: 'buyers', pathMatch: 'full' },
     ],

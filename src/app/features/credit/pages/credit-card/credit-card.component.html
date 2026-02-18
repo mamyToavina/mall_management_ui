@@ -1,0 +1,8 @@
+<div class="card">
+    <p><strong>Code:</strong> {{ credit.code }}</p>
+    <p><strong>Valeur:</strong> {{ credit.value }} Ar</p>
+    <p><strong>Status:</strong> {{ credit.status }}</p>
+    <p><strong>Imprimé:</strong> {{ credit.isPrinted ? 'Oui' : 'Non' }}</p>
+    <button (click)="onPrint()">Print</button>
+  </div>
+  
