@@ -1,60 +1,73 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CreditService } from '../services/credit.service'; 
-import { Credit } from '../model/credit.model';
-import { Router, RouterModule } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { routes } from '../../../app.routes';
-import { CreditCardComponent } from './credit-card.component';
-import { CreditPrintComponent } from './credit-print.component';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+
+import { CreditService } from '../services/credit.service';
+import { Credit } from '../model/credit.model';
 
 @Component({
   selector: 'app-credit-generate',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: '../pages/credit-generate/credit-generate.component.html',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CreditCardComponent
-  ],
-  styleUrls: ['../pages/credit-generate/credit-generate.component.css']
+  styleUrls: ['../pages/credit-generate/credit-generate.component.css'],
 })
-export class CreditGenerateComponent implements OnInit {
-  generateForm: FormGroup;
-  credits: Credit[] = [];
+export class CreditGenerateComponent {
+  private creditService = inject(CreditService);
+  private router = inject(Router);
+
   amounts = [20000, 100000, 400000];
 
-  constructor(private fb: FormBuilder, private creditService: CreditService, private router: Router) {
-    this.generateForm = this.fb.group({
-      value: [this.amounts[0], Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
-      adminId: ['698c2c9cdc19bdaad5d2a9e5', Validators.required]
+  // ✅ “Form” en signals
+  value = signal<number>(this.amounts[0]);
+  quantity = signal<number>(20);
+  adminId = signal<string>('698c2c9cdc19bdaad5d2a9e5');
+
+  loading = signal(false);
+
+  // ✅ validation
+  qtyError = computed(() => {
+    const q = this.quantity();
+    if (!Number.isFinite(q)) return 'Quantité invalide';
+    if (q < 1) return 'Min 1';
+    if (q > 500) return 'Max 500';
+    return null;
+  });
+
+  isValid = computed(() => !this.qtyError() && !!this.adminId() && !!this.value());
+
+  total = computed(() => (this.value() ?? 0) * (this.quantity() ?? 0));
+
+  selectAmount(amt: number) {
+    this.value.set(amt);
+  }
+
+  stepQty(delta: number) {
+    const next = this.quantity() + delta;
+    this.quantity.set(Math.min(500, Math.max(1, next)));
+  }
+
+  reset() {
+    this.value.set(this.amounts[0]);
+    this.quantity.set(20);
+  }
+
+  generate() {
+    if (!this.isValid() || this.loading()) return;
+
+    this.loading.set(true);
+
+    this.creditService.generateCredit(this.adminId(), this.value(), this.quantity()).subscribe({
+      next: (res) => {
+        const generated: Credit[] = res.data;
+        this.router.navigate(['/credits/print-batch'], { state: { credits: generated } });
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.set(false);
+      },
+      complete: () => this.loading.set(false),
     });
-  }
-
-  ngOnInit(): void {
-    this.loadCredits();
-  }
-
-  generate(): void {
-    if (this.generateForm.invalid) return;
-
-    const { value, quantity, adminId } = this.generateForm.value;
-
-    this.creditService.generateCredit(adminId, value, quantity).subscribe({
-      next: (res) => this.credits = res,
-      error: (err) => console.error(err)
-    });
-  }
-
-  loadCredits(): void {
-    this.creditService.listCredits().subscribe({
-      next: (res) => this.credits = res,
-      error: (err) => console.error(err)
-    });
-  }
-
-  printCredit(credit: Credit): void {
-    this.router.navigate(['/credits/print', credit._id]);
   }
 }

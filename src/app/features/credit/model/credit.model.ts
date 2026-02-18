@@ -4,8 +4,20 @@ export interface Credit {
     value: number;
     status: 'active' | 'used';
     isPrinted: boolean;
-    usedBy?: string;
-    usedAt?: string;
-    printedAt?: string;
+  
+    // Champs renvoyés par l’API (optionnels)
+    printedAt?: string | null;
+    createdBy?: string;
+    usedBy?: string | null;
+    usedAt?: string | null;
+    expiresAt?: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+  }
+
+export interface ApiResponse<T> {
+    success: boolean;
+    data: T;
+    message?: string;
 }
   

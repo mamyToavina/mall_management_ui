@@ -1,0 +1,16 @@
+<div class="toolbar no-print">
+    <button type="button" (click)="print()">Imprimer</button>
+    <button type="button" (click)="finalize()">Finaliser</button>
+  </div>
+  
+  <div class="sheet">
+    <div class="grid">
+      <div class="ticket" *ngFor="let c of credits; trackBy: trackById">
+        <div class="title">Crédit Prépayé</div>
+        <div><strong>Code:</strong> {{ c.code }}</div>
+        <div><strong>Valeur:</strong> {{ c.value }} Ar</div>
+        <div class="hint">Découper ici ✂</div>
+      </div>
+    </div>
+  </div>
+  

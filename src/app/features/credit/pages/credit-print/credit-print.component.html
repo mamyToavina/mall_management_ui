@@ -1,14 +1,13 @@
-<div class="print-container">
-    <p class="note">
-      Note: Le numéro du crédit sera masqué avec vernis lors de l’impression.
-    </p>
-  
-    <div class="credit-template">
-      <h2>Crédit Prépayé</h2>
-      <p><strong>Code:</strong> {{ credit.code }}</p>
-      <p><strong>Valeur:</strong> {{ credit.value }} Ar</p>
-    </div>
-  
-    <button (click)="finalize()">Finaliser</button>
+<div *ngIf="credit as c" class="print-container">
+  <p class="note">
+    Note: Le numéro du crédit sera masqué avec vernis lors de l’impression.
+  </p>
+
+  <div class="credit-template">
+    <h2>Crédit Prépayé</h2>
+    <p><strong>Code:</strong> {{ c.code }}</p>
+    <p><strong>Valeur:</strong> {{ c.value }} Ar</p>
   </div>
-  
+
+  <button type="button" (click)="finalize()">Finaliser</button>
+</div>

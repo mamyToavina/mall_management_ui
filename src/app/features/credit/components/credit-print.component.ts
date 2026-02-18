@@ -1,29 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CreditService } from '../services/credit.service'; 
+import { filter, map, switchMap } from 'rxjs';
+
+import { CreditService } from '../services/credit.service';
 import { Credit } from '../model/credit.model';
 
 @Component({
   selector: 'app-credit-print',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: '../pages/credit-print/credit-print.component.html',
-  styleUrls: ['../pages/credit-print/credit-print.component.css']
+  styleUrls: ['../pages/credit-print/credit-print.component.css'],
 })
 export class CreditPrintComponent implements OnInit {
-  credit!: Credit;
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private creditService = inject(CreditService);
 
-  constructor(private route: ActivatedRoute, private creditService: CreditService, private router: Router) {}
+  credit?: Credit;
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.creditService.listCredits().subscribe({
-        next: (credits) => this.credit = credits.find(c => c._id === id)!
+    this.route.paramMap
+      .pipe(
+        map((p) => p.get('id')),
+        filter((id): id is string => !!id),
+        switchMap((id) => this.creditService.getCreditById(id))
+      )
+      .subscribe({
+        next: (res) => (this.credit = res.data),
+        error: (err) => console.error(err),
       });
-    }
   }
 
   finalize(): void {
-    alert('Impression finalisée !');
-    this.router.navigate(['/credits']);
+    if (!this.credit?._id) return;
+
+    this.creditService.markAsPrinted(this.credit._id).subscribe({
+      next: () => {
+        alert('Impression finalisée !');
+        this.router.navigate(['/credits']);
+      },
+      error: (err) => console.error(err),
+    });
   }
 }
