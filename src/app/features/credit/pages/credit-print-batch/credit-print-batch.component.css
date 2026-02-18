@@ -1,0 +1,41 @@
+/* boutons hors impression */
+.no-print { display: flex; gap: 12px; margin-bottom: 12px; }
+@media print {
+  .no-print { display: none !important; }
+}
+
+/* feuille */
+.sheet {
+  padding: 12px;
+}
+
+/* grille de tickets (ex: 3 colonnes) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* ticket style */
+.ticket {
+  border: 1px dashed #000;
+  padding: 10px;
+  min-height: 90px;
+  page-break-inside: avoid;
+}
+
+.title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.hint {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+/* meilleure impression A4 */
+@page {
+  size: A4;
+  margin: 10mm;
+}

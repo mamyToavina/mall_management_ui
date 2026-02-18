@@ -1,0 +1,22 @@
+.print-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 2px solid #000;
+  }
+  .note {
+    font-style: italic;
+    color: red;
+    margin-bottom: 20px;
+  }
+  .credit-template {
+    border: 1px dashed #333;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  button {
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  

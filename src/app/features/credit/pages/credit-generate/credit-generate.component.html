@@ -1,0 +1,99 @@
+<div class="page">
+  <div class="card">
+    <div class="header">
+      <div>
+        <h2>Générer des crédits</h2>
+        <p class="sub">Choisis un montant, indique la quantité, puis génère une feuille prête à imprimer.</p>
+      </div>
+    </div>
+
+    <!-- Montants -->
+    <div class="section">
+      <div class="label-row">
+        <label class="label">Montant</label>
+        <span class="hint">Clique sur une carte</span>
+      </div>
+
+      <div class="amount-grid" role="radiogroup" aria-label="Choisir le montant">
+        <button
+          type="button"
+          class="amount"
+          *ngFor="let amt of amounts"
+          [class.selected]="value() === amt"
+          (click)="selectAmount(amt)"
+          role="radio"
+          [attr.aria-checked]="value() === amt"
+        >
+          <div class="amt-top">
+            <span class="chip">Crédit</span>
+            <span class="check" aria-hidden="true">✓</span>
+          </div>
+
+          <div class="amt-value">{{ amt | number }} Ar</div>
+          <div class="amt-sub">Prépayé • utilisable une fois</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quantité -->
+    <div class="section">
+      <div class="label-row">
+        <label class="label" for="qty">Quantité</label>
+        <span class="hint">1 à 500</span>
+      </div>
+
+      <div class="qty-row">
+        <button type="button" class="icon-btn" (click)="stepQty(-1)" [disabled]="quantity() <= 1">−</button>
+
+        <!-- ✅ input piloté par signal -->
+        <input
+          id="qty"
+          class="input"
+          type="number"
+          [value]="quantity()"
+          (input)="quantity.set($any($event.target).valueAsNumber)"
+          min="1"
+          max="500"
+          inputmode="numeric"
+        />
+
+        <button type="button" class="icon-btn" (click)="stepQty(1)" [disabled]="quantity() >= 500">+</button>
+      </div>
+
+      <div class="error" *ngIf="qtyError() as err">{{ err }}</div>
+    </div>
+
+    <!-- Résumé -->
+    <div class="summary">
+      <div class="summary-left">
+        <div class="summary-title">Résumé</div>
+        <div class="summary-line">
+          Montant : <strong>{{ value() | number }} Ar</strong>
+        </div>
+        <div class="summary-line">
+          Quantité : <strong>{{ quantity() }}</strong>
+        </div>
+      </div>
+
+      <div class="summary-right">
+        <div class="total-label">Total</div>
+        <div class="total">{{ total() | number }} Ar</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button type="button" class="btn ghost" (click)="reset()">Réinitialiser</button>
+
+      <button type="button" class="btn primary" (click)="generate()" [disabled]="!isValid() || loading()">
+        <span *ngIf="!loading()">Générer & imprimer</span>
+        <span *ngIf="loading()" class="spinner" aria-hidden="true"></span>
+        <span *ngIf="loading()">Génération...</span>
+      </button>
+    </div>
+
+    <div class="note">
+      Astuce : après génération, tu seras redirigé vers une feuille A4 prête à imprimer et découper.
+    </div>
+  </div>
+</div>
