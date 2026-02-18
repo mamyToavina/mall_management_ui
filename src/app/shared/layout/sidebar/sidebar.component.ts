@@ -27,6 +27,7 @@ import { LayoutService } from '../../../core/services/layout.service';
         <!-- Gestion credit -->
         <a class="nav-item"
           routerLink="/credits"
+          routerLinkActive="active"
           (click)="layout.closeMobileSidebar()"
           title="Gestion credits">
           <span class="icon" aria-hidden="true">💳</span>
