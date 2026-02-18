@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+/*import { Routes } from '@angular/router';
 import { AppShellComponent } from './shared/layout/app-shell/app-shell.component';
 
 export const routes: Routes = [
@@ -29,4 +29,70 @@ export const routes: Routes = [
   },
 
   { path: '**', redirectTo: '' },
+];*/
+
+import { Routes } from '@angular/router';
+import { authGuard } from './core/auth/auth.guard';
+import { roleGuard } from './core/auth/role.guard';
+import { LoginComponent } from './features/login/login.component';
+
+export const routes: Routes = [
+
+  // ===== PUBLIC ROUTES =====
+  /*{
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login.component')
+        .then(m => m.LoginComponent)
+  },
+
+  {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./shared/pages/unauthorized.component')
+        .then(m => m.UnauthorizedComponent)
+  },*/
+
+  { path: 'login', component: LoginComponent },
+
+  // ===== ADMIN AREA =====
+  {
+    path: 'admin',
+    canActivate: [authGuard, roleGuard(['USER', 'ADMIN'])], 
+    loadComponent: () =>
+      import('./layout/admin/admin-layout.component')
+        .then(m => m.AdminLayoutComponent),
+
+    children: [
+
+      {
+        path: 'buyers',
+        loadChildren: () =>
+          import('./features/buyers/buyers.routes')
+            .then(m => m.BUYERS_ROUTES),
+      },
+
+      {
+        path: 'boxes',
+        loadChildren: () =>
+          import('./features/boxes/boxes.routes')
+            .then(m => m.BOXES_ROUTES),
+      },
+
+      {
+        path: 'credits',
+        loadChildren: () =>
+          import('./features/credit/credit.routes')
+            .then(m => m.CREDIT_ROUTES),
+      },
+
+      { path: '', redirectTo: 'buyers', pathMatch: 'full' }
+    ]
+  },
+
+  // ===== DEFAULT REDIRECTION =====
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+
+  { path: '**', redirectTo: 'login' }
 ];
+

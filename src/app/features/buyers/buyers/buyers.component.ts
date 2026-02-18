@@ -173,7 +173,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
       </ng-template>
     </section>
   `,
-  styleUrls: ['./buyers.component.css']
+  styleUrls: ['buyers.component.css']
 })
 
 export class BuyersPageComponent {
