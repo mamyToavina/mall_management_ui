@@ -30,7 +30,7 @@ export class CreditPrintBatchComponent implements OnInit {
 
     if (this.credits.length === 0) {
       // Rien à afficher -> retour à la génération
-      this.router.navigate(['/credits']);
+      this.router.navigate(['/admin/credits']);
     }
   }
 
@@ -48,7 +48,7 @@ export class CreditPrintBatchComponent implements OnInit {
     });
 
     alert('Impression finalisée !');
-    this.router.navigate(['/credits']);
+    this.router.navigate(['/admin/credits']);
   }
 
   trackById(_: number, item: Credit) {

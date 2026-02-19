@@ -186,9 +186,9 @@ export class BoxFormPageComponent {
         this.saving.set(false);
 
         if (this.isEdit()) {
-          this.router.navigate(['/boxes']).catch(() => {});
+          this.router.navigate(['/admin/boxes']).catch(() => {});
         } else {
-          this.router.navigate(['/boxes']).catch(() => {});
+          this.router.navigate(['/admin/boxes']).catch(() => {});
         }
       },
       error: () => this.saving.set(false),
