@@ -1,0 +1,56 @@
+<h2>Étape 2 — Contrat</h2>
+
+<form [formGroup]="form" (ngSubmit)="submitAll()">
+  <div>
+    <label>Date de début</label>
+    <input type="date" formControlName="startDate" />
+
+    @if (form.get('startDate')?.touched && form.get('startDate')?.invalid) {
+      <small>
+        @if (form.get('startDate')?.hasError('required')) {
+          <span>Date requise</span>
+        }
+      </small>
+    }
+  </div>
+
+  <div>
+    <label>Durée (mois)</label>
+    <input type="number" formControlName="durationMonths" />
+
+    @if (form.get('durationMonths')?.touched && form.get('durationMonths')?.invalid) {
+      <small>
+        @if (form.get('durationMonths')?.hasError('required')) {
+          <span>Durée requise</span>
+        }
+        @if (form.get('durationMonths')?.hasError('min')) {
+          <span>Minimum 3 mois</span>
+        }
+      </small>
+    }
+  </div>
+
+  <div>
+    <label>Loyer mensuel</label>
+    <input type="number" formControlName="monthlyRent" />
+
+    @if (form.get('monthlyRent')?.touched && form.get('monthlyRent')?.invalid) {
+      <small>
+        @if (form.get('monthlyRent')?.hasError('required')) {
+          <span>Loyer requis</span>
+        }
+        @if (form.get('monthlyRent')?.hasError('min')) {
+          <span>Le loyer doit être ≥ 0</span>
+        }
+      </small>
+    }
+  </div>
+
+  <div>
+    <label>Détails</label>
+    <textarea formControlName="details"></textarea>
+  </div>
+
+  <button type="button" (click)="back()">Retour</button>
+  <button type="submit" [disabled]="submitting">Envoyer</button>
+</form>

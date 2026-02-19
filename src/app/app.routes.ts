@@ -16,6 +16,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/boxes/boxes.routes').then(m => m.BOXES_ROUTES),
       },
+      {
+        path: 'tenants',
+        loadChildren: () =>
+          import('./features/tenants/tenant.routes').then(m => m.TENANTS_ROUTES),
+      },
 
       {
         path: 'credits',

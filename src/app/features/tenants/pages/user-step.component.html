@@ -1,0 +1,69 @@
+<h2>Étape 1 — Infos utilisateur</h2>
+
+<form [formGroup]="form" (ngSubmit)="next()">
+  <div>
+    <label>Prénom</label>
+    <input formControlName="firstName" />
+
+    @if (form.get('firstName')?.touched && form.get('firstName')?.invalid) {
+      <small>
+        @if (form.get('firstName')?.hasError('required')) {
+          <span>Prénom requis</span>
+        }
+        @if (form.get('firstName')?.hasError('minlength')) {
+          <span>Prénom trop court (min 2 caractères)</span>
+        }
+      </small>
+    }
+  </div>
+
+  <div>
+    <label>Nom</label>
+    <input formControlName="lastName" />
+
+    @if (form.get('lastName')?.touched && form.get('lastName')?.invalid) {
+      <small>
+        @if (form.get('lastName')?.hasError('required')) {
+          <span>Nom requis</span>
+        }
+        @if (form.get('lastName')?.hasError('minlength')) {
+          <span>Nom trop court (min 2 caractères)</span>
+        }
+      </small>
+    }
+  </div>
+
+  <div>
+    <label>Email</label>
+    <input formControlName="email" />
+
+    @if (form.get('email')?.touched && form.get('email')?.invalid) {
+      <small>
+        @if (form.get('email')?.hasError('required')) {
+          <span>Email requis</span>
+        }
+        @if (form.get('email')?.hasError('email')) {
+          <span>Email invalide</span>
+        }
+      </small>
+    }
+  </div>
+
+  <div>
+    <label>boxId</label>
+    <input formControlName="boxId" />
+
+    @if (form.get('boxId')?.touched && form.get('boxId')?.invalid) {
+      <small>
+        @if (form.get('boxId')?.hasError('required')) {
+          <span>boxId requis</span>
+        }
+        @if (form.get('boxId')?.hasError('boxId')) {
+          <span>BoxId invalide</span>
+        }
+      </small>
+    }
+  </div>
+
+  <button type="submit">Suivant</button>
+</form>
