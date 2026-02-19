@@ -61,7 +61,7 @@ export class CreditGenerateComponent {
     this.creditService.generateCredit(this.adminId(), this.value(), this.quantity()).subscribe({
       next: (res) => {
         const generated: Credit[] = res.data;
-        this.router.navigate(['/credits/print-batch'], { state: { credits: generated } });
+        this.router.navigate(['/admin/credits/print-batch'], { state: { credits: generated } });
       },
       error: (err) => {
         console.error(err);
