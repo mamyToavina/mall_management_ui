@@ -16,6 +16,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/boxes/boxes.routes').then(m => m.BOXES_ROUTES),
       },
+      {
+        path: 'tenants',
+        loadChildren: () =>
+          import('./features/tenants/tenant.routes').then(m => m.TENANTS_ROUTES),
+      },
 
       // route par défaut quand on arrive sur "/"
       { path: '', redirectTo: 'buyers', pathMatch: 'full' },
