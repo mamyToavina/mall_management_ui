@@ -56,6 +56,7 @@ h1{
   grid-template-columns: 1.3fr .8fr .6fr auto;
   gap: 10px;
   border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 94%, var(--bg));
 }
 
 .field{ display:flex; flex-direction: column; gap: 6px; }
@@ -75,9 +76,11 @@ input, select{
   color: var(--text);
   padding: 0 12px;
   outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
 }
 input:focus, select:focus{
   border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 18%, transparent);
 }
 
 .table-wrap{ width: 100%; }
@@ -210,8 +213,94 @@ tbody td{
   .td-actions, .th-actions{ text-align: left; }
 }
 
-@media (max-width: 620px){
-  /* Table responsive: on laisse scroll horizontal */
-  .table-wrap{ overflow:auto; }
-  .table{ min-width: 780px; }
+@media (max-width: 760px){
+  .top{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .stats{
+    width: 100%;
+  }
+  .pill{
+    flex: 1 1 calc(50% - 6px);
+    justify-content: space-between;
+  }
+  .filters{
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .field.actions{
+    grid-column: auto;
+  }
+  .field.actions .btn{
+    width: 100%;
+  }
+
+  .table{
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+  }
+  thead{
+    display: none;
+  }
+  tbody{
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+  }
+  .row{
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  tbody td{
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px dashed color-mix(in oklab, var(--border) 78%, transparent);
+  }
+  tbody td::before{
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  tbody td:last-child{
+    border-bottom: 0;
+  }
+  .who{
+    align-items: flex-start;
+  }
+  .td-actions{
+    display: flex;
+    justify-content: flex-start;
+  }
+  .td-actions::before{
+    content: none;
+  }
+  .btn{
+    height: 36px;
+    padding: 0 10px;
+  }
+  .mono{
+    overflow-wrap: anywhere;
+  }
+
+  .pagination{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pagination .btn{
+    width: 100%;
+  }
+  .pages{
+    justify-content: flex-start;
+  }
 }

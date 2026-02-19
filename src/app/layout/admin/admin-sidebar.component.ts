@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ADMIN_NAVIGATION } from './admin-navigation.config';
 import { LayoutService } from '../../core/services/layout.service';
@@ -29,6 +29,7 @@ type NavItem = {
              class="nav-item"
              [routerLink]="item.route"
              routerLinkActive="active"
+             [routerLinkActiveOptions]="{ exact: true }"
              (click)="layout.closeMobileSidebar()"
              [title]="item.label">
             <span class="icon" aria-hidden="true">{{ item.icon }}</span>
@@ -61,6 +62,7 @@ type NavItem = {
                  class="sub-item"
                  [routerLink]="child.route"
                  routerLinkActive="active"
+                 [routerLinkActiveOptions]="{ exact: true }"
                  (click)="layout.closeMobileSidebar()"
                  [title]="child.label">
                 <span class="sub-icon" aria-hidden="true">{{ child.icon || '•' }}</span>
@@ -89,6 +91,7 @@ type NavItem = {
                class="nav-item"
                [routerLink]="item.route"
                routerLinkActive="active"
+               [routerLinkActiveOptions]="{ exact: true }"
                (click)="layout.closeMobileSidebar()">
               <span class="icon" aria-hidden="true">{{ item.icon }}</span>
               <span class="label">{{ item.label }}</span>
@@ -118,6 +121,7 @@ type NavItem = {
                    class="sub-item"
                    [routerLink]="child.route"
                    routerLinkActive="active"
+                   [routerLinkActiveOptions]="{ exact: true }"
                    (click)="layout.closeMobileSidebar()">
                   <span class="sub-icon" aria-hidden="true">{{ child.icon || '•' }}</span>
                   <span class="sub-label">{{ child.label }}</span>
@@ -151,14 +155,26 @@ export class AdminSidebarComponent {
     const label = item.label;
     const next = new Set(this.openMenus());
 
-    if (next.has(label)) next.delete(label);
-    else next.add(label);
+    if (next.has(label)) {
+      next.delete(label);
+    } else {
+      // In collapsed desktop mode, keep only one flyout open for readability.
+      if (this.layout.isSidebarCollapsed()) {
+        next.clear();
+      }
+      next.add(label);
+    }
 
     this.openMenus.set(next);
   }
 
   isOpen(item: NavItem) {
-    // ouvert si user l'a ouvert OU si la route actuelle est dedans
+    // In collapsed mode, route-driven auto-open is disabled to avoid persistent flyouts.
+    if (this.layout.isSidebarCollapsed()) {
+      return this.openMenus().has(item.label);
+    }
+
+    // In expanded mode, keep section open when current route belongs to it.
     return this.openMenus().has(item.label) || this.isRouteInside(item);
   }
 

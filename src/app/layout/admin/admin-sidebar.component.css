@@ -1,7 +1,12 @@
 .sidebar{
-    background: var(--surface);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--surface) 90%, var(--surface-soft) 10%),
+        var(--surface)
+      );
     border-right: 1px solid var(--border);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-soft);
     overflow: hidden;
   }
   
@@ -11,6 +16,9 @@
     top: var(--header-h);
     height: calc(100vh - var(--header-h));
     z-index: 20;
+    overflow-y: auto;
+    overflow-x: visible;
+    transition: width .28s cubic-bezier(.22, 1, .36, 1);
   }
   
   .nav{
@@ -31,11 +39,12 @@
     color: var(--text);
     background: transparent;
     cursor: pointer;
+    transition: gap .22s ease, padding .22s ease, background-color .22s ease, border-color .22s ease;
   }
   
   .nav-item:hover{
     border-color: var(--border);
-    background: color-mix(in oklab, var(--surface) 80%, var(--primary) 8%);
+    background: color-mix(in oklab, var(--surface) 80%, var(--primary) 10%);
   }
   
   .nav-item.active{
@@ -50,11 +59,15 @@
     place-items: center;
     border-radius: 12px;
     border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--surface) 90%, var(--surface-soft) 10%);
   }
   
   .label{
     font-weight: 700;
     white-space: nowrap;
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity .18s ease, transform .18s ease;
   }
   
   .nav-toggle{
@@ -70,7 +83,8 @@
     place-items: center;
     border-radius: 8px;
     color: var(--muted);
-    transition: transform .15s ease;
+    transform-origin: center;
+    transition: transform .18s ease, opacity .18s ease, width .18s ease;
   }
   
   .nav-group.open .chevron{
@@ -88,7 +102,7 @@
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: max-height .18s ease, opacity .18s ease;
+    transition: max-height .2s ease, opacity .2s ease;
   }
   
   .subnav.open{
@@ -107,11 +121,12 @@
     border-radius: 12px;
     border: 1px solid transparent;
     color: var(--text);
+    white-space: nowrap;
   }
   
   .sub-item:hover{
     border-color: var(--border);
-    background: color-mix(in oklab, var(--surface) 86%, var(--primary) 6%);
+    background: color-mix(in oklab, var(--surface) 84%, var(--primary) 10%);
   }
   
   .sub-item.active{
@@ -137,17 +152,55 @@
   
   /* Collapsed sidebar: icon only (desktop) */
   .sidebar.desktop.collapsed .nav-item{
-    grid-template-columns: 40px;
-    justify-content: center;
+    grid-template-columns: 40px 0 0;
+    justify-content: start;
+    gap: 0;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   .sidebar.desktop.collapsed .label,
   .sidebar.desktop.collapsed .chevron{
-    display: none;
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transform: translateX(-6px);
+    pointer-events: none;
   }
   .sidebar.desktop.collapsed .subnav{
-    margin-left: 0;
-    padding-left: 0;
-    border-left: 0;
+    position: absolute;
+    top: 0;
+    left: calc(100% + 10px);
+    width: 230px;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    border-left: 1px solid var(--border);
+    background: color-mix(in oklab, var(--surface) 95%, var(--bg));
+    box-shadow: 0 18px 35px rgba(2, 6, 23, .2);
+    z-index: 80;
+
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    transform: translateX(-8px) scale(.98);
+    transform-origin: left center;
+    transition: opacity .2s ease, transform .2s ease, max-height .2s ease;
+  }
+  .sidebar.desktop.collapsed .nav-group{
+    position: relative;
+  }
+  .sidebar.desktop.collapsed .nav-group.open .subnav,
+  .sidebar.desktop.collapsed .nav-group:hover .subnav,
+  .sidebar.desktop.collapsed .nav-group:focus-within .subnav{
+    max-height: 320px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0) scale(1);
+  }
+  .sidebar.desktop.collapsed .sub-item{
+    min-height: 40px;
   }
   
   /* Mobile drawer */

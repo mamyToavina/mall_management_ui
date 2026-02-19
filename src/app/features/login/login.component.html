@@ -18,7 +18,13 @@
         required />
   
       <button type="submit" [disabled]="loading()">
-        {{ loading() ? 'Connexion...' : 'Se connecter' }}
+        <span *ngIf="!loading()">Se connecter</span>
+        <span *ngIf="loading()" class="dice-loader dice-loader--sm" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </span>
+        <span *ngIf="loading()" class="sr-only">Connexion en cours</span>
       </button>
   
       <p class="error" *ngIf="error()">{{ error() }}</p>
