@@ -1,29 +1,29 @@
-<div class="p-4">
+<div class="boxes-page p-4">
     <h2 class="text-xl font-semibold mb-4">Boxes</h2>
   
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-      <div class="border rounded p-3">
+    <div class="stats-grid grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+      <div class="stat-card border rounded p-3">
         <div class="text-sm text-gray-500">Total</div>
         <div class="text-2xl font-bold">{{ stats().total }}</div>
       </div>
   
-      <div class="border rounded p-3">
+      <div class="stat-card border rounded p-3">
         <div class="text-sm text-gray-500">Libres</div>
         <div class="text-2xl font-bold">{{ stats().free }}</div>
       </div>
   
-      <div class="border rounded p-3">
+      <div class="stat-card border rounded p-3">
         <div class="text-sm text-gray-500">Occupés</div>
         <div class="text-2xl font-bold">{{ stats().occupied }}</div>
       </div>
     </div>
   
     <!-- Filters -->
-    <div class="border rounded p-3 mb-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-  
-        <label class="flex flex-col gap-1">
+    <div class="filters-panel border rounded p-3 mb-4">
+      <div class="filters-grid grid grid-cols-1 md:grid-cols-4 gap-3">
+
+        <label class="filter-field flex flex-col gap-1">
           <span class="text-sm text-gray-600">Étage</span>
           <input
             type="number"
@@ -34,7 +34,7 @@
           />
         </label>
   
-        <label class="flex flex-col gap-1">
+        <label class="filter-field flex flex-col gap-1">
           <span class="text-sm text-gray-600">Surface min</span>
           <input
             type="number"
@@ -45,7 +45,7 @@
           />
         </label>
   
-        <label class="flex flex-col gap-1">
+        <label class="filter-field flex flex-col gap-1">
           <span class="text-sm text-gray-600">Surface max</span>
           <input
             type="number"
@@ -56,7 +56,7 @@
           />
         </label>
   
-        <label class="flex flex-col gap-1">
+        <label class="filter-field flex flex-col gap-1">
           <span class="text-sm text-gray-600">Statut</span>
           <select
             class="border rounded px-2 py-1"
@@ -69,7 +69,7 @@
           </select>
         </label>
   
-        <label class="flex flex-col gap-1">
+        <label class="filter-field flex flex-col gap-1">
           <span class="text-sm text-gray-600">Loyer min</span>
           <input
             type="number"
@@ -80,7 +80,7 @@
           />
         </label>
   
-        <label class="flex flex-col gap-1">
+        <label class="filter-field flex flex-col gap-1">
           <span class="text-sm text-gray-600">Loyer max</span>
           <input
             type="number"
@@ -91,7 +91,7 @@
           />
         </label>
   
-        <label class="flex flex-col gap-1">
+        <label class="filter-field flex flex-col gap-1">
           <span class="text-sm text-gray-600">Limit</span>
           <select
             class="border rounded px-2 py-1"
@@ -107,7 +107,7 @@
   
       </div>
   
-      <div class="flex gap-2 mt-3">
+      <div class="filter-actions flex gap-2 mt-3">
         <button class="border rounded px-3 py-1" (click)="refresh()">Actualiser</button>
         <button class="border rounded px-3 py-1" (click)="resetAll()">Reset</button>
       </div>
@@ -115,13 +115,20 @@
   
     <!-- State -->
     @if (loading()) {
-      <div class="py-6">Chargement...</div>
+      <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+        <span class="sr-only">Chargement en cours</span>
+      </div>
     }
   
     <!-- Table -->
     @if (!loading()) {
-      <div class="border rounded overflow-auto">
-        <table class="w-full text-sm">
+      <div class="boxes-table-wrap border rounded overflow-auto">
+        <table class="boxes-table w-full text-sm">
           <thead class="bg-gray-50">
             <tr>
               <th class="text-left p-2">Numéro</th>
@@ -137,12 +144,12 @@
           <tbody>
             @for (b of boxes(); track b._id) {
               <tr class="border-t">
-                <td class="p-2 font-medium">{{ b.number }}</td>
-                <td class="p-2">{{ b.floor }}</td>
-                <td class="p-2">{{ b.surface }}</td>
-                <td class="p-2">{{ b.monthlyRent }}</td>
-                <td class="p-2">{{ b.electricityMeterNumber || '-' }}</td>
-                <td class="p-2">
+                <td class="p-2 font-medium" data-label="Numéro">{{ b.number }}</td>
+                <td class="p-2" data-label="Étage">{{ b.floor }}</td>
+                <td class="p-2" data-label="Surface">{{ b.surface }}</td>
+                <td class="p-2" data-label="Loyer">{{ b.monthlyRent }}</td>
+                <td class="p-2" data-label="Compteur">{{ b.electricityMeterNumber || '-' }}</td>
+                <td class="p-2" data-label="Statut">
                   <span class="px-2 py-1 rounded border">
                     {{ badgeStatus(b) }}
                   </span>
@@ -152,7 +159,7 @@
                     Détails
                   </button>
                 </td>-->
-                <td class="p-2" (click)="$event.stopPropagation()">
+                <td class="p-2 action-cell" data-label="Action" (click)="$event.stopPropagation()">
                   <div class="row-actions">
                     <button class="border rounded px-3 py-1" (click)="openBox(b._id)">Détails</button>
                     <button class="border rounded px-3 py-1" [routerLink]="['/admin/boxes', b._id, 'edit']">Modifier</button>
@@ -172,7 +179,7 @@
   
     <!-- Pagination -->
     @if (meta() && meta()!.pages > 1) {
-      <div class="flex items-center gap-2 mt-4">
+      <div class="boxes-pagination flex items-center gap-2 mt-4">
         <button
           class="border rounded px-3 py-1"
           (click)="goTo(meta()!.page - 1)"

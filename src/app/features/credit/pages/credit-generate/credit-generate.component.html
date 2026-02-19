@@ -87,8 +87,12 @@
 
       <button type="button" class="btn primary" (click)="generate()" [disabled]="!isValid() || loading()">
         <span *ngIf="!loading()">Générer & imprimer</span>
-        <span *ngIf="loading()" class="spinner" aria-hidden="true"></span>
-        <span *ngIf="loading()">Génération...</span>
+        <span *ngIf="loading()" class="dice-loader dice-loader--sm" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </span>
+        <span *ngIf="loading()" class="sr-only">Génération en cours</span>
       </button>
     </div>
 
@@ -97,3 +101,5 @@
     </div>
   </div>
 </div>
+
+

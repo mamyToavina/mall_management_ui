@@ -89,7 +89,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
                 (click)="openBuyer(b._id)"
                 tabindex="0"
               >
-                <td>
+                <td data-label="Acheteur">
                   <div class="who">
                     <img class="avatar" [src]="avatarUrl(b.avatar)" alt="avatar" />
                     <div class="who-meta">
@@ -99,16 +99,16 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
                   </div>
                 </td>
 
-                <td class="mono">{{ b.email }}</td>
-                <td class="strong">{{ money(b.credit) }}</td>
+                <td class="mono" data-label="Email">{{ b.email }}</td>
+                <td class="strong" data-label="Solde">{{ money(b.credit) }}</td>
 
-                <td>
+                <td data-label="Status">
                   <span class="badge" [class.blocked]="b.status==='BLOCKED'">{{ b.status }}</span>
                 </td>
 
-                <td class="muted">{{ ago(b.createdAt) }}</td>
+                <td class="muted" data-label="Ancienneté">{{ ago(b.createdAt) }}</td>
 
-                <td class="td-actions" (click)="$event.stopPropagation()">
+                <td class="td-actions" data-label="Actions" (click)="$event.stopPropagation()">
                   <button
                     class="btn danger"
                     *ngIf="b.status==='ACTIVE'"
@@ -163,7 +163,14 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
       />
 
       <ng-template #loadingTpl>
-        <div class="loading">Chargement...</div>
+        <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
+          <div class="dice-loader" aria-hidden="true">
+            <span class="die d1"></span>
+            <span class="die d2"></span>
+            <span class="die d3"></span>
+          </div>
+          <span class="sr-only">Chargement en cours</span>
+        </div>
       </ng-template>
 
       <ng-template #emptyTpl>
@@ -333,4 +340,5 @@ export class BuyersPageComponent {
     }
   }
 }
+
 
