@@ -8,6 +8,7 @@ type NavItem = {
   label: string;
   icon?: string;
   route?: string;
+  exact?: boolean;
   children?: { label: string; icon?: string; route: string }[];
 };
 
@@ -29,7 +30,7 @@ type NavItem = {
              class="nav-item"
              [routerLink]="item.route"
              routerLinkActive="active"
-             [routerLinkActiveOptions]="{ exact: true }"
+             [routerLinkActiveOptions]="{ exact: item.exact ?? true }"
              (click)="layout.closeMobileSidebar()"
              [title]="item.label">
             <span class="icon" aria-hidden="true">{{ item.icon }}</span>
@@ -91,7 +92,7 @@ type NavItem = {
                class="nav-item"
                [routerLink]="item.route"
                routerLinkActive="active"
-               [routerLinkActiveOptions]="{ exact: true }"
+               [routerLinkActiveOptions]="{ exact: item.exact ?? true }"
                (click)="layout.closeMobileSidebar()">
               <span class="icon" aria-hidden="true">{{ item.icon }}</span>
               <span class="label">{{ item.label }}</span>

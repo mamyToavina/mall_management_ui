@@ -1,69 +1,86 @@
-<h2>Étape 1 — Infos utilisateur</h2>
+<section class="wizard-page step-one-enter">
+  <div class="step-card">
+    <header class="wizard-head">
+      <div>
+        <h2>Nouveau locataire</h2>
+        <p class="sub">Etape 1/2: informations du locataire et box</p>
+      </div>
+      <div class="progress" aria-hidden="true">
+        <span class="dot active"></span>
+        <span class="line"></span>
+        <span class="dot"></span>
+      </div>
+    </header>
 
-<form [formGroup]="form" (ngSubmit)="next()">
-  <div>
-    <label>Prénom</label>
-    <input formControlName="firstName" />
+    <div class="banner success" *ngIf="createdMessage">
+      {{ createdMessage }}
+    </div>
 
-    @if (form.get('firstName')?.touched && form.get('firstName')?.invalid) {
-      <small>
-        @if (form.get('firstName')?.hasError('required')) {
-          <span>Prénom requis</span>
-        }
-        @if (form.get('firstName')?.hasError('minlength')) {
-          <span>Prénom trop court (min 2 caractères)</span>
-        }
-      </small>
-    }
+    <form [formGroup]="form" (ngSubmit)="next()" class="wizard-form" novalidate>
+      <div class="field">
+        <label for="firstName">Prenom</label>
+        <input id="firstName" formControlName="firstName" autocomplete="given-name" />
+        <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">
+          Prenom requis (minimum 2 caracteres).
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="lastName">Nom</label>
+        <input id="lastName" formControlName="lastName" autocomplete="family-name" />
+        <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">
+          Nom requis (minimum 2 caracteres).
+        </small>
+      </div>
+
+      <div class="field field-full">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" autocomplete="email" />
+        <small *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+          Email invalide.
+        </small>
+      </div>
+
+      <div class="field field-full">
+        <div class="label-row">
+          <label for="boxId">Box disponible</label>
+          <button type="button" class="mini-btn" (click)="reloadBoxes()" [disabled]="boxesLoading">
+            Rafraichir
+          </button>
+        </div>
+
+        <select id="boxId" formControlName="boxId" [disabled]="boxesLoading">
+          <option value="">Selectionner une box</option>
+          <option *ngFor="let b of availableBoxes" [value]="b._id">
+            {{ b.number }} - Etage {{ b.floor }} - {{ b.surface }} m2
+          </option>
+        </select>
+
+        <small *ngIf="form.get('boxId')?.touched && form.get('boxId')?.invalid">
+          Selection de box obligatoire.
+        </small>
+
+        <small class="info" *ngIf="!boxesLoading && !boxesError && availableBoxes.length === 0">
+          Aucune box libre pour le moment.
+        </small>
+
+        <div *ngIf="boxesLoading" class="loading-state" role="status" aria-live="polite" aria-label="Chargement des boxes">
+          <div class="dice-loader" aria-hidden="true">
+            <span class="die d1"></span>
+            <span class="die d2"></span>
+            <span class="die d3"></span>
+          </div>
+          <span class="sr-only">Chargement des boxes</span>
+        </div>
+
+        <div class="banner error" *ngIf="boxesError">
+          {{ boxesError }}
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Continuer vers le contrat</button>
+      </div>
+    </form>
   </div>
-
-  <div>
-    <label>Nom</label>
-    <input formControlName="lastName" />
-
-    @if (form.get('lastName')?.touched && form.get('lastName')?.invalid) {
-      <small>
-        @if (form.get('lastName')?.hasError('required')) {
-          <span>Nom requis</span>
-        }
-        @if (form.get('lastName')?.hasError('minlength')) {
-          <span>Nom trop court (min 2 caractères)</span>
-        }
-      </small>
-    }
-  </div>
-
-  <div>
-    <label>Email</label>
-    <input formControlName="email" />
-
-    @if (form.get('email')?.touched && form.get('email')?.invalid) {
-      <small>
-        @if (form.get('email')?.hasError('required')) {
-          <span>Email requis</span>
-        }
-        @if (form.get('email')?.hasError('email')) {
-          <span>Email invalide</span>
-        }
-      </small>
-    }
-  </div>
-
-  <div>
-    <label>boxId</label>
-    <input formControlName="boxId" />
-
-    @if (form.get('boxId')?.touched && form.get('boxId')?.invalid) {
-      <small>
-        @if (form.get('boxId')?.hasError('required')) {
-          <span>boxId requis</span>
-        }
-        @if (form.get('boxId')?.hasError('boxId')) {
-          <span>BoxId invalide</span>
-        }
-      </small>
-    }
-  </div>
-
-  <button type="submit">Suivant</button>
-</form>
+</section>

@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BoutiqueWizardStore } from '../services/wizard/tenant.wizard';
+import { finalize } from 'rxjs';
+
 import { BoutiqueService } from '../services/tenant.services';
+import { BoutiqueWizardStore } from '../services/wizard/tenant.wizard';
+import { CreateTenantApiResponse } from '../models/tenant.models';
 
 @Component({
   selector: 'app-contract-step',
@@ -13,15 +16,19 @@ import { BoutiqueService } from '../services/tenant.services';
   styleUrls: ['./contract-step.component.css']
 })
 export class ContractStepComponent {
-  submitting = false;
-  form!: FormGroup;
+  form: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private store: BoutiqueWizardStore,
-    private api: BoutiqueService
-  ) {
+  submitting = false;
+  submitError = '';
+  submitSuccess = '';
+  apiResult: CreateTenantApiResponse | null = null;
+
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private store = inject(BoutiqueWizardStore);
+  private api = inject(BoutiqueService);
+
+  constructor() {
     this.form = this.fb.group({
       startDate: ['', [Validators.required]],
       durationMonths: [3, [Validators.required, Validators.min(3)]],
@@ -30,17 +37,25 @@ export class ContractStepComponent {
     });
 
     if (!this.store.getUser()) {
-      this.router.navigate(['/wizard/user']);
+      this.router.navigate(['/admin/tenants/wizard/user']);
       return;
     }
 
     const saved = this.store.getContract();
-    if (saved) this.form.patchValue(saved);
+    if (saved) {
+      this.form.patchValue(saved);
+    }
   }
 
   back(): void {
-    this.store.setContract(this.form.getRawValue() as any);
-    this.router.navigate(['/wizard/user']);
+    this.store.setContract(this.form.getRawValue());
+    this.router.navigate(['/admin/tenants/wizard/user']);
+  }
+
+  createAnother(): void {
+    this.router.navigate(['/admin/tenants/wizard/user'], {
+      queryParams: { created: '1' }
+    });
   }
 
   submitAll(): void {
@@ -49,22 +64,25 @@ export class ContractStepComponent {
       return;
     }
 
-    const contract = this.form.getRawValue() as any;
-    this.store.setContract(contract);
+    this.submitError = '';
+    this.submitSuccess = '';
 
+    this.store.setContract(this.form.getRawValue());
     const dto = this.store.buildDto();
 
     this.submitting = true;
-    this.api.createUserAndContract(dto).subscribe({
-      next: () => {
-        this.store.clear();
-        this.router.navigate(['/wizard/user']); // ou page succès
-      },
-      error: (err) => {
-        console.error(err);
-        alert('Échec de création');
-      },
-      complete: () => (this.submitting = false),
-    });
+    this.api
+      .createUserAndContract(dto)
+      .pipe(finalize(() => (this.submitting = false)))
+      .subscribe({
+        next: (res) => {
+          this.apiResult = res;
+          this.submitSuccess = res.message || 'Locataire cree avec succes.';
+          this.store.clear();
+        },
+        error: (err: Error) => {
+          this.submitError = err.message || 'Echec de creation du locataire.';
+        },
+      });
   }
 }

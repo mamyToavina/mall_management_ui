@@ -1,72 +1,12 @@
-/*import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { AuthStore } from './auth.store';
-import { Router } from '@angular/router';
-
-@Injectable({ providedIn: 'root' })
-export class AuthService {
-
-  private api = 'http://localhost:7878/api/auth';
-
-  constructor(
-    private http: HttpClient,
-    private store: AuthStore,
-    private router: Router
-  ) {}
-
-  login(credentials: { email: string; password: string }) {
-    return this.http.post<any>(`${this.api}/login`, credentials, {
-      withCredentials: true
-    }).subscribe(res => {
-      this.store.setSession(res.user, res.accessToken);
-      this.redirectByRole(res.user.role);
-    });
-  }
-
-  logout() {
-    this.http.post(`${this.api}/logout`, {}, {
-      withCredentials: true
-    }).subscribe(() => {
-      this.store.clear();
-      this.router.navigate(['/login']);
-    });
-  }
-
-  refreshToken() {
-    return this.http.post<any>(`${this.api}/refresh`, {}, {
-      withCredentials: true
-    });
-  }
-
-  private redirectByRole(role: string) {
-    switch(role) {
-      case 'ADMIN':
-        this.router.navigate(['/admin']);
-        break;
-      case 'BOUTIQUE':
-        this.router.navigate(['/boutique']);
-        break;
-      default:
-        this.router.navigate(['/']);
-    }
-  }
-
-  restoreSession() {
-    return this.http.post<any>(`${this.api}/refresh`, {}, {
-      withCredentials: true
-    });
-  }
-  
-}*/
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AuthStore, AuthUser } from './auth.store';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
 
-export type Role = 'ADMIN' | 'BOUTIQUE' | 'ACHETEUR';
+import { environment } from '../../../environments/environment';
+import { AuthStore, AuthUser } from './auth.store';
+
+export type Role = 'ADMIN' | 'BOUTIQUE' | 'USER' | 'ACHETEUR';
 
 export interface LoginResponse {
   user: AuthUser;
@@ -75,7 +15,7 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private readonly api = `${environment.apiBaseUrl}/auth`;
+  private readonly api = `${environment.apiBaseUrl}/auth`;
 
   constructor(
     private http: HttpClient,
@@ -83,15 +23,13 @@ export class AuthService {
     private router: Router
   ) {}
 
-  // ✅ Retourne un Observable pour gérer dans le component
   login(credentials: { email: string; password: string }): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.api}/login`, credentials, { withCredentials: true })
       .pipe(
-        tap(res => {
-          // on peut stocker la session immédiatement
+        tap((res) => {
           this.store.setSession(res.user, res.accessToken);
-          this.redirectByRole("ADMIN");
+          this.redirectByRole(res.user.role as Role);
         })
       );
   }
@@ -115,21 +53,22 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.api}/refresh`, {}, { withCredentials: true });
   }
 
-  redirectByRole(role: Role) {
-    switch(role) {
+  redirectByRole(role: Role): void {
+    switch (role) {
       case 'ADMIN':
         this.router.navigate(['/admin']);
         break;
       case 'BOUTIQUE':
         this.router.navigate(['/boutique']);
         break;
+      case 'USER':
+        this.router.navigate(['/admin']);
+        break;
       case 'ACHETEUR':
         this.router.navigate(['/acheteur']);
         break;
       default:
-        this.router.navigate(['/']);
+        this.router.navigate(['/login']);
     }
   }
 }
-
-
