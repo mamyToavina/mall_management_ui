@@ -3,12 +3,32 @@ export interface CreateBoutiqueContractDto {
     firstName: string;
     lastName: string;
     email: string;
-    boxId : string;
+    boxId: string;
   };
   contract: {
-    startDate: string;        // ISO string (ex: "2026-02-17")
-    durationMonths: number;   // min 3
-    monthlyRent: number;      // min 0
+    startDate: string;
+    durationMonths: number;
+    monthlyRent: number;
     details?: string;
   };
+}
+
+export interface CreateTenantApiRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  boxId: string;
+  contractData: {
+    startDate: string;
+    durationMonths: number;
+    monthlyRent: number;
+    details?: string;
+  };
+}
+
+export interface CreateTenantApiResponse {
+  message: string;
+  userId: string;
+  activationLink?: string;
+  activationToken?: string;
 }

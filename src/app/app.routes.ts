@@ -40,6 +40,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
 import { LoginComponent } from './features/login/login.component';
+import { ActivateAccountComponent } from './features/activation/pages/activate-account.component';
 
 export const routes: Routes = [
 
@@ -59,6 +60,7 @@ export const routes: Routes = [
   },*/
 
   { path: 'login', component: LoginComponent },
+  { path: 'activate-account', component: ActivateAccountComponent },
 
   // ===== ADMIN AREA =====
   {
@@ -90,8 +92,32 @@ export const routes: Routes = [
           import('./features/credit/credit.routes')
             .then(m => m.CREDIT_ROUTES),
       },
+      {
+        path: 'tenants',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadChildren: () =>
+          import('./features/tenants/tenant.routes')
+            .then(m => m.TENANTS_ROUTES),
+      },
 
       { path: '', redirectTo: 'buyers', pathMatch: 'full' }
+    ]
+  },
+
+  // ===== BOUTIQUE AREA =====
+  {
+    path: 'boutique',
+    canActivate: [authGuard, roleGuard(['BOUTIQUE'])],
+    loadComponent: () =>
+      import('./layout/boutique/boutique-layout.component')
+        .then(m => m.BoutiqueLayoutComponent),
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/boutique/boutique.routes')
+            .then(m => m.BOUTIQUE_ROUTES),
+      }
     ]
   },
 

@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { BoxDto } from '../../boxes/models/box.models';
+import { BoxesApiService } from '../../boxes/services/box.service';
 import { BoutiqueWizardStore } from '../services/wizard/tenant.wizard';
 
 @Component({
@@ -12,22 +15,37 @@ import { BoutiqueWizardStore } from '../services/wizard/tenant.wizard';
   styleUrls: ['./user-step.component.css']
 })
 export class UserStepComponent {
-  form!: FormGroup;
+  form: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private store: BoutiqueWizardStore
-  ) {
+  availableBoxes: BoxDto[] = [];
+  boxesLoading = false;
+  boxesError = '';
+  createdMessage = '';
+
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private store = inject(BoutiqueWizardStore);
+  private boxesApi = inject(BoxesApiService);
+
+  constructor() {
     this.form = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      boxId: ['69948f62aa056e92fddf0de4', [Validators.required]],
+      boxId: ['', [Validators.required]],
     });
 
     const saved = this.store.getUser();
-    if (saved) this.form.patchValue(saved);
+    if (saved) {
+      this.form.patchValue(saved);
+    }
+
+    if (this.route.snapshot.queryParamMap.get('created') === '1') {
+      this.createdMessage = 'Locataire cree avec succes et email d activation envoye.';
+    }
+
+    this.loadFreeBoxes();
   }
 
   next(): void {
@@ -35,7 +53,41 @@ export class UserStepComponent {
       this.form.markAllAsTouched();
       return;
     }
-    this.store.setUser(this.form.getRawValue() as any);
-    this.router.navigate(['/tenants/wizard/contract']);
+
+    this.store.setUser(this.form.getRawValue());
+    this.router.navigate(['/admin/tenants/wizard/contract']);
+  }
+
+  reloadBoxes(): void {
+    this.loadFreeBoxes();
+  }
+
+  private loadFreeBoxes(): void {
+    this.boxesLoading = true;
+    this.boxesError = '';
+
+    this.boxesApi
+      .getBoxes({ page: 1, limit: 200, status: '' })
+      .subscribe({
+        next: (res) => {
+          const list = res.data ?? [];
+          this.availableBoxes = list.filter((b) => !b.boutique);
+
+          const currentBoxId = this.form.get('boxId')?.value;
+          if (currentBoxId && !this.availableBoxes.some((b) => b._id === currentBoxId)) {
+            this.form.patchValue({ boxId: '' });
+          }
+
+          if (!currentBoxId && this.availableBoxes.length === 1) {
+            this.form.patchValue({ boxId: this.availableBoxes[0]._id });
+          }
+
+          this.boxesLoading = false;
+        },
+        error: (err) => {
+          this.boxesLoading = false;
+          this.boxesError = err?.error?.message || 'Impossible de charger les boxes disponibles.';
+        }
+      });
   }
 }

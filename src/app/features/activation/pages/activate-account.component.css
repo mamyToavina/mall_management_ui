@@ -1,0 +1,176 @@
+.activation-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: radial-gradient(1200px 700px at 0% 0%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 65%), var(--bg);
+}
+
+.activation-card {
+  width: min(920px, 100%);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.sub {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+input,
+select {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0 12px;
+}
+
+.switch-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.switch-row input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+.banner {
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.banner.success {
+  border: 1px solid color-mix(in oklab, #16a34a 55%, var(--border));
+  background: color-mix(in oklab, #16a34a 12%, var(--surface));
+}
+
+.banner.error {
+  border: 1px solid color-mix(in oklab, #ef4444 55%, var(--border));
+  background: color-mix(in oklab, #ef4444 12%, var(--surface));
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  height: 42px;
+  padding: 0 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn.primary {
+  border-color: color-mix(in oklab, var(--primary) 60%, var(--border));
+  background: var(--primary);
+  color: #fff;
+}
+
+.loading-state {
+  min-height: 70px;
+  justify-items: start;
+  padding: 8px 0;
+}
+
+.dropzone {
+  position: relative;
+  border: 1px dashed color-mix(in oklab, var(--primary) 45%, var(--border));
+  border-radius: 12px;
+  min-height: 86px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--surface) 92%, var(--surface-soft) 8%);
+  overflow: hidden;
+}
+
+.dropzone.drag-active {
+  border-color: var(--primary);
+  background: color-mix(in oklab, var(--primary) 12%, var(--surface));
+}
+
+.dropzone input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  height: 100%;
+  width: 100%;
+}
+
+.drop-copy {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.logo-preview {
+  margin-top: 8px;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
