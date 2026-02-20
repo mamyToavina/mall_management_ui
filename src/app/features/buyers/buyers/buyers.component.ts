@@ -330,7 +330,7 @@ export class BuyersPageComponent {
 
   private patchRow(updated: BuyerDto) {
     this.buyers.update(list => list.map(x => x._id === updated._id ? { ...x, ...updated } : x));
-    // si modal ouvert sur le mÃªme buyer
+    // si modal ouvert sur le meme buyer
     if (this.selectedBuyer()?._id === updated._id) {
       this.selectedBuyer.set({ ...this.selectedBuyer()!, ...updated });
     }

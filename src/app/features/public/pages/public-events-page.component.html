@@ -1,0 +1,21 @@
+﻿<section class="events-page">
+  <header>
+    <h1>Activites a TI Commercial</h1>
+    <p>Restez informe des prochaines activites, dates et lieux.</p>
+  </header>
+
+  <div class="timeline">
+    <article class="item" *ngFor="let event of events">
+      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" />
+      <div class="content">
+        <span class="tag">{{ event.tag }}</span>
+        <h3>{{ event.title }}</h3>
+        <p>{{ event.description }}</p>
+        <div class="meta">
+          <strong>{{ event.dateIso | date: 'fullDate' }}</strong>
+          <span>{{ event.location }}</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

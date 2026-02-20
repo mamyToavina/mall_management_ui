@@ -1,0 +1,164 @@
+﻿<section class="hero">
+  <div class="hero-copy reveal-up">
+    <p class="kicker">EXPERIENCE PUBLIQUE</p>
+    <h1>Decouvrez ce qui se passe en ce moment a TI Commercial</h1>
+    <p class="lede">
+      Promotions exclusives, boutiques inspirantes et activites impactantes pour attirer les visiteurs.
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn hero-login" routerLink="/login">Se connecter</a>
+      <a class="btn hero-register" routerLink="/register">Creer un compte</a>
+      <a class="btn hero-map" href="#map-ti">Voir la carte</a>
+    </div>
+  </div>
+
+  <div class="hero-card reveal-up delay-1">
+    <div class="metric">
+      <strong>120+</strong>
+      <span>Boutiques actives</span>
+    </div>
+    <div class="metric">
+      <strong>35</strong>
+      <span>Offres flash cette semaine</span>
+    </div>
+    <div class="metric">
+      <strong>8</strong>
+      <span>Activites a venir</span>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal-up delay-2">
+  <div class="section-head">
+    <div>
+      <h2>Promotions en vedette</h2>
+      <p>Faites glisser horizontalement pour voir les autres produits.</p>
+    </div>
+  </div>
+
+  <div class="promo-wrap">
+    <button
+      type="button"
+      class="arrow left"
+      (click)="scrollPromo('left')"
+      (mouseenter)="pauseAutoScroll()"
+      (mouseleave)="resumeAutoScroll()"
+      aria-label="Defiler vers la gauche"
+    >
+      &#10094;
+    </button>
+
+    <div
+      class="promo-track"
+      #promoTrack
+      (mouseenter)="pauseAutoScroll()"
+      (mouseleave)="resumeAutoScroll()"
+      (touchstart)="pauseAutoScroll()"
+      (touchend)="resumeAutoScroll()"
+    >
+      <article class="promo-card" *ngFor="let item of promoProducts">
+        <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
+        <div class="promo-body">
+          <span class="badge">{{ item.badge }}</span>
+          <h3>{{ item.name }}</h3>
+          <p class="shop">{{ item.boutiqueName }}</p>
+
+          <div class="price-row">
+            <strong>{{ item.promoPrice | number: '1.0-0' }} {{ item.currency }}</strong>
+            <span>{{ item.originalPrice | number: '1.0-0' }} {{ item.currency }}</span>
+          </div>
+
+          <small>{{ item.category }} • Economie {{ discountRate(item.originalPrice, item.promoPrice) }}%</small>
+
+          <div class="promo-actions">
+            <a class="shop-link" [routerLink]="['/boutiques', item.boutiqueId]">Voir boutique</a>
+            <button type="button" class="cart-action" (click)="addPromoToCart(item.id)">
+              &#128722; Ajouter au panier
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <button
+      type="button"
+      class="arrow right"
+      (click)="scrollPromo('right')"
+      (mouseenter)="pauseAutoScroll()"
+      (mouseleave)="resumeAutoScroll()"
+      aria-label="Defiler vers la droite"
+    >
+      &#10095;
+    </button>
+  </div>
+</section>
+
+<section class="section reveal-up delay-3">
+  <div class="section-head">
+    <div>
+      <h2>Activites a venir chez TI Commercial</h2>
+      <p>Planifiez votre prochaine visite avec des evenements pour toute la famille.</p>
+    </div>
+    <a class="link" routerLink="/events">Voir toutes les activites</a>
+  </div>
+
+  <div class="event-grid">
+    <article class="event-card" *ngFor="let event of events">
+      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" />
+      <div class="event-body">
+        <span class="tag">{{ event.tag }}</span>
+        <h3>{{ event.title }}</h3>
+        <p>{{ event.description }}</p>
+        <div class="event-meta">
+          <strong>{{ event.dateIso | date: 'fullDate' }}</strong>
+          <span>{{ event.location }}</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="map-ti" class="section reveal-up delay-3">
+  <div class="section-head">
+    <div>
+      <h2>Ou se trouve TI Commercial ?</h2>
+      <p>Carte Google interactive pour reperer le centre commercial.</p>
+    </div>
+    <a class="link" [href]="mapExternalUrl" target="_blank" rel="noopener noreferrer">
+      Ouvrir dans Google Maps
+    </a>
+  </div>
+
+  <div class="map-card">
+    <div class="map-toolbar">
+      <div class="map-type">
+        <button type="button" class="map-btn" [class.active]="mapType()==='m'" (click)="setMapType('m')">
+          Plan
+        </button>
+        <button type="button" class="map-btn" [class.active]="mapType()==='k'" (click)="setMapType('k')">
+          Satellite
+        </button>
+      </div>
+
+      <div class="map-zoom">
+        <button type="button" class="map-btn" (click)="zoomOutMap()">−</button>
+        <span class="zoom-value">Zoom {{ mapZoom() }}</span>
+        <button type="button" class="map-btn" (click)="zoomInMap()">+</button>
+      </div>
+    </div>
+
+    <div class="map-canvas">
+      <iframe
+        class="map-frame"
+        [src]="mapSrc()"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Carte TI Commercial"
+      ></iframe>
+      <div class="map-marker" aria-hidden="true"></div>
+    </div>
+
+    <p class="map-coords">Coordonnees (demo): {{ mapLat }}, {{ mapLng }}</p>
+  </div>
+</section>

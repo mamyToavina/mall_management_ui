@@ -1,0 +1,39 @@
+﻿import { Routes } from '@angular/router';
+
+export const PUBLIC_ROUTES: Routes = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./pages/public-home-page.component').then((m) => m.PublicHomePageComponent)
+  },
+  {
+    path: 'promotions',
+    loadComponent: () =>
+      import('./pages/public-promotions-page.component').then((m) => m.PublicPromotionsPageComponent)
+  },
+  {
+    path: 'boutiques',
+    loadComponent: () =>
+      import('./pages/public-boutiques-page.component').then((m) => m.PublicBoutiquesPageComponent)
+  },
+  {
+    path: 'boutiques/:id',
+    loadComponent: () =>
+      import('./pages/public-boutique-details-page.component').then((m) => m.PublicBoutiqueDetailsPageComponent)
+  },
+  {
+    path: 'events',
+    loadComponent: () =>
+      import('./pages/public-events-page.component').then((m) => m.PublicEventsPageComponent)
+  },
+  {
+    path: 'panier',
+    loadComponent: () =>
+      import('./pages/public-cart-page.component').then((m) => m.PublicCartPageComponent)
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./pages/public-register-page.component').then((m) => m.PublicRegisterPageComponent)
+  }
+];

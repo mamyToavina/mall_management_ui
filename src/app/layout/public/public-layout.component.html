@@ -1,0 +1,53 @@
+<div class="public-shell">
+  <header class="public-header">
+    <div class="header-top">
+      <a class="brand" routerLink="/" aria-label="Accueil TI Commercial">
+        <span class="brand-mark">TI</span>
+        <span class="brand-text">TI Commercial</span>
+      </a>
+
+      <div class="header-cta">
+        <a class="cart-btn" routerLink="/panier" aria-label="Panier">
+          <span aria-hidden="true">&#128722;</span>
+          <span class="cart-count" *ngIf="cart.count() > 0">{{ cart.count() }}</span>
+        </a>
+        <a
+          class="btn ghost auth-btn"
+          routerLink="/login"
+          aria-label="Se connecter"
+          title="Se connecter"
+          data-tip="Se connecter"
+        >
+          <span class="btn-icon" aria-hidden="true">&#128100;</span>
+          <span class="btn-label">Se connecter</span>
+        </a>
+        <a
+          class="btn solid auth-btn"
+          routerLink="/register"
+          aria-label="Creer un compte"
+          title="Creer un compte"
+          data-tip="Creer un compte"
+        >
+          <span class="btn-icon" aria-hidden="true">&#10010;</span>
+          <span class="btn-label">Creer un compte</span>
+        </a>
+      </div>
+    </div>
+
+    <nav class="main-nav" aria-label="Navigation publique">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+      <a routerLink="/promotions" routerLinkActive="active">Promotions</a>
+      <a routerLink="/boutiques" routerLinkActive="active">Boutiques</a>
+      <a routerLink="/events" routerLinkActive="active">Activites</a>
+    </nav>
+  </header>
+
+  <main>
+    <router-outlet />
+  </main>
+
+  <footer class="public-footer">
+    <div>TI Commercial © {{ year }}</div>
+    <div>Promotions exclusives, activites et experiences shopping modernes.</div>
+  </footer>
+</div>
