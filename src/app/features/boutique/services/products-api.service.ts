@@ -43,6 +43,14 @@ export class ProductsApiService {
     return this.http.post<ProductDto>(this.baseUrl, formData);
   }
 
+  updateMine(productId: string, payload: Partial<ProductDto> & { tags?: string[] }) {
+    return this.http.patch<ProductDto>(`${this.baseUrl}/${productId}`, payload);
+  }
+
+  deleteMine(productId: string) {
+    return this.http.delete<{ message: string }>(`${this.baseUrl}/${productId}`);
+  }
+
   getMineById(productId: string) {
     return this.http.get<ProductDto>(`${this.baseUrl}/${productId}`);
   }
@@ -66,5 +74,39 @@ export class ProductsApiService {
     }
   ) {
     return this.http.patch<ProductDto>(`${this.baseUrl}/${productId}/stock`, payload);
+  }
+
+  addImage(productId: string, file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.http.post<ProductDto>(`${this.baseUrl}/${productId}/images`, formData);
+  }
+
+  replaceImage(productId: string, oldImage: string, file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('oldImage', oldImage);
+    return this.http.patch<ProductDto>(`${this.baseUrl}/${productId}/images/replace`, formData);
+  }
+
+  removeImage(productId: string, imagePath: string) {
+    return this.http.request<ProductDto>('delete', `${this.baseUrl}/${productId}/images`, {
+      body: { imagePath }
+    });
+  }
+
+  setPromotion(
+    productId: string,
+    payload: {
+      percentage: number;
+      startsAt: string;
+      durationDays: number;
+    }
+  ) {
+    return this.http.patch<ProductDto>(`${this.baseUrl}/${productId}/promotion`, payload);
+  }
+
+  clearPromotion(productId: string) {
+    return this.http.delete<ProductDto>(`${this.baseUrl}/${productId}/promotion`);
   }
 }

@@ -1,0 +1,168 @@
+.low-stock-page {
+  display: grid;
+  gap: 14px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.page-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 2px);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field span {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+input,
+select,
+button {
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+input,
+select {
+  padding: 0 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-secondary,
+.page-btn {
+  padding: 0 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-secondary:hover,
+.page-btn:hover {
+  border-color: color-mix(in oklab, var(--primary) 42%, var(--border));
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--muted);
+  background: color-mix(in oklab, var(--surface) 88%, var(--primary) 6%);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, #b3261e 36%, var(--border));
+  background: color-mix(in oklab, #b3261e 10%, var(--surface));
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.action-link {
+  color: color-mix(in oklab, var(--primary) 68%, var(--text));
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 16px;
+}
+
+.feedback {
+  border: 1px solid color-mix(in oklab, #b3261e 35%, var(--border));
+  background: color-mix(in oklab, #b3261e 8%, var(--surface));
+  color: color-mix(in oklab, #b3261e 72%, var(--text));
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.page-numbers {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.page-btn {
+  width: 36px;
+  padding: 0;
+}
+
+.page-btn.active {
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface));
+}
+
+.muted {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+@media (max-width: 960px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}

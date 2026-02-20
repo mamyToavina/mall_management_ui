@@ -14,28 +14,95 @@
 
   <section class="card">
     <div class="row">
-      <label class="field large">
-        <span>Produit</span>
-        <select
-          [disabled]="loadingProducts() || products().length === 0"
-          [value]="selectedProductId()"
-          (change)="onSelectProduct(($any($event.target).value))"
-        >
-          @for (product of products(); track product._id) {
-            <option [value]="product._id">{{ product.name }} - {{ product.sku }}</option>
+      <label class="field">
+        <span>Filtre nom / SKU</span>
+        <input
+          type="text"
+          [value]="productSearch()"
+          placeholder="Ex: jus, sku-001..."
+          (input)="onProductSearchChange(($any($event.target).value))"
+        />
+      </label>
+
+      <label class="field">
+        <span>Statut produit</span>
+        <select [value]="productStatus()" (change)="onProductStatusChange(($any($event.target).value))">
+          <option value="">Tous</option>
+          @for (status of statusOptions; track status) {
+            <option [value]="status">{{ status }}</option>
           }
         </select>
       </label>
 
       <label class="field">
-        <span>Elements / page</span>
-        <select [value]="movementLimit()" (change)="onMovementLimitChange(($any($event.target).value))">
+        <span>Historique / page</span>
+        <select
+          [disabled]="!selectedProductId()"
+          [value]="movementLimit()"
+          (change)="onMovementLimitChange(($any($event.target).value))"
+        >
           <option value="10">10</option>
           <option value="20">20</option>
           <option value="50">50</option>
         </select>
       </label>
     </div>
+
+    <div class="filter-actions">
+      <button type="button" class="btn-secondary" (click)="applyProductFilters()">Filtrer</button>
+      <button type="button" class="btn-secondary" (click)="resetProductFilters()">Reset</button>
+    </div>
+
+    <div class="product-list">
+      @for (product of products(); track product._id) {
+        <button
+          type="button"
+          class="product-item"
+          [class.active]="selectedProductId() === product._id"
+          (click)="onSelectProduct(product._id)"
+        >
+          <strong>{{ product.name }}</strong>
+          <small>{{ product.sku }} - Stock: {{ product.stockQuantity }}</small>
+        </button>
+      } @empty {
+        <p class="muted">Aucun produit sur ce filtre.</p>
+      }
+    </div>
+
+    @if (productsMeta() && productsMeta()!.pages > 1) {
+      <div class="product-pagination">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="goToProductPage(productsMeta()!.page - 1)"
+          [disabled]="productsMeta()!.page <= 1"
+        >
+          Precedent
+        </button>
+
+        <div class="page-numbers">
+          @for (pageNumber of productPageNumbers(); track pageNumber) {
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="productsMeta()!.page === pageNumber"
+              (click)="goToProductPage(pageNumber)"
+            >
+              {{ pageNumber }}
+            </button>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="goToProductPage(productsMeta()!.page + 1)"
+          [disabled]="productsMeta()!.page >= productsMeta()!.pages"
+        >
+          Suivant
+        </button>
+      </div>
+    }
 
     @if (selectedProduct(); as product) {
       <div class="summary">
@@ -92,7 +159,7 @@
       <button
         type="submit"
         class="btn-primary"
-        [disabled]="submitting() || loadingProducts() || !selectedProductId()"
+        [disabled]="submitting() || !selectedProductId()"
       >
         {{ submitting() ? 'Validation...' : 'Valider le mouvement' }}
       </button>
