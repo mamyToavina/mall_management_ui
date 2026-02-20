@@ -1,4 +1,4 @@
-.details-page {
+﻿.details-page {
   min-height: 100%;
   padding: 20px;
   display: grid;
@@ -76,6 +76,12 @@ p {
   font-weight: 700;
 }
 
+.state-card.loading-state {
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+}
 .state-card.error {
   border-color: color-mix(in oklab, #ef4444 45%, var(--border));
   color: #b91c1c;
@@ -193,3 +199,4 @@ p {
     flex: 1;
   }
 }
+

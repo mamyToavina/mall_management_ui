@@ -1,4 +1,4 @@
-.stock-page {
+﻿.stock-page {
   display: grid;
   gap: 14px;
 }
@@ -184,6 +184,12 @@ textarea:focus {
   color: color-mix(in oklab, #b3261e 72%, var(--text));
 }
 
+.loading-state {
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+}
 .table-wrap {
   overflow: auto;
 }
@@ -294,3 +300,4 @@ th {
     flex-wrap: wrap;
   }
 }
+

@@ -1,4 +1,4 @@
-import {
+﻿import {
     Component,
     DestroyRef,
     Injector,
@@ -91,7 +91,7 @@ import { RouterModule } from '@angular/router';
   
         query$
           .pipe(
-            debounceTime(150),
+            debounceTime(100),
             distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
             switchMap(([q]) => {
               this.loading.set(true);
@@ -178,7 +178,7 @@ import { RouterModule } from '@angular/router';
     // =======================
   
     badgeStatus(b: BoxDto) {
-      return b.boutique ? 'Occupé' : 'Libre';
+      return b.boutique ? 'OccupÃ©' : 'Libre';
     }
   
     private loadStats() {
@@ -210,3 +210,4 @@ import { RouterModule } from '@angular/router';
       
   }
   
+

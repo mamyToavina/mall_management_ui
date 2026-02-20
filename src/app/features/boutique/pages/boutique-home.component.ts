@@ -1,12 +1,23 @@
-import { Component } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+
+import { AuthStore } from '../../../core/auth/auth.store';
 
 @Component({
   selector: 'app-boutique-home-page',
   standalone: true,
+  imports: [CommonModule],
   template: `
     <section class="home-card">
       <h1>Accueil Boutique</h1>
-      <p class="sub">Bienvenue dans votre espace de gestion TI Boutique.</p>
+
+      <p class="sub" *ngIf="store.user() as user">
+        Re-bienvenue {{ user.pseudo }}. Heureux de vous revoir dans votre espace boutique.
+      </p>
+
+      <p class="sub" *ngIf="!store.user()">
+        Bienvenue dans votre espace de gestion TI Boutique.
+      </p>
 
       <div class="hero">
         <div class="hero-title">Tableau de bord boutique</div>
@@ -61,4 +72,7 @@ import { Component } from '@angular/core';
     }
   `
 })
-export class BoutiqueHomePageComponent {}
+export class BoutiqueHomePageComponent {
+  store = inject(AuthStore);
+}
+

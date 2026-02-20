@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Injector, inject, signal, computed, OnInit, afterNextRender } from '@angular/core';
+﻿import { Component, DestroyRef, Injector, inject, signal, computed, OnInit, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -65,7 +65,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
           </div>
 
           <div class="field actions">
-            <button class="btn" type="button" (click)="refresh()">Rafraîchir</button>
+            <button class="btn" type="button" (click)="refresh()">Rafraichir</button>
           </div>
         </div>
 
@@ -77,7 +77,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
                 <th>Email</th>
                 <th>Solde</th>
                 <th>Status</th>
-                <th>Ancienneté</th>
+                <th>Anciennete</th>
                 <th class="th-actions">Actions</th>
               </tr>
             </thead>
@@ -94,7 +94,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
                     <img class="avatar" [src]="avatarUrl(b.avatar)" alt="avatar" />
                     <div class="who-meta">
                       <div class="pseudo">{{ b.pseudo }}</div>
-                      <div class="small muted">{{ b.firstName || '—' }}</div>
+                      <div class="small muted">{{ b.firstName || 'â€”' }}</div>
                     </div>
                   </div>
                 </td>
@@ -106,7 +106,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
                   <span class="badge" [class.blocked]="b.status==='BLOCKED'">{{ b.status }}</span>
                 </td>
 
-                <td class="muted" data-label="Ancienneté">{{ ago(b.createdAt) }}</td>
+                <td class="muted" data-label="Anciennete">{{ ago(b.createdAt) }}</td>
 
                 <td class="td-actions" data-label="Actions" (click)="$event.stopPropagation()">
                   <button
@@ -132,9 +132,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
           </table>
 
           <div class="pagination" *ngIf="meta() as m">
-            <button class="btn" type="button" [disabled]="m.page<=1" (click)="goTo(m.page-1)">
-              ← Précédent
-            </button>
+            <button class="btn" type="button" [disabled]="m.page<=1" (click)="goTo(m.page-1)">← Précédent</button>
 
             <div class="pages">
               <button
@@ -148,9 +146,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
               </button>
             </div>
 
-            <button class="btn" type="button" [disabled]="m.page>=m.pages" (click)="goTo(m.page+1)">
-              Suivant →
-            </button>
+            <button class="btn" type="button" [disabled]="m.page>=m.pages" (click)="goTo(m.page+1)">Suivant →</button>
           </div>
         </div>
       </div>
@@ -175,7 +171,7 @@ import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
 
       <ng-template #emptyTpl>
         <div class="empty">
-          Aucun acheteur trouvé.
+          Aucun acheteur trouve.
         </div>
       </ng-template>
     </section>
@@ -238,12 +234,12 @@ export class BuyersPageComponent {
     afterNextRender(() => {
       const query$ = toObservable(
         computed(() => [this.query(), this.refreshTick()] as const),
-        { injector: this.injector } // ✅ important
+        { injector: this.injector } // âœ… important
       );
 
       query$
         .pipe(
-          debounceTime(150),
+          debounceTime(100),
           distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
           switchMap(([q]) => {
             this.loading.set(true);
@@ -322,7 +318,7 @@ export class BuyersPageComponent {
   }
 
   confirmUnblock(b: BuyerDto) {
-    const ok = window.confirm(`Débloquer "${b.pseudo}" ?`);
+    const ok = window.confirm(`Debloquer "${b.pseudo}" ?`);
     if (!ok) return;
 
     this.api.unblockBuyer(b._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -334,11 +330,13 @@ export class BuyersPageComponent {
 
   private patchRow(updated: BuyerDto) {
     this.buyers.update(list => list.map(x => x._id === updated._id ? { ...x, ...updated } : x));
-    // si modal ouvert sur le même buyer
+    // si modal ouvert sur le mÃªme buyer
     if (this.selectedBuyer()?._id === updated._id) {
       this.selectedBuyer.set({ ...this.selectedBuyer()!, ...updated });
     }
   }
 }
+
+
 
 

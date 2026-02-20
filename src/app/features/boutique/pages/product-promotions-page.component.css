@@ -1,4 +1,4 @@
-.promotions-page {
+﻿.promotions-page {
   display: grid;
   gap: 14px;
 }
@@ -93,6 +93,12 @@ select {
   cursor: not-allowed;
 }
 
+.loading-state {
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+}
 .product-list {
   display: grid;
   gap: 8px;
@@ -191,3 +197,4 @@ select {
     grid-template-columns: 1fr;
   }
 }
+

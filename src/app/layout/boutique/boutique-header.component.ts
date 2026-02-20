@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+﻿import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -20,16 +20,16 @@ import { ThemeService } from '../../core/services/theme.service';
           (click)="layout.toggleMobileSidebar()"
           aria-label="Ouvrir le menu"
         >
-          Menu
+          <span aria-hidden="true">&#9776;</span>
         </button>
 
         <button
           class="icon-btn desktop-only"
           type="button"
           (click)="layout.toggleCollapse()"
-          aria-label="Reduire/etendre la barre laterale"
+          aria-label="Reduire ou etendre la barre laterale"
         >
-          Menu
+          <span aria-hidden="true">&#9776;</span>
         </button>
 
         <a class="brand" routerLink="/boutique/home" aria-label="Accueil boutique">
@@ -39,12 +39,8 @@ import { ThemeService } from '../../core/services/theme.service';
       </div>
 
       <div class="right" *ngIf="store.user() as user">
-        <button
-          class="icon-btn notify"
-          type="button"
-          aria-label="Notifications"
-        >
-          <span aria-hidden="true">Notif</span>
+        <button class="icon-btn notify" type="button" aria-label="Notifications">
+          <span aria-hidden="true">&#128276;</span>
           <span class="badge" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
         </button>
 
@@ -54,7 +50,7 @@ import { ThemeService } from '../../core/services/theme.service';
           (click)="theme.toggle()"
           [attr.aria-label]="theme.mode() === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'"
         >
-          <span aria-hidden="true">{{ theme.mode() === 'dark' ? 'Light' : 'Dark' }}</span>
+          <span aria-hidden="true">{{ theme.mode() === 'dark' ? '\u2600' : '\u{1F319}' }}</span>
         </button>
 
         <div class="user">
@@ -65,13 +61,8 @@ import { ThemeService } from '../../core/services/theme.service';
           </div>
         </div>
 
-        <button
-          class="icon-btn danger"
-          type="button"
-          (click)="auth.logout()"
-          aria-label="Se deconnecter"
-        >
-          Out
+        <button class="icon-btn danger" type="button" (click)="auth.logout()" aria-label="Se deconnecter">
+          <span aria-hidden="true">&#9099;</span>
         </button>
       </div>
     </header>
