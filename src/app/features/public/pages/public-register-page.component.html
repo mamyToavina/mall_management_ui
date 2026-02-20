@@ -1,0 +1,25 @@
+﻿<section class="register-wrap">
+  <article class="register-card">
+    <h1>Creez votre compte acheteur</h1>
+    <p>Profitez des offres exclusives, rappels d activites et recommandations personnalisees.</p>
+
+    <form (ngSubmit)="submit()" class="form">
+      <label>
+        Nom complet
+        <input type="text" name="fullName" [(ngModel)]="fullName" required />
+      </label>
+
+      <label>
+        Email
+        <input type="email" name="email" [(ngModel)]="email" required />
+      </label>
+
+      <button type="submit">Creer un compte</button>
+    </form>
+
+    <p class="hint">
+      Vous avez deja un compte ?
+      <a routerLink="/login">Se connecter</a>
+    </p>
+  </article>
+</section>

@@ -121,9 +121,22 @@ export const routes: Routes = [
     ]
   },
 
-  // ===== DEFAULT REDIRECTION =====
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  // ===== PUBLIC AREA =====
+  {
+    path: '',
+    loadComponent: () =>
+      import('./layout/public/public-layout.component')
+        .then(m => m.PublicLayoutComponent),
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/public/public.routes')
+            .then(m => m.PUBLIC_ROUTES),
+      }
+    ]
+  },
 
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: '' }
 ];
 

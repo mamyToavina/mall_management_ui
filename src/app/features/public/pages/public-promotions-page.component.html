@@ -1,0 +1,28 @@
+﻿<section class="promo-page">
+  <header>
+    <h1>Toutes les promotions</h1>
+    <p>Offres selectionnees dans les boutiques de TI Commercial.</p>
+  </header>
+
+  <div class="grid">
+    <article class="card" *ngFor="let item of items">
+      <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
+      <div class="body">
+        <span class="shop">{{ item.boutiqueName }}</span>
+        <h3>{{ item.name }}</h3>
+        <p>{{ item.category }}</p>
+        <div class="prices">
+          <strong>{{ item.promoPrice | number: '1.0-0' }} {{ item.currency }}</strong>
+          <span>{{ item.originalPrice | number: '1.0-0' }} {{ item.currency }}</span>
+        </div>
+
+        <div class="actions">
+          <a class="shop-link" [routerLink]="['/boutiques', item.boutiqueId]">Voir boutique</a>
+          <button type="button" class="cart-action" (click)="addToCart(item.id)">
+            &#128722; Ajouter au panier
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

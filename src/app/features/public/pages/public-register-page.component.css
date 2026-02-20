@@ -1,0 +1,100 @@
+:host {
+  --accent: #d71db8;
+  --accent-deep: #9b0f86;
+  --text-main: #2e1232;
+  --text-muted: #75537a;
+  display: block;
+  position: relative;
+  isolation: isolate;
+}
+
+:host::before,
+:host::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(30px);
+}
+
+:host::before {
+  inset: -140px -80px auto;
+  height: 320px;
+  opacity: 0.56;
+  background:
+    radial-gradient(460px 220px at 15% 30%, #f8c0ee, transparent 72%),
+    radial-gradient(440px 210px at 88% 20%, color-mix(in oklab, var(--accent) 44%, #fff), transparent 74%);
+}
+
+:host::after {
+  inset: auto -120px -220px;
+  height: 420px;
+  opacity: 0.48;
+  background: radial-gradient(520px 260px at 24% 80%, #f5c0ec, transparent 76%);
+}
+
+.register-wrap {
+  margin: 28px clamp(14px, 4vw, 36px);
+  display: grid;
+  place-items: center;
+}
+
+.register-card {
+  width: min(560px, 100%);
+  border: 1px solid color-mix(in oklab, var(--accent) 24%, white);
+  border-radius: 20px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(252, 232, 247, 0.88));
+  box-shadow: 0 20px 38px rgba(140, 14, 120, 0.17);
+  backdrop-filter: blur(6px);
+  padding: clamp(16px, 3vw, 26px);
+  display: grid;
+  gap: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 38px);
+  color: var(--text-main);
+}
+
+p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+input {
+  height: 42px;
+  border: 1px solid color-mix(in oklab, var(--accent) 26%, white);
+  border-radius: 12px;
+  padding: 0 12px;
+  font: inherit;
+}
+
+button {
+  margin-top: 4px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #d71db8, #a1148d 60%, #7f116f);
+  cursor: pointer;
+}
+
+.hint a {
+  color: var(--accent-deep);
+  font-weight: 800;
+}

@@ -1,0 +1,33 @@
+﻿<section class="cart-page">
+  <header>
+    <h1>Votre panier</h1>
+    <p>Retrouvez ici les produits ajoutes depuis les promotions et boutiques.</p>
+  </header>
+
+  <section class="cart-card" *ngIf="cart.items().length; else emptyCart">
+    <article class="item" *ngFor="let item of cart.items()">
+      <img [src]="item.imageUrl" [alt]="item.productName" loading="lazy" />
+      <div class="body">
+        <h2>{{ item.productName }}</h2>
+        <p>{{ item.boutiqueName }}</p>
+        <div class="meta">
+          <strong>{{ item.unitPrice | number: '1.0-0' }} {{ item.currency }}</strong>
+          <span>Quantite: {{ item.quantity }}</span>
+        </div>
+      </div>
+      <button type="button" class="remove" (click)="removeItem(item.productId)">Retirer</button>
+    </article>
+
+    <footer class="summary">
+      <strong>Total: {{ cart.total() | number: '1.0-0' }} Ar</strong>
+      <button type="button" class="clear" (click)="clearCart()">Vider le panier</button>
+    </footer>
+  </section>
+
+  <ng-template #emptyCart>
+    <section class="cart-card empty">
+      <p>Votre panier est vide.</p>
+      <a routerLink="/promotions">Voir les promotions</a>
+    </section>
+  </ng-template>
+</section>

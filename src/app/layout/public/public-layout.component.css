@@ -1,0 +1,330 @@
+:host {
+  --accent: #d71db8;
+  --accent-deep: #9b0f86;
+  --accent-soft: #f8c9ef;
+  --text-main: #2e1232;
+  --text-muted: #75537a;
+  display: block;
+}
+
+.public-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow-x: hidden;
+  position: relative;
+  isolation: isolate;
+  color: var(--text-main);
+  font-family: Bahnschrift, "Segoe UI Variable", "Trebuchet MS", sans-serif;
+  background:
+    linear-gradient(148deg, #fff9fe 0%, #fdf1fa 40%, #f9e6f4 100%);
+}
+
+.public-shell::before,
+.public-shell::after {
+  content: "";
+  position: fixed;
+  inset: -140px -110px auto;
+  height: 360px;
+  pointer-events: none;
+  z-index: -2;
+  filter: blur(32px);
+  will-change: transform, opacity;
+}
+
+.public-shell::before {
+  opacity: 0.66;
+  background:
+    radial-gradient(520px 260px at 10% 22%, var(--accent-soft), transparent 72%),
+    radial-gradient(560px 300px at 88% 8%, color-mix(in oklab, var(--accent) 55%, white), transparent 74%);
+  animation: haloFloatTop 16s ease-in-out infinite alternate;
+}
+
+.public-shell::after {
+  inset: auto -130px -220px;
+  height: 460px;
+  opacity: 0.5;
+  background:
+    radial-gradient(560px 280px at 18% 78%, #f6bde9, transparent 76%),
+    radial-gradient(500px 260px at 90% 84%, color-mix(in oklab, var(--accent) 45%, #fff), transparent 76%);
+  animation: haloFloatBottom 20s ease-in-out infinite alternate;
+}
+
+.public-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  gap: 16px;
+  padding: 14px clamp(14px, 4vw, 36px) 12px;
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 24%, white);
+  backdrop-filter: blur(12px);
+  background: rgba(255, 249, 254, 0.85);
+  box-shadow: 0 8px 22px rgba(144, 16, 123, 0.12);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-family: Bahnschrift, "Segoe UI Variable", sans-serif;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #d71db8, #a1148d 58%, #7b106d);
+  box-shadow: 0 10px 20px rgba(145, 16, 123, 0.3);
+}
+
+.brand-text {
+  font-family: Bahnschrift, "Segoe UI Variable", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--text-main);
+}
+
+.main-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+  width: fit-content;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in oklab, var(--accent) 18%, white);
+}
+
+.main-nav a {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.main-nav a.active,
+.main-nav a:hover {
+  background: #f8d8f3;
+  color: var(--accent-deep);
+}
+
+.header-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.cart-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--accent) 24%, white);
+  background: #fff;
+  color: var(--accent-deep);
+  display: inline-grid;
+  place-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.cart-count {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #cf1f81;
+  color: #fff;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  border: 2px solid #fff;
+}
+
+.btn {
+  height: 40px;
+  border-radius: 12px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  border: 1px solid transparent;
+  position: relative;
+}
+
+.btn-icon {
+  display: none;
+  line-height: 1;
+}
+
+.btn.ghost {
+  border-color: color-mix(in oklab, var(--accent) 26%, white);
+  background: #fff;
+  color: var(--text-main);
+}
+
+.btn.solid {
+  color: #fff;
+  background: linear-gradient(135deg, #d71db8, #a1148d 60%, #7a106c);
+  box-shadow: 0 10px 22px rgba(145, 16, 123, 0.3);
+}
+
+.public-footer {
+  margin-top: 20px;
+  padding: 20px clamp(14px, 4vw, 36px);
+  border-top: 1px solid color-mix(in oklab, var(--accent) 22%, white);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-muted);
+  background: rgba(255, 245, 252, 0.68);
+  backdrop-filter: blur(8px);
+  font-size: 13px;
+}
+
+main {
+  min-width: 0;
+}
+
+@keyframes haloFloatTop {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.58;
+  }
+  100% {
+    transform: translate3d(-28px, 18px, 0) scale(1.08);
+    opacity: 0.74;
+  }
+}
+
+@keyframes haloFloatBottom {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.44;
+  }
+  100% {
+    transform: translate3d(30px, -20px, 0) scale(1.1);
+    opacity: 0.62;
+  }
+}
+
+@media (max-width: 960px) {
+  .header-top {
+    flex-wrap: wrap;
+  }
+
+  .main-nav {
+    width: 100%;
+    justify-content: center;
+    padding-top: 10px;
+  }
+
+  .header-cta {
+    margin-left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-shell::before,
+  .public-shell::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .header-cta {
+    width: auto;
+    margin-left: auto;
+    gap: 8px;
+  }
+
+  .btn {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 12px;
+  }
+
+  .btn-icon {
+    display: inline-block;
+    font-size: 16px;
+  }
+
+  .btn-label {
+    display: none;
+  }
+
+  .btn.auth-btn::after {
+    content: attr(data-tip);
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    padding: 6px 9px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--accent) 24%, white);
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 10px 20px rgba(140, 15, 120, 0.16);
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .btn.auth-btn:hover::after,
+  .btn.auth-btn:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 420px) {
+  .public-header {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .brand-text {
+    font-size: 14px;
+  }
+
+  .main-nav {
+    gap: 6px;
+  }
+
+  .main-nav a {
+    padding: 6px 8px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .public-footer {
+    padding: 14px 10px;
+    font-size: 12px;
+  }
+}

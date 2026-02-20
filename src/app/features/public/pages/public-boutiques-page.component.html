@@ -1,0 +1,34 @@
+﻿<section class="boutiques-page">
+  <header>
+    <h1>Decouvrir nos boutiques</h1>
+    <p>Chaque boutique a son univers, ses offres et son expertise pour booster votre experience shopping.</p>
+  </header>
+
+  <div class="boutique-grid">
+    <article class="boutique-card" *ngFor="let shop of boutiques">
+      <img class="cover" [src]="shop.coverUrl" [alt]="shop.name" loading="lazy" />
+
+      <div class="content">
+        <div class="top-row">
+          <img class="logo" [src]="shop.logoUrl" [alt]="'Logo ' + shop.name" loading="lazy" />
+          <div>
+            <h2>{{ shop.name }}</h2>
+            <p class="activity">{{ shop.activity }}</p>
+          </div>
+        </div>
+
+        <p class="slogan">{{ shop.slogan }}</p>
+        <p class="desc">{{ shop.description }}</p>
+
+        <div class="highlights">
+          <span *ngFor="let point of shop.highlights">{{ point }}</span>
+        </div>
+
+        <div class="bottom-row">
+          <div class="rating">{{ shop.rating }} ★ ({{ shop.reviewsCount }} avis)</div>
+          <a class="btn" [routerLink]="['/boutiques', shop.id]">Voir la boutique</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
