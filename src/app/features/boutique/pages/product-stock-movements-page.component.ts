@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   PaginationMeta,
   ProductDto,
+  ProductStatus,
   StockMovementDto,
   StockOperation
 } from '../models/product.models';
@@ -31,12 +32,18 @@ export class ProductStockMovementsPageComponent {
   readonly successMessage = signal<string | null>(null);
 
   readonly products = signal<ProductDto[]>([]);
+  readonly productsMeta = signal<PaginationMeta | null>(null);
+  readonly productPage = signal(1);
+  readonly productLimit = signal(10);
+  readonly productSearch = signal('');
+  readonly productStatus = signal<ProductStatus | ''>('');
   readonly selectedProductId = signal<string>('');
   readonly movements = signal<StockMovementDto[]>([]);
   readonly movementsMeta = signal<PaginationMeta | null>(null);
   readonly movementPage = signal(1);
   readonly movementLimit = signal(20);
 
+  readonly statusOptions: ProductStatus[] = ['DRAFT', 'ACTIVE', 'ARCHIVED'];
   readonly operationOptions: StockOperation[] = ['INCREMENT', 'DECREMENT', 'SET'];
 
   readonly selectedProduct = computed(() =>
@@ -45,6 +52,17 @@ export class ProductStockMovementsPageComponent {
 
   readonly pageNumbers = computed(() => {
     const meta = this.movementsMeta();
+    if (!meta) return [];
+
+    const start = Math.max(1, meta.page - 2);
+    const end = Math.min(meta.pages, meta.page + 2);
+    const pages: number[] = [];
+    for (let index = start; index <= end; index += 1) pages.push(index);
+    return pages;
+  });
+
+  readonly productPageNumbers = computed(() => {
+    const meta = this.productsMeta();
     if (!meta) return [];
 
     const start = Math.max(1, meta.page - 2);
@@ -63,6 +81,35 @@ export class ProductStockMovementsPageComponent {
   });
 
   constructor() {
+    this.loadProducts();
+  }
+
+  onProductSearchChange(value: string) {
+    this.productSearch.set(value);
+    this.productPage.set(1);
+  }
+
+  onProductStatusChange(value: string) {
+    this.productStatus.set((value as ProductStatus) || '');
+    this.productPage.set(1);
+  }
+
+  applyProductFilters() {
+    this.loadProducts();
+  }
+
+  resetProductFilters() {
+    this.productSearch.set('');
+    this.productStatus.set('');
+    this.productPage.set(1);
+    this.loadProducts();
+  }
+
+  goToProductPage(page: number) {
+    const meta = this.productsMeta();
+    if (!meta) return;
+    const safePage = Math.min(Math.max(1, page), meta.pages || 1);
+    this.productPage.set(safePage);
     this.loadProducts();
   }
 
@@ -155,21 +202,36 @@ export class ProductStockMovementsPageComponent {
     this.errorMessage.set(null);
 
     this.api
-      .listMine({ page: 1, limit: 100 })
+      .listMine({
+        page: this.productPage(),
+        limit: this.productLimit(),
+        search: this.productSearch().trim() || undefined,
+        status: this.productStatus()
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.loadingProducts.set(false);
           this.products.set(response.data ?? []);
+          this.productsMeta.set(response.meta ?? null);
 
-          const firstProduct = response.data?.[0];
-          if (firstProduct) {
-            this.selectedProductId.set(firstProduct._id);
+          const selectedId = this.selectedProductId();
+          const stillVisible = response.data?.some((item) => item._id === selectedId);
+          if (!stillVisible) {
+            const firstProduct = response.data?.[0];
+            this.selectedProductId.set(firstProduct?._id || '');
+          }
+
+          if (this.selectedProductId()) {
             this.loadMovements();
+          } else {
+            this.movements.set([]);
+            this.movementsMeta.set(null);
           }
         },
         error: () => {
           this.loadingProducts.set(false);
+          this.productsMeta.set(null);
           this.errorMessage.set('Chargement des produits impossible.');
         }
       });

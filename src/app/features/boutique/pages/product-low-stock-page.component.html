@@ -1,0 +1,119 @@
+<section class="low-stock-page">
+  <header class="page-header">
+    <h1>Stock Faible</h1>
+    <p>Produits dont le stock est inferieur ou egal au seuil defini.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <section class="card filters">
+    <label class="field">
+      <span>Recherche</span>
+      <input
+        type="text"
+        [value]="search()"
+        placeholder="Nom, SKU, marque..."
+        (input)="onSearchChange(($any($event.target).value))"
+      />
+    </label>
+
+    <label class="field">
+      <span>Categorie</span>
+      <input
+        type="text"
+        [value]="category()"
+        placeholder="Ex: Boisson"
+        (input)="onCategoryChange(($any($event.target).value))"
+      />
+    </label>
+
+    <label class="field">
+      <span>Elements / page</span>
+      <select [value]="limit()" (change)="onLimitChange(($any($event.target).value))">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn-secondary" (click)="applyFilters()">Filtrer</button>
+      <button type="button" class="btn-secondary" (click)="resetFilters()">Reset</button>
+    </div>
+  </section>
+
+  <section class="card">
+    @if (loading()) {
+      <p class="muted">Chargement des produits...</p>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>SKU</th>
+              <th>Categorie</th>
+              <th>Stock</th>
+              <th>Seuil</th>
+              <th>Manque</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of products(); track product._id) {
+              <tr>
+                <td data-label="Produit">{{ product.name }}</td>
+                <td data-label="SKU">{{ product.sku }}</td>
+                <td data-label="Categorie">{{ product.category || '-' }}</td>
+                <td data-label="Stock">{{ product.stockQuantity }}</td>
+                <td data-label="Seuil">{{ product.lowStockThreshold }}</td>
+                <td data-label="Manque">
+                  <span class="badge">{{ shortage(product) }}</span>
+                </td>
+                <td data-label="Action">
+                  <a class="action-link" [routerLink]="['/boutique/products/stock-movements']">
+                    Ajuster
+                  </a>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty">Aucun produit en stock faible.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (meta() && meta()!.pages > 1) {
+      <footer class="pagination">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="goToPage(meta()!.page - 1)"
+          [disabled]="meta()!.page <= 1"
+        >
+          Precedent
+        </button>
+
+        <span class="muted">Page {{ meta()!.page }} / {{ meta()!.pages }}</span>
+
+        <div class="page-numbers">
+          @for (pageNumber of pageNumbers(); track pageNumber) {
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="meta()!.page === pageNumber"
+              (click)="goToPage(pageNumber)"
+            >
+              {{ pageNumber }}
+            </button>
+          }
+        </div>
+      </footer>
+    }
+  </section>
+</section>

@@ -6,6 +6,10 @@
     </div>
   </header>
 
+  @if (successMessage()) {
+    <div class="success-banner" role="status">{{ successMessage() }}</div>
+  }
+
   <section class="filters-panel">
     <div class="filters-grid">
       <label class="field">
@@ -74,6 +78,7 @@
       <table>
         <thead>
           <tr>
+            <th>Image</th>
             <th>Produit</th>
             <th>SKU</th>
             <th>Categorie</th>
@@ -81,11 +86,19 @@
             <th>Prix Actuel</th>
             <th>Stock</th>
             <th>Statut</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           @for (product of products(); track trackByProductId($index, product)) {
             <tr>
+              <td data-label="Image">
+                <img
+                  class="thumb"
+                  [src]="imageUrl(product.images?.[0])"
+                  [alt]="product.name"
+                />
+              </td>
               <td data-label="Produit">
                 <div class="product-cell">
                   <strong>{{ product.name }}</strong>
@@ -107,10 +120,15 @@
               <td data-label="Statut">
                 <span class="status-badge">{{ product.status }}</span>
               </td>
+              <td data-label="Action">
+                <button type="button" class="btn-secondary" (click)="openEditModal(product)">
+                  Gerer
+                </button>
+              </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" class="empty">Aucun produit trouve pour ces filtres.</td>
+              <td colspan="9" class="empty">Aucun produit trouve pour ces filtres.</td>
             </tr>
           }
         </tbody>
@@ -147,5 +165,102 @@
         }
       </div>
     </footer>
+  }
+
+  @if (isEditModalOpen() && editingProduct(); as product) {
+    <div class="modal-backdrop" (click)="closeEditModal()"></div>
+    <section class="modal" role="dialog" aria-modal="true" aria-label="Gestion produit">
+      <header class="modal-header">
+        <h2>Gestion Produit</h2>
+        <button type="button" class="btn-secondary" (click)="closeEditModal()">Fermer</button>
+      </header>
+
+      <form class="modal-form" [formGroup]="editForm">
+        <div class="modal-grid">
+          <label class="field">
+            <span>Nom</span>
+            <input type="text" formControlName="name" />
+          </label>
+          <label class="field">
+            <span>SKU</span>
+            <input type="text" formControlName="sku" />
+          </label>
+          <label class="field">
+            <span>Marque</span>
+            <input type="text" formControlName="brand" />
+          </label>
+          <label class="field">
+            <span>Categorie</span>
+            <input type="text" formControlName="category" />
+          </label>
+          <label class="field">
+            <span>Prix</span>
+            <input type="number" formControlName="price" min="0" step="0.01" />
+          </label>
+          <label class="field">
+            <span>Prix promo</span>
+            <input type="number" formControlName="salePrice" min="0" step="0.01" />
+          </label>
+          <label class="field full">
+            <span>Tags (comma separated)</span>
+            <input type="text" formControlName="tagsText" />
+          </label>
+        </div>
+      </form>
+
+      <section class="images-section">
+        <h3>Images du produit</h3>
+        <div class="images-list">
+          @for (img of product.images || []; track img) {
+            <div class="image-card">
+              <img [src]="imageUrl(img)" alt="Image produit" />
+              <small>{{ img }}</small>
+
+              <div class="image-actions">
+                <button type="button" class="btn-secondary" (click)="askRemoveImage(img)">Supprimer</button>
+                <label class="btn-secondary replace-label">
+                  Remplacer
+                  <input
+                    type="file"
+                    accept="image/*"
+                    (change)="askReplaceImage(img, $any($event.target).files?.[0] || null)"
+                  />
+                </label>
+              </div>
+            </div>
+          } @empty {
+            <p class="empty">Aucune image.</p>
+          }
+        </div>
+
+        <div class="add-image-box">
+          <label class="btn-secondary replace-label">
+            Ajouter une image
+            <input type="file" accept="image/*" (change)="askAddImage($any($event.target).files?.[0] || null)" />
+          </label>
+        </div>
+      </section>
+
+      <footer class="modal-actions">
+        <button type="button" class="btn-secondary danger" (click)="askDeleteProduct()">Supprimer produit</button>
+        <button type="button" class="btn-secondary" (click)="askSaveProduct()">Mettre a jour</button>
+      </footer>
+    </section>
+  }
+
+  @if (confirmAction()) {
+    <div class="modal-backdrop"></div>
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-label="Confirmation">
+      <h3>Confirmation</h3>
+      <p>{{ confirmMessage() }}</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn-secondary" [disabled]="actionLoading()" (click)="closeConfirmModal()">
+          Annuler
+        </button>
+        <button type="button" class="btn-secondary danger" [disabled]="actionLoading()" (click)="confirmActionAndExecute()">
+          {{ actionLoading() ? 'Traitement...' : 'Confirmer' }}
+        </button>
+      </div>
+    </section>
   }
 </section>

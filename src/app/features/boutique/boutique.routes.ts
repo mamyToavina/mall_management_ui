@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
 import { BoutiqueHomePageComponent } from './pages/boutique-home.component';
-import { BoutiqueProductWorkspaceComponent } from './pages/boutique-product-workspace.component';
 import { ProductCatalogPageComponent } from './pages/product-catalog-page.component';
 import { ProductCreatePageComponent } from './pages/product-create-page.component';
+import { ProductLowStockPageComponent } from './pages/product-low-stock-page.component';
+import { ProductPromotionsPageComponent } from './pages/product-promotions-page.component';
 import { ProductStockMovementsPageComponent } from './pages/product-stock-movements-page.component';
 
 export const BOUTIQUE_ROUTES: Routes = [
@@ -17,11 +18,7 @@ export const BOUTIQUE_ROUTES: Routes = [
   },
   {
     path: 'products/low-stock',
-    component: BoutiqueProductWorkspaceComponent,
-    data: {
-      title: 'Stock Faible',
-      description: 'Surveiller les produits sous seuil avec le filtre lowStock=true.'
-    }
+    component: ProductLowStockPageComponent
   },
   {
     path: 'products/stock-movements',
@@ -29,11 +26,7 @@ export const BOUTIQUE_ROUTES: Routes = [
   },
   {
     path: 'products/promotions',
-    component: BoutiqueProductWorkspaceComponent,
-    data: {
-      title: 'Promotions Produits',
-      description: 'Configurer, activer et retirer les promotions des produits.'
-    }
+    component: ProductPromotionsPageComponent
   },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', redirectTo: 'home' }

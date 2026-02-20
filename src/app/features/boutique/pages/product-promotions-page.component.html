@@ -1,0 +1,142 @@
+<section class="promotions-page">
+  <header class="page-header">
+    <h1>Promotions Produits</h1>
+    <p>Filtrez les produits, choisissez un produit puis appliquez ou retirez une promotion.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="feedback success" role="status">{{ successMessage() }}</div>
+  }
+
+  <section class="card filters">
+    <label class="field">
+      <span>Recherche</span>
+      <input
+        type="text"
+        [value]="search()"
+        placeholder="Nom, SKU, marque..."
+        (input)="onSearchChange(($any($event.target).value))"
+      />
+    </label>
+
+    <label class="field">
+      <span>Statut</span>
+      <select [value]="status()" (change)="onStatusChange(($any($event.target).value))">
+        <option value="">Tous</option>
+        @for (item of statusOptions; track item) {
+          <option [value]="item">{{ item }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Elements / page</span>
+      <select [value]="limit()" (change)="onLimitChange(($any($event.target).value))">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn-secondary" (click)="applyFilters()">Filtrer</button>
+      <button type="button" class="btn-secondary" (click)="resetFilters()">Reset</button>
+    </div>
+  </section>
+
+  <section class="layout">
+    <section class="card">
+      <h2>Produits</h2>
+      @if (loading()) {
+        <p class="muted">Chargement produits...</p>
+      } @else {
+        <div class="product-list">
+          @for (product of products(); track product._id) {
+            <button
+              type="button"
+              class="product-item"
+              [class.active]="selectedProductId() === product._id"
+              (click)="selectProduct(product._id)"
+            >
+              <strong>{{ product.name }}</strong>
+              <small>{{ product.sku }}</small>
+              <span class="promo-state" [class.on]="product.promotion?.enabled">
+                {{ product.promotion?.enabled ? 'Promo active/configuree' : 'Aucune promo' }}
+              </span>
+            </button>
+          } @empty {
+            <p class="muted">Aucun produit.</p>
+          }
+        </div>
+      }
+
+      @if (meta() && meta()!.pages > 1) {
+        <footer class="pagination">
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="goToPage(meta()!.page - 1)"
+            [disabled]="meta()!.page <= 1"
+          >
+            Precedent
+          </button>
+
+          <div class="page-numbers">
+            @for (pageNumber of pageNumbers(); track pageNumber) {
+              <button
+                type="button"
+                class="page-btn"
+                [class.active]="meta()!.page === pageNumber"
+                (click)="goToPage(pageNumber)"
+              >
+                {{ pageNumber }}
+              </button>
+            }
+          </div>
+        </footer>
+      }
+    </section>
+
+    <form class="card" [formGroup]="promotionForm" (ngSubmit)="applyPromotion()">
+      <h2>Configuration promotion</h2>
+
+      @if (selectedProduct(); as product) {
+        <div class="selected-product">
+          <strong>{{ product.name }}</strong>
+          <small>{{ product.sku }}</small>
+          <small>Prix actuel: {{ (product.currentSellingPrice ?? product.price) | number: '1.2-2' }}</small>
+        </div>
+      } @else {
+        <p class="muted">Selectionnez un produit.</p>
+      }
+
+      <label class="field">
+        <span>Pourcentage (%)</span>
+        <input type="number" min="1" max="90" step="1" formControlName="percentage" />
+      </label>
+
+      <label class="field">
+        <span>Date debut</span>
+        <input type="datetime-local" formControlName="startsAt" />
+      </label>
+
+      <label class="field">
+        <span>Duree (jours)</span>
+        <input type="number" min="1" step="1" formControlName="durationDays" />
+      </label>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" [disabled]="submitting() || !selectedProductId()">
+          {{ submitting() ? 'Application...' : 'Appliquer promotion' }}
+        </button>
+        <button type="button" class="btn-secondary" [disabled]="submitting() || !selectedProductId()" (click)="clearPromotion()">
+          Retirer promotion
+        </button>
+      </div>
+    </form>
+  </section>
+</section>

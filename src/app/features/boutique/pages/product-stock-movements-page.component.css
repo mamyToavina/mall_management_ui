@@ -25,7 +25,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 12px;
 }
 
@@ -78,6 +78,49 @@ textarea:focus {
   margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.filter-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.product-list {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.product-item {
+  height: auto;
+  min-height: 56px;
+  text-align: left;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.product-item.active {
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  background: color-mix(in oklab, var(--primary) 12%, var(--surface));
+}
+
+.product-item small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.product-pagination {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
 
@@ -245,5 +288,9 @@ th {
   .summary,
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .product-pagination {
+    flex-wrap: wrap;
   }
 }
