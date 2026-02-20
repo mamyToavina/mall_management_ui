@@ -1,0 +1,174 @@
+<section class="stock-page">
+  <header class="page-header">
+    <h1>Mouvements de Stock</h1>
+    <p>Ajustez le stock produit et consultez l'historique des operations.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="feedback success" role="status">{{ successMessage() }}</div>
+  }
+
+  <section class="card">
+    <div class="row">
+      <label class="field large">
+        <span>Produit</span>
+        <select
+          [disabled]="loadingProducts() || products().length === 0"
+          [value]="selectedProductId()"
+          (change)="onSelectProduct(($any($event.target).value))"
+        >
+          @for (product of products(); track product._id) {
+            <option [value]="product._id">{{ product.name }} - {{ product.sku }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Elements / page</span>
+        <select [value]="movementLimit()" (change)="onMovementLimitChange(($any($event.target).value))">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </label>
+    </div>
+
+    @if (selectedProduct(); as product) {
+      <div class="summary">
+        <div class="summary-item">
+          <span>Stock actuel</span>
+          <strong>{{ product.stockQuantity }}</strong>
+        </div>
+        <div class="summary-item">
+          <span>Seuil faible</span>
+          <strong>{{ product.lowStockThreshold }}</strong>
+        </div>
+        <div class="summary-item">
+          <span>Statut</span>
+          <strong>{{ product.status }}</strong>
+        </div>
+      </div>
+    }
+  </section>
+
+  <form class="card movement-form" [formGroup]="adjustForm" (ngSubmit)="submitAdjustment()">
+    <h2>Nouveau mouvement</h2>
+    <div class="grid">
+      <label class="field">
+        <span>Operation</span>
+        <select formControlName="operation">
+          @for (operation of operationOptions; track operation) {
+            <option [value]="operation">{{ operation }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Quantite</span>
+        <input type="number" min="0" step="1" formControlName="quantity" />
+      </label>
+
+      <label class="field">
+        <span>Motif</span>
+        <input type="text" formControlName="reason" placeholder="Ex: Inventaire, reception..." />
+      </label>
+
+      <label class="field">
+        <span>Reference</span>
+        <input type="text" formControlName="reference" placeholder="Ex: BL-2026-001" />
+      </label>
+
+      <label class="field full">
+        <span>Note</span>
+        <textarea rows="3" formControlName="note" placeholder="Informations complementaires"></textarea>
+      </label>
+    </div>
+
+    <footer class="actions">
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="submitting() || loadingProducts() || !selectedProductId()"
+      >
+        {{ submitting() ? 'Validation...' : 'Valider le mouvement' }}
+      </button>
+    </footer>
+  </form>
+
+  <section class="card">
+    <h2>Historique</h2>
+
+    @if (loadingMovements()) {
+      <p class="muted">Chargement historique...</p>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Quantite</th>
+              <th>Avant</th>
+              <th>Apres</th>
+              <th>Motif</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (movement of movements(); track movement._id) {
+              <tr>
+                <td data-label="Date">{{ movement.createdAt | date: 'short' }}</td>
+                <td data-label="Type">
+                  <span class="type-badge">{{ badgeType(movement.type) }}</span>
+                </td>
+                <td data-label="Quantite">{{ movement.quantity }}</td>
+                <td data-label="Avant">{{ movement.previousStock }}</td>
+                <td data-label="Apres">{{ movement.newStock }}</td>
+                <td data-label="Motif">{{ movement.reason || '-' }}</td>
+                <td data-label="Reference">{{ movement.reference || '-' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty">Aucun mouvement pour ce produit.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (movementsMeta() && movementsMeta()!.pages > 1) {
+      <footer class="pagination">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="goToMovementPage(movementsMeta()!.page - 1)"
+          [disabled]="movementsMeta()!.page <= 1"
+        >
+          Precedent
+        </button>
+
+        <span class="muted">
+          Page {{ movementsMeta()!.page }} / {{ movementsMeta()!.pages }} - Total: {{ movementsMeta()!.total }}
+        </span>
+
+        <div class="page-numbers">
+          @for (pageNumber of pageNumbers(); track pageNumber) {
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="movementsMeta()!.page === pageNumber"
+              (click)="goToMovementPage(pageNumber)"
+            >
+              {{ pageNumber }}
+            </button>
+          }
+        </div>
+      </footer>
+    }
+  </section>
+</section>

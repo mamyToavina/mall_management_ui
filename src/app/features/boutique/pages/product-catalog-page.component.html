@@ -1,0 +1,151 @@
+<section class="catalog-page">
+  <header class="page-header">
+    <div>
+      <h1>Catalogue Produits</h1>
+      <p>Liste et filtrage des produits de votre boutique.</p>
+    </div>
+  </header>
+
+  <section class="filters-panel">
+    <div class="filters-grid">
+      <label class="field">
+        <span>Recherche</span>
+        <input
+          type="text"
+          placeholder="Nom, SKU, marque"
+          [value]="search()"
+          (input)="onSearchChange(($any($event.target).value))"
+        />
+      </label>
+
+      <label class="field">
+        <span>Statut</span>
+        <select [value]="status()" (change)="onStatusChange(($any($event.target).value))">
+          <option value="">Tous</option>
+          @for (item of statusOptions; track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Categorie</span>
+        <input
+          type="text"
+          placeholder="ex: Electronique"
+          [value]="category()"
+          (input)="onCategoryChange(($any($event.target).value))"
+        />
+      </label>
+
+      <label class="field">
+        <span>Par page</span>
+        <select [value]="limit()" (change)="onLimitChange(($any($event.target).value))">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="filters-actions">
+      <label class="toggle">
+        <input
+          type="checkbox"
+          [checked]="lowStock()"
+          (change)="onLowStockChange(($any($event.target).checked))"
+        />
+        <span>Stock faible uniquement</span>
+      </label>
+
+      <button type="button" class="btn-secondary" (click)="resetFilters()">Reset</button>
+    </div>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="error-banner" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state" role="status" aria-live="polite">Chargement du catalogue...</div>
+  } @else {
+    <section class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>SKU</th>
+            <th>Categorie</th>
+            <th>Prix</th>
+            <th>Prix Actuel</th>
+            <th>Stock</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products(); track trackByProductId($index, product)) {
+            <tr>
+              <td data-label="Produit">
+                <div class="product-cell">
+                  <strong>{{ product.name }}</strong>
+                  <small>{{ product.brand || '-' }}</small>
+                </div>
+              </td>
+              <td data-label="SKU">{{ product.sku }}</td>
+              <td data-label="Categorie">{{ product.category || '-' }}</td>
+              <td data-label="Prix">{{ product.price | number: '1.2-2' }}</td>
+              <td data-label="Prix Actuel">{{ (product.currentSellingPrice ?? product.price) | number: '1.2-2' }}</td>
+              <td data-label="Stock">
+                <span
+                  class="stock-badge"
+                  [class.low]="product.stockQuantity <= product.lowStockThreshold"
+                >
+                  {{ product.stockQuantity }}
+                </span>
+              </td>
+              <td data-label="Statut">
+                <span class="status-badge">{{ product.status }}</span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty">Aucun produit trouve pour ces filtres.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  @if (meta() && meta()!.pages > 1) {
+    <footer class="pagination">
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="goToPage(meta()!.page - 1)"
+        [disabled]="meta()!.page <= 1"
+      >
+        Precedent
+      </button>
+
+      <div class="pagination-info">
+        <span>Page {{ meta()!.page }} / {{ meta()!.pages }}</span>
+        <span>Total: {{ meta()!.total }}</span>
+      </div>
+
+      <div class="page-jump">
+        @for (pageNumber of pageNumbers(); track pageNumber) {
+          <button
+            type="button"
+            class="page-btn"
+            [class.active]="meta()!.page === pageNumber"
+            (click)="goToPage(pageNumber)"
+          >
+            {{ pageNumber }}
+          </button>
+        }
+      </div>
+    </footer>
+  }
+</section>
