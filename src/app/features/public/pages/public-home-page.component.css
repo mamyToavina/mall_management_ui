@@ -5,35 +5,6 @@
   --text-main: #2e1232;
   --text-muted: #75537a;
   display: block;
-  position: relative;
-  isolation: isolate;
-}
-
-:host::before,
-:host::after {
-  content: "";
-  position: fixed;
-  inset: -120px -80px auto;
-  height: 360px;
-  pointer-events: none;
-  z-index: -2;
-  filter: blur(26px);
-  opacity: 0.65;
-}
-
-:host::before {
-  background:
-    radial-gradient(460px 240px at 8% 30%, color-mix(in oklab, var(--accent) 68%, white), transparent 74%),
-    radial-gradient(520px 300px at 88% 20%, #f8b7ec, transparent 72%);
-}
-
-:host::after {
-  inset: auto -120px -180px;
-  height: 420px;
-  opacity: 0.48;
-  background:
-    radial-gradient(520px 260px at 14% 75%, #f7caee, transparent 76%),
-    radial-gradient(440px 240px at 92% 78%, color-mix(in oklab, var(--accent) 45%, #5d0f62), transparent 76%);
 }
 
 .hero {
@@ -383,10 +354,9 @@ h1 {
   border-radius: 50% 50% 50% 0;
   background: #ff2f99;
   border: 2px solid #fff;
-  box-shadow: 0 8px 18px rgba(255, 47, 153, 0.55);
+  box-shadow: 0 8px 18px rgba(255, 47, 153, 0.55), 0 0 0 10px rgba(255, 47, 153, 0.2);
   transform: translate(-50%, -95%) rotate(-45deg);
   z-index: 5;
-  animation: marker-bounce 1.6s ease-in-out infinite;
 }
 
 .map-marker::before {
@@ -400,18 +370,6 @@ h1 {
   top: 6px;
 }
 
-.map-marker::after {
-  content: "";
-  position: absolute;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 47, 153, 0.45);
-  left: -11px;
-  top: -11px;
-  animation: marker-pulse 1.8s ease-out infinite;
-}
-
 .map-coords {
   margin: 0;
   padding: 10px 12px;
@@ -419,26 +377,6 @@ h1 {
   font-weight: 700;
   color: var(--text-muted);
   border-top: 1px solid color-mix(in oklab, var(--accent) 18%, white);
-}
-
-@keyframes marker-bounce {
-  0%, 100% {
-    transform: translate(-50%, -95%) rotate(-45deg) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -100%) rotate(-45deg) scale(1.06);
-  }
-}
-
-@keyframes marker-pulse {
-  0% {
-    transform: scale(0.7);
-    opacity: 0.75;
-  }
-  100% {
-    transform: scale(1.25);
-    opacity: 0;
-  }
 }
 
 .cart-action {
@@ -460,23 +398,6 @@ h1 {
   transform: translateY(-2px);
   background-position: 100% 50%;
   box-shadow: 0 12px 24px rgba(146, 15, 125, 0.34);
-}
-
-.reveal-up {
-  opacity: 0;
-  transform: translateY(18px);
-  animation: reveal-up 700ms ease forwards;
-}
-
-.delay-1 { animation-delay: 120ms; }
-.delay-2 { animation-delay: 220ms; }
-.delay-3 { animation-delay: 320ms; }
-
-@keyframes reveal-up {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @media (max-width: 1024px) {
