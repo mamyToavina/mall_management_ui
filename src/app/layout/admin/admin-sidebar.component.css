@@ -86,6 +86,15 @@
     transform-origin: center;
     transition: transform .18s ease, opacity .18s ease, width .18s ease;
   }
+
+  .chevron::before{
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-1px);
+  }
   
   .nav-group.open .chevron{
     transform: rotate(180deg);

@@ -108,8 +108,8 @@
       </div>
   
       <div class="filter-actions flex gap-2 mt-3">
-        <button class="border rounded px-3 py-1" (click)="refresh()">Actualiser</button>
-        <button class="border rounded px-3 py-1" (click)="resetAll()">Reset</button>
+        <button type="button" class="border rounded px-3 py-1" (click)="refresh()">Actualiser</button>
+        <button type="button" class="border rounded px-3 py-1" (click)="resetAll()">Reset</button>
       </div>
     </div>
   
@@ -154,15 +154,10 @@
                     {{ badgeStatus(b) }}
                   </span>
                 </td>
-                <!--<td class="p-2">
-                  <button class="border rounded px-3 py-1" (click)="openBox(b._id)">
-                    Détails
-                  </button>
-                </td>-->
                 <td class="p-2 action-cell" data-label="Action" (click)="$event.stopPropagation()">
                   <div class="row-actions">
-                    <button class="border rounded px-3 py-1" (click)="openBox(b._id)">Détails</button>
-                    <button class="border rounded px-3 py-1" [routerLink]="['/admin/boxes', b._id, 'edit']">Modifier</button>
+                    <button type="button" class="border rounded px-3 py-1" [routerLink]="['/admin/boxes', b._id]">Détails</button>
+                    <button type="button" class="border rounded px-3 py-1" [routerLink]="['/admin/boxes', b._id, 'edit']">Modifier</button>
                   </div>
                 </td>
                 
@@ -181,6 +176,7 @@
     @if (meta() && meta()!.pages > 1) {
       <div class="boxes-pagination flex items-center gap-2 mt-4">
         <button
+          type="button"
           class="border rounded px-3 py-1"
           (click)="goTo(meta()!.page - 1)"
           [disabled]="meta()!.page === 1"
@@ -193,6 +189,7 @@
         </div>
   
         <button
+          type="button"
           class="border rounded px-3 py-1"
           (click)="goTo(meta()!.page + 1)"
           [disabled]="meta()!.page === meta()!.pages"
@@ -202,4 +199,5 @@
       </div>
     }
   </div>
+
   

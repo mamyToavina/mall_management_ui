@@ -52,7 +52,7 @@ type NavItem = {
             >
               <span class="icon" aria-hidden="true">{{ item.icon }}</span>
               <span class="label">{{ item.label }}</span>
-              <span class="chevron" aria-hidden="true">⌄</span>
+              <span class="chevron" aria-hidden="true"></span>
             </button>
 
             <div class="subnav"
@@ -111,7 +111,7 @@ type NavItem = {
               >
                 <span class="icon" aria-hidden="true">{{ item.icon }}</span>
                 <span class="label">{{ item.label }}</span>
-                <span class="chevron" aria-hidden="true">⌄</span>
+                <span class="chevron" aria-hidden="true"></span>
               </button>
 
               <div class="subnav"

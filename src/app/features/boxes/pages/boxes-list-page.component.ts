@@ -51,9 +51,6 @@ import { RouterModule } from '@angular/router';
     readonly maxRent = signal<number | null>(null);
     readonly status = signal<BoxStatus | ''>('');
   
-    // modal / détails
-    readonly selectedBox = signal<any | null>(null);
-  
     // computed query object
     readonly query = computed(() => ({
       page: this.page(),
@@ -174,27 +171,6 @@ import { RouterModule } from '@angular/router';
     refresh() {
       this.refreshTick.update((x) => x + 1);
       this.loadStats();
-    }
-  
-    // =======================
-    // Détails (modal) - full-details
-    // =======================
-  
-    openBox(id: string) {
-      this.loading.set(true);
-      this.api.getFullDetails(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (details) => {
-          this.selectedBox.set(details);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-        },
-      });
-    }
-  
-    closeModal() {
-      this.selectedBox.set(null);
     }
   
     // =======================
