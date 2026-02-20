@@ -1,4 +1,4 @@
-export interface BoutiqueNavItem {
+﻿export interface BoutiqueNavItem {
   label: string;
   icon: string;
   route?: string;
@@ -9,41 +9,41 @@ export interface BoutiqueNavItem {
 export const BOUTIQUE_NAVIGATION: BoutiqueNavItem[] = [
   {
     label: 'Accueil',
-    icon: 'HM',
+    icon: '\u{1F3E0}',
     route: '/boutique/home',
     exact: true
   },
   {
     label: 'Gestion Produits',
-    icon: 'PR',
+    icon: '\u{1F4E6}',
     children: [
       {
         label: 'Catalogue',
-        icon: 'LS',
+        icon: '\u{1F4CB}',
         route: '/boutique/products',
         exact: true
       },
       {
         label: 'Ajouter Produit',
-        icon: 'NW',
+        icon: '\u2795',
         route: '/boutique/products/new',
         exact: true
       },
       {
         label: 'Stock Faible',
-        icon: 'LF',
+        icon: '\u26A0',
         route: '/boutique/products/low-stock',
         exact: true
       },
       {
         label: 'Mouvements Stock',
-        icon: 'MV',
+        icon: '\u{1F504}',
         route: '/boutique/products/stock-movements',
         exact: true
       },
       {
         label: 'Promotions',
-        icon: 'PM',
+        icon: '\u{1F3F7}',
         route: '/boutique/products/promotions',
         exact: true
       }

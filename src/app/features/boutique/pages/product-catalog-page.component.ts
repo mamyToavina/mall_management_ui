@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   DestroyRef,
   Injector,
@@ -110,7 +110,7 @@ export class ProductCatalogPageComponent {
 
       query$
         .pipe(
-          debounceTime(200),
+          debounceTime(100),
           distinctUntilChanged((prev, next) => JSON.stringify(prev) === JSON.stringify(next)),
           switchMap((query) => {
             this.loading.set(true);
@@ -419,3 +419,4 @@ export class ProductCatalogPageComponent {
     this.confirmAction.set(null);
   }
 }
+

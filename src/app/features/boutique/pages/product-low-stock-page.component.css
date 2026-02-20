@@ -1,4 +1,4 @@
-.low-stock-page {
+﻿.low-stock-page {
   display: grid;
   gap: 14px;
 }
@@ -73,6 +73,12 @@ select {
   border-color: color-mix(in oklab, var(--primary) 42%, var(--border));
 }
 
+.loading-state {
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+}
 .table-wrap {
   overflow: auto;
 }
@@ -166,3 +172,4 @@ th {
     grid-template-columns: 1fr;
   }
 }
+

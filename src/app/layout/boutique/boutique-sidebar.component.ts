@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -15,9 +15,6 @@ import { BOUTIQUE_NAVIGATION, BoutiqueNavItem } from './boutique-navigation.conf
       [class.collapsed]="layout.isSidebarCollapsed()"
       [style.width]="layout.sidebarWidth()"
     >
-      <div class="sidebar-title">Espace Boutique</div>
-      <div class="sidebar-subtitle">Gestion compte boutique TI</div>
-
       <nav class="nav" aria-label="Navigation boutique">
         <ng-container *ngFor="let item of nav">
           <a
@@ -57,7 +54,7 @@ import { BOUTIQUE_NAVIGATION, BoutiqueNavItem } from './boutique-navigation.conf
                 (click)="layout.closeMobileSidebar()"
                 [title]="child.label"
               >
-                <span class="sub-icon" aria-hidden="true">{{ child.icon || 'o' }}</span>
+                <span class="sub-icon" aria-hidden="true">{{ child.icon || '\u2022' }}</span>
                 <span class="sub-label">{{ child.label }}</span>
               </a>
             </div>
@@ -106,7 +103,7 @@ import { BOUTIQUE_NAVIGATION, BoutiqueNavItem } from './boutique-navigation.conf
                   [routerLinkActiveOptions]="{ exact: child.exact ?? true }"
                   (click)="layout.closeMobileSidebar()"
                 >
-                  <span class="sub-icon" aria-hidden="true">{{ child.icon || 'o' }}</span>
+                  <span class="sub-icon" aria-hidden="true">{{ child.icon || '\u2022' }}</span>
                   <span class="sub-label">{{ child.label }}</span>
                 </a>
               </div>
