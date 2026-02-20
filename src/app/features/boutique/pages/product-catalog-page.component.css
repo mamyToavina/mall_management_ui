@@ -168,12 +168,6 @@ tbody tr:hover {
   font-size: 12px;
 }
 
-.muted-path {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 11px;
-  word-break: break-all;
-}
-
 .thumb {
   width: 52px;
   height: 52px;
