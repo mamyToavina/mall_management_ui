@@ -48,7 +48,7 @@ import { LayoutService } from '../../../core/services/layout.service';
             <span class="icon" aria-hidden="true">📦</span>
             <span class="label">Gestion boxes</span>
 
-            <span class="chevron" aria-hidden="true">⌄</span>
+            <span class="chevron" aria-hidden="true"></span>
           </button>
 
           <div class="subnav" id="boxes-submenu" [class.open]="boxesOpen()">
@@ -103,7 +103,7 @@ import { LayoutService } from '../../../core/services/layout.service';
             >
               <span class="icon" aria-hidden="true">📦</span>
               <span class="label">Gestion boxes</span>
-              <span class="chevron" aria-hidden="true">⌄</span>
+              <span class="chevron" aria-hidden="true"></span>
             </button>
 
             <div class="subnav" id="boxes-submenu-mobile" [class.open]="boxesOpen()">

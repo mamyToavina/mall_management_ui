@@ -1,27 +1,91 @@
-<div class="p-4">
-    <h2 class="text-xl font-semibold mb-4">Détails box</h2>
-  
-    <div *ngIf="loading()" class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
-      <div class="dice-loader" aria-hidden="true">
-        <span class="die d1"></span>
-        <span class="die d2"></span>
-        <span class="die d3"></span>
-      </div>
-      <span class="sr-only">Chargement en cours</span>
+<div class="details-page">
+  <div class="details-hero">
+    <div>
+      <div class="eyebrow">Gestion des boxes</div>
+      <h1>Détails box</h1>
+      <p>Vue complète de la box et du contrat actif.</p>
     </div>
 
-  
-    <div *ngIf="box()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="border rounded p-3">
-        <h3 class="font-semibold mb-2">Box</h3>
-        <pre class="text-xs overflow-auto">{{ box() | json }}</pre>
-      </div>
-  
-      <div class="border rounded p-3">
-        <h3 class="font-semibold mb-2">Contract ACTIVE</h3>
-        <div *ngIf="!contract()" class="text-gray-500">Aucun contrat actif</div>
-        <pre *ngIf="contract()" class="text-xs overflow-auto">{{ contract() | json }}</pre>
-      </div>
+    <div class="hero-actions">
+      <a class="btn ghost" routerLink="/admin/boxes">Retour liste</a>
+      @if (box(); as b) {
+        <a class="btn" [routerLink]="['/admin/boxes', b._id, 'edit']">Modifier</a>
+      }
     </div>
   </div>
-  
+
+  @if (loading()) {
+    <div class="state-card">Chargement des détails...</div>
+  }
+
+  @if (error()) {
+    <div class="state-card error">{{ error() }}</div>
+  }
+
+  @if (!loading() && box(); as b) {
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Informations box</h2>
+        <span class="status-badge" [class.occupied]="b?.boutique">{{ boxStatus() }}</span>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field">
+          <span class="label">Numéro</span>
+          <strong>{{ b.number ?? '-' }}</strong>
+        </div>
+        <div class="field">
+          <span class="label">Étage</span>
+          <strong>{{ b.floor ?? '-' }}</strong>
+        </div>
+        <div class="field">
+          <span class="label">Surface</span>
+          <strong>{{ b.surface ?? '-' }} m²</strong>
+        </div>
+        <div class="field">
+          <span class="label">Loyer mensuel</span>
+          <strong>{{ b.monthlyRent ?? '-' }}</strong>
+        </div>
+        <div class="field">
+          <span class="label">Compteur électricité</span>
+          <strong>{{ b.electricityMeterNumber || '-' }}</strong>
+        </div>
+        <div class="field">
+          <span class="label">Boutique liée</span>
+          <strong>{{ b.boutique || '-' }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Contrat actif</h2>
+      </div>
+
+      @if (contract()) {
+        <div class="fields-grid">
+          @for (field of contractFields(); track field.label) {
+            <div class="field">
+              <span class="label">{{ field.label }}</span>
+              <strong>{{ field.value }}</strong>
+            </div>
+          }
+        </div>
+
+        @if (contractExtraFields().length) {
+          <div class="sub-title">Informations complémentaires</div>
+          <div class="fields-grid compact">
+            @for (field of contractExtraFields(); track field.label) {
+              <div class="field">
+                <span class="label">{{ field.label }}</span>
+                <strong>{{ field.value }}</strong>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <div class="empty-contract">Aucun contrat actif pour cette box.</div>
+      }
+    </section>
+  }
+</div>
