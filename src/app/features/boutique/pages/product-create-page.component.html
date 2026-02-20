@@ -1,0 +1,188 @@
+<section class="create-page">
+  <header class="page-header">
+    <div>
+      <h1>Ajouter Produit</h1>
+      <p>Renseignez les informations essentielles, puis ajoutez une photo via glisser-deposer.</p>
+    </div>
+    <button type="button" class="btn-secondary" (click)="goToCatalog()">Retour catalogue</button>
+  </header>
+
+  <section class="card info">
+    <h2>Conseils</h2>
+    <ul>
+      <li>Les champs Nom, SKU, Prix et Photo sont obligatoires.</li>
+      <li>Le SKU doit etre unique dans la boutique.</li>
+      <li>Format tags: `boisson, promo, import`.</li>
+    </ul>
+  </section>
+
+  @if (successMessage()) {
+    <div class="feedback success" role="status">{{ successMessage() }}</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="feedback error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <form class="card form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <section class="form-section">
+      <h3>Identification</h3>
+      <div class="grid two-cols">
+        <label class="field">
+          <span>Nom produit *</span>
+          <input type="text" formControlName="name" placeholder="Ex: Jus Orange Premium 1L" />
+          <small class="error-text" *ngIf="isInvalid('name')">Nom requis (max 120).</small>
+        </label>
+
+        <label class="field">
+          <span>SKU *</span>
+          <input type="text" formControlName="sku" placeholder="Ex: JUS-ORANGE-1L" />
+          <small class="error-text" *ngIf="isInvalid('sku')">SKU requis (max 80).</small>
+        </label>
+
+        <label class="field">
+          <span>Marque</span>
+          <input type="text" formControlName="brand" placeholder="Ex: TI Market" />
+        </label>
+
+        <label class="field">
+          <span>Categorie</span>
+          <input type="text" formControlName="category" placeholder="Ex: Boissons" />
+        </label>
+
+        <label class="field">
+          <span>Sous-categorie</span>
+          <input type="text" formControlName="subCategory" placeholder="Ex: Jus de fruits" />
+        </label>
+
+        <label class="field">
+          <span>Tags</span>
+          <input type="text" formControlName="tagsText" placeholder="Ex: frais, bio, promo" />
+        </label>
+
+        <label class="field full">
+          <span>Description</span>
+          <textarea formControlName="description" rows="4" placeholder="Description claire du produit"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Prix et vente</h3>
+      <div class="grid three-cols">
+        <label class="field">
+          <span>Prix de base *</span>
+          <input type="number" min="0" step="0.01" formControlName="price" />
+          <small class="error-text" *ngIf="isInvalid('price')">Prix requis, minimum 0.</small>
+        </label>
+
+        <label class="field">
+          <span>Prix promo</span>
+          <input type="number" min="0" step="0.01" formControlName="salePrice" />
+        </label>
+
+        <label class="field">
+          <span>Prix coutant</span>
+          <input type="number" min="0" step="0.01" formControlName="costPrice" />
+        </label>
+
+        <label class="field">
+          <span>Taxe (%)</span>
+          <input type="number" min="0" step="0.01" formControlName="taxRate" />
+        </label>
+
+        <label class="field">
+          <span>Unite</span>
+          <input type="text" formControlName="unit" placeholder="piece, kg, litre..." />
+        </label>
+
+        <label class="field">
+          <span>Statut *</span>
+          <select formControlName="status">
+            @for (status of statusOptions; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Stock et publication</h3>
+      <div class="grid three-cols">
+        <label class="field checkbox-field">
+          <input type="checkbox" formControlName="trackStock" />
+          <span>Suivre le stock</span>
+        </label>
+
+        <label class="field">
+          <span>Stock initial</span>
+          <input type="number" min="0" step="1" formControlName="stockQuantity" />
+        </label>
+
+        <label class="field">
+          <span>Seuil stock faible</span>
+          <input type="number" min="0" step="1" formControlName="lowStockThreshold" />
+        </label>
+
+        <label class="field checkbox-field">
+          <input type="checkbox" formControlName="allowBackorder" />
+          <span>Autoriser rupture</span>
+        </label>
+
+        <label class="field checkbox-field">
+          <input type="checkbox" formControlName="isPublished" />
+          <span>Publier immediatement</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Photo produit *</h3>
+
+      <div
+        class="dropzone"
+        [class.drag-active]="dragActive()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+      >
+        <input
+          #filePicker
+          type="file"
+          class="native-file-input"
+          accept="image/*"
+          (change)="onBrowseFile($event)"
+        />
+
+        <p class="drop-main">Glissez votre image ici</p>
+        <p class="drop-sub">ou cliquez pour parcourir (max 5 MB)</p>
+        <button type="button" class="btn-secondary" (click)="filePicker.click()">Choisir une image</button>
+      </div>
+
+      @if (imageRequiredError) {
+        <small class="error-text">Photo obligatoire pour creer le produit.</small>
+      }
+
+      @if (selectedFileName()) {
+        <div class="preview">
+          <div class="preview-meta">
+            <strong>{{ selectedFileName() }}</strong>
+            <button type="button" class="btn-link" (click)="removeImage()">Retirer</button>
+          </div>
+
+          @if (previewUrl()) {
+            <img [src]="previewUrl()" alt="Apercu produit" />
+          }
+        </div>
+      }
+    </section>
+
+    <footer class="actions">
+      <button type="button" class="btn-secondary" (click)="resetForm()">Reinitialiser</button>
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creation en cours...' : 'Creer le produit' }}
+      </button>
+    </footer>
+  </form>
+</section>

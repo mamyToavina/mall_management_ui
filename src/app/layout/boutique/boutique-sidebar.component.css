@@ -62,6 +62,84 @@
   background: color-mix(in oklab, var(--primary) 18%, var(--surface));
 }
 
+.nav-toggle {
+  width: 100%;
+  text-align: left;
+}
+
+.chevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  margin-left: auto;
+  transition: transform .2s ease;
+}
+
+.nav-group.open .chevron {
+  transform: rotate(-135deg);
+}
+
+.subnav {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 2px 46px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: max-height .24s ease, opacity .2s ease, transform .2s ease;
+}
+
+.subnav.open {
+  max-height: 420px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sub-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.sub-item:hover {
+  border-color: var(--border);
+  background: color-mix(in oklab, var(--surface) 86%, var(--primary) 8%);
+  color: var(--text);
+}
+
+.sub-item.active {
+  border-color: color-mix(in oklab, var(--primary) 42%, var(--border));
+  background: color-mix(in oklab, var(--primary) 16%, var(--surface));
+  color: var(--text);
+}
+
+.sub-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sub-label {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .icon {
   width: 40px;
   height: 40px;
@@ -92,6 +170,40 @@
   width: 0;
   overflow: hidden;
   pointer-events: none;
+}
+
+.sidebar.desktop.collapsed .chevron {
+  opacity: 0;
+}
+
+.sidebar.desktop.collapsed .subnav {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 0;
+  min-width: 220px;
+  margin: 0;
+  max-height: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  background: color-mix(in oklab, var(--surface) 96%, white 4%);
+  box-shadow: var(--shadow-soft);
+  z-index: 40;
+}
+
+.sidebar.desktop.collapsed .nav-group {
+  position: relative;
+}
+
+.sidebar.desktop.collapsed .nav-group.open .subnav,
+.sidebar.desktop.collapsed .nav-group:hover .subnav,
+.sidebar.desktop.collapsed .nav-group:focus-within .subnav {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .sidebar.mobile {
