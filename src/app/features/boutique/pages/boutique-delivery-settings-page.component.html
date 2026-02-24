@@ -1,0 +1,115 @@
+<section class="delivery-page">
+  <header class="page-header">
+    <h1>Parametres Livraison</h1>
+    <p>Configurez les jours livrables, la capacite journaliere et visualisez la charge.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error">{{ errorMessage() }}</div>
+  }
+  @if (successMessage()) {
+    <div class="feedback success">{{ successMessage() }}</div>
+  }
+
+  <section class="card">
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+      </div>
+    } @else {
+      <form class="settings-form" [formGroup]="form" (ngSubmit)="save()">
+        <label class="field">
+          <span>Capacite max commandes / jour</span>
+          <input type="number" min="1" max="5000" formControlName="dailyOrderCapacity" />
+        </label>
+
+        <label class="field">
+          <span>Jours de preparation avant livraison</span>
+          <input type="number" min="0" max="30" formControlName="preparationDays" />
+        </label>
+
+        <div class="field field-wide">
+          <span>Jours ouvrables de livraison</span>
+          <div class="days-grid">
+            @for (day of [0, 1, 2, 3, 4, 5, 6]; track day) {
+              <label class="day-chip" [class.active]="isWorkingDay(day)">
+                <input
+                  type="checkbox"
+                  [checked]="isWorkingDay(day)"
+                  (change)="toggleWorkingDay(day, ($any($event.target).checked))"
+                />
+                <span>{{ dayLabel(day) }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <footer class="actions">
+          <button type="submit" class="btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </footer>
+      </form>
+    }
+  </section>
+
+  <section class="card">
+    <header class="calendar-head">
+      <h2>Calendrier de charge</h2>
+      <button type="button" class="btn-secondary" (click)="loadCalendar()">Actualiser</button>
+    </header>
+
+    @if (loadingCalendar()) {
+      <div class="loading-state">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+      </div>
+    } @else if (calendar(); as c) {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Jour</th>
+              <th>Ouvrable</th>
+              <th>Capacite</th>
+              <th>Occupe</th>
+              <th>Restant</th>
+              <th>Etat</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (day of c.days; track day.date) {
+              <tr>
+                <td>{{ day.date | date: 'dd/MM/yyyy':'':'fr-FR' }}</td>
+                <td>{{ dayLabel(day.dayOfWeek) }}</td>
+                <td>{{ day.isWorkingDay ? 'Oui' : 'Non' }}</td>
+                <td>{{ day.capacity }}</td>
+                <td>{{ day.used }}</td>
+                <td>{{ day.remaining }}</td>
+                <td>
+                  @if (!day.isWorkingDay) {
+                    <span class="badge muted">Ferme</span>
+                  } @else if (day.isFull) {
+                    <span class="badge full">Complet</span>
+                  } @else {
+                    <span class="badge open">Disponible</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="empty">Aucune donnee de capacite.</p>
+    }
+  </section>
+</section>

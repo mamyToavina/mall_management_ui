@@ -64,10 +64,42 @@ export interface BoutiqueSaleDto {
   items: BoutiqueSaleItemDto[];
 }
 
+export interface DeliverySettingsDto {
+  workingDays: number[];
+  dailyOrderCapacity: number;
+  preparationDays: number;
+}
+
+export interface DeliverySettingsResponseDto {
+  boutiqueId: string;
+  boutiqueName: string;
+  deliverySettings: DeliverySettingsDto;
+}
+
+export interface DeliveryCapacityDayDto {
+  date: string;
+  dayOfWeek: number;
+  isWorkingDay: boolean;
+  capacity: number;
+  used: number;
+  remaining: number;
+  isFull: boolean;
+}
+
+export interface DeliveryCapacityCalendarDto {
+  boutiqueId: string;
+  boutiqueName: string;
+  deliverySettings: DeliverySettingsDto;
+  period: {
+    from: string;
+    to: string;
+  };
+  days: DeliveryCapacityDayDto[];
+}
+
 export interface PaginationMeta {
   total: number;
   page: number;
   limit: number;
   pages: number;
 }
-

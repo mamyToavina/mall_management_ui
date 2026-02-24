@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import {
   BoutiqueFulfillmentStatus,
   BoutiqueSaleDto,
+  DeliveryCapacityCalendarDto,
+  DeliverySettingsResponseDto,
   PaginationMeta
 } from '../models/sales.models';
 
@@ -55,5 +57,32 @@ export class SalesApiService {
       payload
     );
   }
-}
 
+  getDeliverySettings() {
+    return this.http.get<SuccessResponse<DeliverySettingsResponseDto>>(
+      `${this.baseUrl}/boutique/delivery-settings`
+    );
+  }
+
+  updateDeliverySettings(payload: {
+    workingDays: number[];
+    dailyOrderCapacity: number;
+    preparationDays: number;
+  }) {
+    return this.http.patch<SuccessResponse<DeliverySettingsResponseDto>>(
+      `${this.baseUrl}/boutique/delivery-settings`,
+      payload
+    );
+  }
+
+  getDeliveryCapacityCalendar(params?: { from?: string; to?: string }) {
+    let query = new HttpParams();
+    if (params?.from) query = query.set('from', params.from);
+    if (params?.to) query = query.set('to', params.to);
+
+    return this.http.get<SuccessResponse<DeliveryCapacityCalendarDto>>(
+      `${this.baseUrl}/boutique/delivery-capacity`,
+      { params: query }
+    );
+  }
+}
