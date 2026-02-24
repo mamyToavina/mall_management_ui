@@ -60,5 +60,11 @@ export const BOUTIQUE_NAVIGATION: BoutiqueNavItem[] = [
     icon: '\u{1F4E8}',
     route: '/boutique/orders',
     exact: true
+  },
+  {
+    label: 'Livraison',
+    icon: '\u{1F69A}',
+    route: '/boutique/delivery-settings',
+    exact: true
   }
 ];

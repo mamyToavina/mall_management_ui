@@ -17,7 +17,7 @@ import { ThemeService } from '../../core/services/theme.service';
         <button
           class="icon-btn mobile-only"
           type="button"
-          (click)="layout.toggleMobileSidebar()"
+          (click)="onMobileMenuClick($event)"
           aria-label="Ouvrir le menu"
         >
           <span aria-hidden="true">&#9776;</span>
@@ -26,7 +26,7 @@ import { ThemeService } from '../../core/services/theme.service';
         <button
           class="icon-btn desktop-only"
           type="button"
-          (click)="layout.toggleCollapse()"
+          (click)="onDesktopMenuClick($event)"
           aria-label="Reduire ou etendre la barre laterale"
         >
           <span aria-hidden="true">&#9776;</span>
@@ -89,4 +89,16 @@ export class BoutiqueHeaderComponent {
 
     return 'assets/logo.png';
   });
+
+  onMobileMenuClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.layout.toggleMobileSidebar();
+  }
+
+  onDesktopMenuClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.layout.toggleCollapse();
+  }
 }
