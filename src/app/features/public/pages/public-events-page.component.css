@@ -47,6 +47,12 @@ header p {
   min-width: 0;
 }
 
+.state {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
 .item {
   border-radius: 18px;
   overflow: hidden;

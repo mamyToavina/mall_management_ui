@@ -93,6 +93,13 @@ export const routes: Routes = [
             .then(m => m.CREDIT_ROUTES),
       },
       {
+        path: 'activities',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadChildren: () =>
+          import('./features/activities/activity.routes')
+            .then(m => m.ACTIVITY_ROUTES),
+      },
+      {
         path: 'tenants',
         canActivate: [roleGuard(['ADMIN'])],
         loadChildren: () =>

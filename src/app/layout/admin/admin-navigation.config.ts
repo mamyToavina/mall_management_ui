@@ -22,6 +22,14 @@ export const ADMIN_NAVIGATION: AdminNavItem[] = [
     ]
   },
   {
+    label: 'Gestion Activites',
+    icon: '\u{1F4C5}',
+    children: [
+      { label: 'Liste', icon: '\u2261', route: '/admin/activities' },
+      { label: 'Creer', icon: '\u2795', route: '/admin/activities/new' }
+    ]
+  },
+  {
     label: 'Gestion Locataires',
     icon: '\u{1F3EC}',
     route: '/admin/tenants/wizard/user',
