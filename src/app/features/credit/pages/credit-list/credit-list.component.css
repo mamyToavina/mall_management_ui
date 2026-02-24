@@ -1,0 +1,252 @@
+﻿.page {
+  padding: var(--container-pad);
+  display: grid;
+  gap: 14px;
+  place-items: start center;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.card {
+  width: min(1100px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.error-banner {
+  margin-top: 10px;
+  border: 1px solid color-mix(in oklab, #b3261e 30%, var(--border));
+  background: color-mix(in oklab, #b3261e 8%, var(--surface));
+  color: color-mix(in oklab, #b3261e 72%, var(--text));
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.filters-panel {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field span,
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.input,
+select {
+  height: 42px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0 12px;
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.actions.left {
+  justify-content: flex-start;
+}
+
+.btn {
+  min-height: 40px;
+  border-radius: var(--radius);
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  color: var(--text);
+}
+
+.btn.ghost {
+  background: var(--surface);
+}
+
+.btn.primary {
+  border-color: color-mix(in oklab, var(--primary) 60%, var(--border));
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-small {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.table-wrap {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 920px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.badge.active {
+  border-color: color-mix(in oklab, #1f8f4c 35%, var(--border));
+  color: color-mix(in oklab, #1f8f4c 75%, var(--text));
+  background: color-mix(in oklab, #1f8f4c 10%, var(--surface));
+}
+
+.badge.used {
+  border-color: color-mix(in oklab, #0f6ad6 35%, var(--border));
+  color: color-mix(in oklab, #0f6ad6 75%, var(--text));
+  background: color-mix(in oklab, #0f6ad6 10%, var(--surface));
+}
+
+.badge.expired {
+  border-color: color-mix(in oklab, #7b8090 35%, var(--border));
+  color: color-mix(in oklab, #7b8090 72%, var(--text));
+  background: color-mix(in oklab, #7b8090 10%, var(--surface));
+}
+
+.pagination {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 11, 18, 0.45);
+  z-index: 70;
+}
+
+.modal {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(680px, calc(100vw - 32px));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.user-grid {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.user-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.user-item.full {
+  grid-column: 1 / -1;
+}
+
+.user-item small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.user-item strong {
+  font-size: 14px;
+  word-break: break-word;
+}
+
+@media (max-width: 1024px) {
+  .filters-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .filters-panel,
+  .user-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions,
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

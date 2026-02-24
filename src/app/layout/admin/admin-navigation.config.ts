@@ -1,4 +1,4 @@
-export interface AdminNavItem {
+﻿export interface AdminNavItem {
   label: string;
   icon: string;
   route?: string;
@@ -9,26 +9,30 @@ export interface AdminNavItem {
 export const ADMIN_NAVIGATION: AdminNavItem[] = [
   {
     label: 'Gestion Acheteurs',
-    icon: '👥',
+    icon: '\u{1F465}',
     route: '/admin/buyers'
   },
   {
     label: 'Gestion Credits',
-    icon: '💳',
-    route: '/admin/credits'
+    icon: '\u{1F4B3}',
+    children: [
+      { label: 'Generer', icon: '\u2795', route: '/admin/credits/generate' },
+      { label: 'Liste', icon: '\u2261', route: '/admin/credits/list' },
+      { label: 'Statistique', icon: '\u{1F4CA}', route: '/admin/credits/stats' }
+    ]
   },
   {
     label: 'Gestion Locataires',
-    icon: '🏬',
+    icon: '\u{1F3EC}',
     route: '/admin/tenants/wizard/user',
     exact: false
   },
   {
     label: 'Gestion Boxes',
-    icon: '📦',
+    icon: '\u{1F4E6}',
     children: [
-      { label: 'Liste', icon: '≡', route: '/admin/boxes' },
-      { label: 'Créer', icon: '＋', route: '/admin/boxes/new' }
+      { label: 'Liste', icon: '\u2261', route: '/admin/boxes' },
+      { label: 'Creer', icon: '\u2795', route: '/admin/boxes/new' }
     ]
   }
 ];

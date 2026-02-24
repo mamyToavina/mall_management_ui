@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ADMIN_NAVIGATION } from './admin-navigation.config';
@@ -66,7 +66,7 @@ type NavItem = {
                  [routerLinkActiveOptions]="{ exact: true }"
                  (click)="layout.closeMobileSidebar()"
                  [title]="child.label">
-                <span class="sub-icon" aria-hidden="true">{{ child.icon || '•' }}</span>
+                <span class="sub-icon" aria-hidden="true">{{ child.icon || '\\u2022' }}</span>
                 <span class="sub-label">{{ child.label }}</span>
               </a>
 
@@ -124,7 +124,7 @@ type NavItem = {
                    routerLinkActive="active"
                    [routerLinkActiveOptions]="{ exact: true }"
                    (click)="layout.closeMobileSidebar()">
-                  <span class="sub-icon" aria-hidden="true">{{ child.icon || '•' }}</span>
+                  <span class="sub-icon" aria-hidden="true">{{ child.icon || '\\u2022' }}</span>
                   <span class="sub-label">{{ child.label }}</span>
                 </a>
 
@@ -147,7 +147,7 @@ export class AdminSidebarComponent {
   // on stocke les menus ouverts par label
   private openMenus = signal(new Set<string>());
 
-  // ✅ ouvre automatiquement le menu si l'url correspond à une route enfant
+  // âœ… ouvre automatiquement le menu si l'url correspond Ã  une route enfant
   constructor() {
     this.syncOpenMenusWithUrl();
   }
@@ -209,3 +209,4 @@ export class AdminSidebarComponent {
       .replace(/[^a-z0-9\-]/g, '');
   }
 }
+

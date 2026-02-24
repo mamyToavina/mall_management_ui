@@ -1,6 +1,8 @@
 <div class="toolbar no-print">
     <button type="button" (click)="print()">Imprimer</button>
-    <button type="button" (click)="finalize()">Finaliser</button>
+    <button type="button" (click)="finalize()" [disabled]="finalizing">
+      {{ finalizing ? 'Finalisation...' : 'Finaliser' }}
+    </button>
   </div>
   
   <div class="sheet">
