@@ -54,5 +54,11 @@ export const BOUTIQUE_NAVIGATION: BoutiqueNavItem[] = [
     icon: '\u{1F4B0}',
     route: '/boutique/billing',
     exact: true
+  },
+  {
+    label: 'Commandes',
+    icon: '\u{1F4E8}',
+    route: '/boutique/orders',
+    exact: true
   }
 ];
