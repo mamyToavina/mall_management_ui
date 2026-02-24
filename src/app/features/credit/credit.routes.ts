@@ -1,18 +1,13 @@
-/*import { Routes } from '@angular/router';
-import { CreditGenerateComponent } from './components/credit-generate.component';
-import { CreditPrintComponent } from './components/credit-print.component';
-
-export const CREDIT_ROUTES: Routes = [
-  { path: '', component: CreditGenerateComponent },
-  { path: 'print/:id', component: CreditPrintComponent },
-];*/
-
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { CreditGenerateComponent } from './components/credit-generate.component';
 import { CreditPrintBatchComponent } from './components/credit-print-batch.component';
+import { CreditListComponent } from './components/credit-list.component';
+import { CreditStatsComponent } from './components/credit-stats.component';
 
 export const CREDIT_ROUTES: Routes = [
-  { path: '', component: CreditGenerateComponent },
+  { path: 'generate', component: CreditGenerateComponent },
+  { path: 'list', component: CreditListComponent },
+  { path: 'stats', component: CreditStatsComponent },
   { path: 'print-batch', component: CreditPrintBatchComponent },
+  { path: '', redirectTo: 'generate', pathMatch: 'full' }
 ];
-

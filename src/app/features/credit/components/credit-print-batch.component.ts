@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import { Credit } from '../model/credit.model';
 import { CreditService } from '../services/credit.service';
@@ -10,26 +11,23 @@ import { CreditService } from '../services/credit.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: '../pages/credit-print-batch/credit-print-batch.component.html',
-  styleUrls: ['../pages/credit-print-batch/credit-print-batch.component.css'],
+  styleUrls: ['../pages/credit-print-batch/credit-print-batch.component.css']
 })
 export class CreditPrintBatchComponent implements OnInit {
   private router = inject(Router);
   private creditService = inject(CreditService);
 
   credits: Credit[] = [];
+  finalizing = false;
 
   ngOnInit(): void {
-    // ✅ récupère les crédits envoyés depuis la page génération
     const nav = this.router.getCurrentNavigation();
     const stateCredits = (nav?.extras?.state as any)?.credits as Credit[] | undefined;
-
-    // Fallback si l’utilisateur refresh la page
     const historyCredits = (history.state as any)?.credits as Credit[] | undefined;
 
     this.credits = stateCredits ?? historyCredits ?? [];
 
     if (this.credits.length === 0) {
-      // Rien à afficher -> retour à la génération
       this.router.navigate(['/admin/credits']);
     }
   }
@@ -39,16 +37,26 @@ export class CreditPrintBatchComponent implements OnInit {
   }
 
   finalize(): void {
-    // Optionnel: marquer tous comme imprimés
-    const ids = this.credits.map(c => c._id);
+    if (this.finalizing) return;
 
-    // Si tu n'as pas d'endpoint "batch", on le fait un à un (simple)
-    ids.forEach((id) => {
-      this.creditService.markAsPrinted(id).subscribe();
+    const ids = this.credits.map((c) => c._id).filter(Boolean);
+    if (!ids.length) {
+      this.router.navigate(['/admin/credits']);
+      return;
+    }
+
+    this.finalizing = true;
+
+    forkJoin(ids.map((id) => this.creditService.markAsPrinted(id))).subscribe({
+      next: () => {
+        alert('Impression finalisee !');
+        this.router.navigate(['/admin/credits']);
+      },
+      error: () => {
+        alert('Certaines impressions n ont pas pu etre marquees.');
+        this.finalizing = false;
+      }
     });
-
-    alert('Impression finalisée !');
-    this.router.navigate(['/admin/credits']);
   }
 
   trackById(_: number, item: Credit) {

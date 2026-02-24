@@ -1,0 +1,157 @@
+﻿<div class="page">
+  <div class="card">
+    <header class="header small">
+      <div>
+        <h3>Statistiques credits</h3>
+        <p class="sub">Vue analytique des credits selon les filtres actifs.</p>
+      </div>
+      <span class="header-chip">Dashboard</span>
+    </header>
+
+    @if (errorMessage()) {
+      <div class="error-banner">{{ errorMessage() }}</div>
+    }
+
+    <section class="filters-panel">
+      <label class="field">
+        <span>Statut</span>
+        <select [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
+          <option value="">Tous</option>
+          @for (st of statusOptions; track st) {
+            <option [value]="st">{{ st }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Valeur</span>
+        <select [ngModel]="filterValue()" (ngModelChange)="filterValue.set($event)">
+          <option [ngValue]="''">Toutes</option>
+          @for (amt of amounts; track amt) {
+            <option [ngValue]="amt">{{ amt }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Date debut</span>
+        <input class="input" type="date" [ngModel]="filterDateFrom()" (ngModelChange)="filterDateFrom.set($event)" />
+      </label>
+
+      <label class="field">
+        <span>Date fin</span>
+        <input class="input" type="date" [ngModel]="filterDateTo()" (ngModelChange)="filterDateTo.set($event)" />
+      </label>
+    </section>
+
+    <div class="actions left">
+      <button type="button" class="btn ghost" (click)="resetFilters()">Reset filtres</button>
+      <button type="button" class="btn primary" (click)="loadStats()" [disabled]="loading()">
+        @if (!loading()) {
+          <span>Actualiser</span>
+        } @else {
+          <span class="dice-loader dice-loader--sm" aria-hidden="true">
+            <span class="die d1"></span>
+            <span class="die d2"></span>
+            <span class="die d3"></span>
+          </span>
+          <span class="sr-only">Chargement</span>
+        }
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement des statistiques credits">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+        <span class="sr-only">Chargement des statistiques credits</span>
+      </div>
+    } @else if (stats(); as s) {
+      <section class="stats-grid">
+        <article class="stat-item tone-neutral">
+          <small>Total credits</small>
+          <strong>{{ s.totals.totalCredits }}</strong>
+        </article>
+        <article class="stat-item tone-primary">
+          <small>Valeur totale</small>
+          <strong>{{ s.totals.totalValue | number }} Ar</strong>
+        </article>
+        <article class="stat-item tone-success">
+          <small>Actifs</small>
+          <strong>{{ s.totals.activeCredits }}</strong>
+        </article>
+        <article class="stat-item tone-info">
+          <small>Utilises</small>
+          <strong>{{ s.totals.usedCredits }}</strong>
+        </article>
+        <article class="stat-item tone-muted">
+          <small>Expires</small>
+          <strong>{{ s.totals.expiredCredits }}</strong>
+        </article>
+        <article class="stat-item tone-warn">
+          <small>Imprimes</small>
+          <strong>{{ s.totals.printedCredits }}</strong>
+        </article>
+      </section>
+
+      <section class="breakdowns">
+        <div class="break-card">
+          <div class="break-head">
+            <h4>Repartition par statut</h4>
+            <span>{{ s.breakdown.byStatus.length }} lignes</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Statut</th>
+                <th>Nombre</th>
+                <th>Valeur</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of s.breakdown.byStatus; track trackByStatus($index, row)) {
+                <tr>
+                  <td><span class="pill">{{ row._id }}</span></td>
+                  <td>{{ row.count }}</td>
+                  <td>{{ row.totalValue | number }} Ar</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3" class="empty">Aucune donnee</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="break-card">
+          <div class="break-head">
+            <h4>Repartition par valeur</h4>
+            <span>{{ s.breakdown.byValue.length }} lignes</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Valeur</th>
+                <th>Nombre</th>
+                <th>Valeur totale</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of s.breakdown.byValue; track trackByValue($index, row)) {
+                <tr>
+                  <td><span class="pill">{{ row._id | number }} Ar</span></td>
+                  <td>{{ row.count }}</td>
+                  <td>{{ row.totalValue | number }} Ar</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3" class="empty">Aucune donnee</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </div>
+</div>
