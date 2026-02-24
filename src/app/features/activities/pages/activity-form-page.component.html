@@ -1,0 +1,144 @@
+<section class="page">
+  <header class="top">
+    <div>
+      <h2>{{ pageTitle() }}</h2>
+      <p>Renseignez les details de l'activite et sa photo.</p>
+    </div>
+    <a class="btn" routerLink="/admin/activities">Retour liste</a>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="alert error">{{ errorMessage() }}</p>
+  }
+
+  @if (successMessage()) {
+    <p class="alert success">{{ successMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
+      <div class="dice-loader" aria-hidden="true">
+        <span class="die d1"></span>
+        <span class="die d2"></span>
+        <span class="die d3"></span>
+      </div>
+      <span class="sr-only">Chargement en cours</span>
+    </div>
+  } @else {
+    <form class="card" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid">
+        <label class="field">
+          <span>Titre</span>
+          <input type="text" formControlName="title" placeholder="Exemple : Soiree shopping nocturne" />
+          @if (hasError('title')) {
+            <small class="error">Le titre est obligatoire (min 3 caracteres).</small>
+          }
+        </label>
+
+        <label class="field">
+          <span>Tag (categorie publique)</span>
+          <select formControlName="tagOption">
+            @for (tagOption of tagOptions; track tagOption) {
+              <option [value]="tagOption">{{ tagOption }}</option>
+            }
+          </select>
+        </label>
+
+        @if (isOtherTag()) {
+          <label class="field">
+            <span>C'est quoi cet autre tag ?</span>
+            <input type="text" formControlName="customTag" placeholder="Exemple : Rencontre influenceurs" />
+            @if (hasError('customTag')) {
+              <small class="error">Veuillez saisir le tag personnalise.</small>
+            }
+          </label>
+        }
+
+        <label class="field">
+          <span>Date et heure</span>
+          <input type="datetime-local" formControlName="dateIso" />
+          @if (hasError('dateIso')) {
+            <small class="error">La date est obligatoire.</small>
+          }
+        </label>
+
+        <label class="field">
+          <span>Duree (jours)</span>
+          <input type="number" min="1" max="365" formControlName="durationDays" placeholder="Exemple : 2" />
+          @if (hasError('durationDays')) {
+            <small class="error">La duree doit etre comprise entre 1 et 365 jours.</small>
+          }
+        </label>
+
+        <label class="field">
+          <span>Lieu</span>
+          <input type="text" formControlName="location" placeholder="Exemple : Atrium central - TI Commercial" />
+          @if (hasError('location')) {
+            <small class="error">Le lieu est obligatoire.</small>
+          }
+        </label>
+
+        <label class="field field-wide">
+          <span>Description</span>
+          <textarea
+            rows="4"
+            formControlName="description"
+            placeholder="Exemple : Soiree immersive avec promotions, animations et musique en direct."
+          ></textarea>
+          @if (hasError('description')) {
+            <small class="error">La description est obligatoire.</small>
+          }
+        </label>
+
+        <label class="field field-inline">
+          <input type="checkbox" formControlName="isPublished" />
+          <span>Publier cette activite</span>
+        </label>
+
+        <label class="field field-wide">
+          <span>Photo</span>
+          <div
+            class="dropzone"
+            [class.active]="dragActive()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+          >
+            <input #fileInput type="file" accept="image/*" (change)="onBrowseFile($event)" hidden />
+            <p>Glissez-deposez une image ici</p>
+            <button type="button" class="btn" (click)="fileInput.click()">Choisir une image</button>
+            <small>Formats acceptes: JPG, PNG, WEBP - 5MB max</small>
+          </div>
+          @if (selectedFileName()) {
+            <small>Fichier: {{ selectedFileName() }}</small>
+          }
+          @if (imageError()) {
+            <small class="error">{{ imageError() }}</small>
+          }
+        </label>
+      </div>
+
+      @if (previewUrl()) {
+        <div class="preview">
+          <img [src]="previewUrl()" alt="Apercu activite" />
+          <button type="button" class="btn danger" (click)="removeSelectedImage()">Retirer image</button>
+        </div>
+      }
+
+      <footer class="actions">
+        <button type="submit" class="btn primary" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="dice-loader dice-loader--sm" aria-hidden="true">
+              <span class="die d1"></span>
+              <span class="die d2"></span>
+              <span class="die d3"></span>
+            </span>
+            <span class="sr-only">Enregistrement en cours</span>
+          } @else {
+            Enregistrer
+          }
+        </button>
+      </footer>
+    </form>
+  }
+</section>

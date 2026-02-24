@@ -4,15 +4,20 @@
     <p>Restez informe des prochaines activites, dates et lieux.</p>
   </header>
 
+  @if (loading()) {
+    <p class="state">Chargement...</p>
+  }
+
   <div class="timeline">
-    <article class="item" *ngFor="let event of events">
-      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" />
+    <article class="item" *ngFor="let event of events()">
+      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" (error)="onEventImageError($event)" />
       <div class="content">
         <span class="tag">{{ event.tag }}</span>
         <h3>{{ event.title }}</h3>
         <p>{{ event.description }}</p>
         <div class="meta">
-          <strong>{{ event.dateIso | date: 'fullDate' }}</strong>
+          <strong>{{ event.dateIso | date: 'fullDate':'':'fr-FR' }}</strong>
+          <span>Duree: {{ event.durationDays }} jour(s)</span>
           <span>{{ event.location }}</span>
         </div>
       </div>

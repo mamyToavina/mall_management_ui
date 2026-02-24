@@ -104,14 +104,15 @@
   </div>
 
   <div class="event-grid">
-    <article class="event-card" *ngFor="let event of events">
-      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" />
+    <article class="event-card" *ngFor="let event of events()">
+      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" (error)="onEventImageError($event)" />
       <div class="event-body">
         <span class="tag">{{ event.tag }}</span>
         <h3>{{ event.title }}</h3>
         <p>{{ event.description }}</p>
         <div class="event-meta">
-          <strong>{{ event.dateIso | date: 'fullDate' }}</strong>
+          <strong>{{ event.dateIso | date: 'fullDate':'':'fr-FR' }}</strong>
+          <span>Duree: {{ event.durationDays }} jour(s)</span>
           <span>{{ event.location }}</span>
         </div>
       </div>

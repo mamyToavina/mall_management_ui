@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   ElementRef,
   OnDestroy,
   PLATFORM_ID,
@@ -9,10 +10,13 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule, DatePipe, isPlatformBrowser } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser';
 
-import { EVENT_ACTIVITIES, PROMO_PRODUCTS } from '../data/public-content.data';
+import { ActivityPublicDto } from '../../activities/models/activity.models';
+import { ActivitiesApiService } from '../../activities/services/activities-api.service';
+import { PROMO_PRODUCTS } from '../data/public-content.data';
 import { PublicCartStore } from '../services/public-cart.store';
 
 @Component({
@@ -27,13 +31,17 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
   private readonly meta = inject(Meta);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly activitiesApi = inject(ActivitiesApiService);
 
   readonly cart = inject(PublicCartStore);
 
   @ViewChild('promoTrack') promoTrack?: ElementRef<HTMLDivElement>;
 
   readonly promoProducts = PROMO_PRODUCTS;
-  readonly events = EVENT_ACTIVITIES;
+  readonly events = signal<ActivityPublicDto[]>([]);
+  readonly loadingEvents = signal(false);
+  readonly defaultActivityImage = '/assets/activity-placeholder.svg';
   readonly mapLabel = 'TI Commercial';
   readonly mapLat = -18.9157;
   readonly mapLng = 47.5361;
@@ -47,6 +55,7 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
 
   constructor() {
     this.applySeo();
+    this.loadUpcomingEvents();
   }
 
   ngAfterViewInit(): void {
@@ -181,5 +190,29 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
       property: 'og:description',
       content: 'Explorez les offres et activites phares de TI Commercial.'
     });
+  }
+
+  private loadUpcomingEvents(): void {
+    this.loadingEvents.set(true);
+
+    this.activitiesApi
+      .getPublicUpcoming(8)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (items) => {
+          this.events.set(items);
+          this.loadingEvents.set(false);
+        },
+        error: () => {
+          this.events.set([]);
+          this.loadingEvents.set(false);
+        }
+      });
+  }
+
+  onEventImageError(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (!img || img.src.endsWith(this.defaultActivityImage)) return;
+    img.src = this.defaultActivityImage;
   }
 }

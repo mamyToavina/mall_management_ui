@@ -1,0 +1,159 @@
+<section class="page">
+  <header class="top">
+    <div>
+      <h2>Gestion des activites</h2>
+      <p>Liste, filtres et actions sur les activites.</p>
+    </div>
+    <a class="btn primary" routerLink="/admin/activities/new">+ Nouvelle activite</a>
+  </header>
+
+  <div class="filters">
+    <label>
+      <span>Recherche</span>
+      <input
+        type="text"
+        [value]="search()"
+        (change)="onSearch(($any($event.target).value))"
+        placeholder="Titre, tag, lieu..."
+      />
+    </label>
+
+    <label>
+      <span>Publie</span>
+      <select [value]="publishedFilterValue()" (change)="onPublished(($any($event.target).value))">
+        <option value="">Tous</option>
+        <option value="true">Oui</option>
+        <option value="false">Non</option>
+      </select>
+    </label>
+
+    <label>
+      <span>A venir</span>
+      <select [value]="upcomingFilterValue()" (change)="onUpcoming(($any($event.target).value))">
+        <option value="true">Oui</option>
+        <option value="false">Tous les dates</option>
+      </select>
+    </label>
+
+    <label>
+      <span>Limit</span>
+      <select [value]="limit()" (change)="onLimit(($any($event.target).value))">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
+    </label>
+  </div>
+
+  @if (meta(); as m) {
+    <div class="list-meta">
+      <span>{{ m.total }} activite(s)</span>
+      <span>Page {{ m.page }} / {{ m.pages }}</span>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <p class="alert error">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
+      <div class="dice-loader" aria-hidden="true">
+        <span class="die d1"></span>
+        <span class="die d2"></span>
+        <span class="die d3"></span>
+      </div>
+      <span class="sr-only">Chargement en cours</span>
+    </div>
+  } @else {
+    <div class="list-wrap">
+      <div class="list-head">
+        <span>Activite</span>
+        <span>Date</span>
+        <span>Actions</span>
+      </div>
+
+      @for (activity of activities(); track activityTrack(activity, $index)) {
+        <article class="activity-row">
+          <div class="cell activity-cell">
+            <span class="cell-label">Activite</span>
+            <div class="activity-main">
+              <h3>{{ activity.title }}</h3>
+              <p>{{ activity.description }}</p>
+              <span class="tag">{{ activity.tag }}</span>
+            </div>
+          </div>
+
+          <div class="cell">
+            <span class="cell-label">Date</span>
+            <span>{{ formatDate(activity.dateIso) }}</span>
+          </div>
+
+          <div class="cell">
+            <span class="cell-label">Actions</span>
+            <div class="row-actions">
+              <button type="button" class="btn" (click)="openDetails(activity)">Voir detail</button>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <p class="state">Aucune activite</p>
+      }
+    </div>
+  }
+
+  @if (selectedActivity(); as selected) {
+    <div class="modal-backdrop" (click)="closeDetails()">
+      <section class="modal-card" role="dialog" aria-modal="true" aria-label="Detail activite" (click)="$event.stopPropagation()">
+        <header class="modal-head">
+          <div>
+            <h3>{{ selected.title }}</h3>
+            <p>{{ formatDate(selected.dateIso) }}</p>
+          </div>
+          <button type="button" class="btn" (click)="closeDetails()">Fermer</button>
+        </header>
+
+        @if (selected.imageUrl) {
+          <img class="modal-image" [src]="selected.imageUrl" [alt]="selected.title" (error)="onImageError($event)" />
+        }
+
+        <div class="modal-grid">
+          <div><strong>Lieu:</strong> {{ selected.location || '-' }}</div>
+          <div><strong>Duree:</strong> {{ selected.durationDays }} jour(s)</div>
+          <div><strong>Tag:</strong> {{ selected.tag || '-' }}</div>
+          <div>
+            <strong>Statut:</strong>
+            <span class="status" [class.published]="selected.isPublished">
+              {{ selected.isPublished ? 'Publiee' : 'Brouillon' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="modal-description">
+          <h4>Description</h4>
+          <p>{{ selected.description || 'Aucune description' }}</p>
+        </div>
+
+        <footer class="modal-actions">
+          <a class="btn" [routerLink]="['/admin/activities', selected.id, 'edit']" (click)="closeDetails()">Modifier</a>
+          <button
+            type="button"
+            class="btn danger"
+            [disabled]="deletingId() === selected.id"
+            (click)="remove(selected)"
+          >
+            {{ deletingId() === selected.id ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+
+  @if (meta() && meta()!.pages > 1) {
+    <footer class="pagination">
+      <button type="button" class="btn" [disabled]="meta()!.page <= 1" (click)="goTo(meta()!.page - 1)">Precedent</button>
+      <span>Page {{ meta()!.page }} / {{ meta()!.pages }} ({{ meta()!.total }} resultats)</span>
+      <button type="button" class="btn" [disabled]="meta()!.page >= meta()!.pages" (click)="goTo(meta()!.page + 1)">Suivant</button>
+    </footer>
+  }
+</section>
