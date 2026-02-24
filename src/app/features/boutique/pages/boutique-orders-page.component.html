@@ -1,0 +1,201 @@
+<section class="orders-page">
+  <header class="page-header">
+    <h1>Commandes Boutique</h1>
+    <p>Suivez les commandes, planifications et etats de livraison.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error">{{ errorMessage() }}</div>
+  }
+
+  <section class="card filters">
+    <label class="field">
+      <span>Statut</span>
+      <select [value]="selectedStatus()" (change)="onStatusFilter(($any($event.target).value))">
+        <option value="">Tous</option>
+        @for (status of statusOptions; track status) {
+          <option [value]="status">{{ statusLabel(status) }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Elements / page</span>
+      <select [value]="limit()" (change)="onLimitChange(($any($event.target).value))">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </label>
+  </section>
+
+  <section class="card">
+    @if (loading()) {
+      <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement commandes">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+        <span class="sr-only">Chargement commandes</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Client</th>
+              <th>Date prevue</th>
+              <th>Statut</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders(); track order.id) {
+              <tr>
+                <td data-label="Reference">{{ order.reference }}</td>
+                <td data-label="Client">{{ buyerName(order) }}</td>
+                <td data-label="Date prevue">
+                  {{ order.boutiqueOrder.deliveryDate | date: 'fullDate':'':'fr-FR' }}
+                </td>
+                <td data-label="Statut">
+                  <span class="status" [class]="order.boutiqueOrder.fulfillmentStatus.toLowerCase()">
+                    {{ statusLabel(order.boutiqueOrder.fulfillmentStatus) }}
+                  </span>
+                </td>
+                <td data-label="Total">
+                  {{ order.boutiqueOrder.subtotal | number: '1.0-0' }} {{ order.boutiqueOrder.currency }}
+                </td>
+                <td data-label="Action">
+                  <button type="button" class="btn-secondary" (click)="openDetails(order)">Voir details</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty">Aucune commande.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (meta() && meta()!.pages > 1) {
+      <footer class="pagination">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="goToPage(meta()!.page - 1)"
+          [disabled]="meta()!.page <= 1"
+        >
+          Precedent
+        </button>
+
+        <span class="muted">Page {{ meta()!.page }} / {{ meta()!.pages }}</span>
+
+        <div class="page-numbers">
+          @for (pageNumber of pageNumbers(); track pageNumber) {
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="meta()!.page === pageNumber"
+              (click)="goToPage(pageNumber)"
+            >
+              {{ pageNumber }}
+            </button>
+          }
+        </div>
+      </footer>
+    }
+  </section>
+
+  @if (selectedOrder(); as order) {
+    <div class="modal-backdrop" (click)="closeDetails()">
+      <section class="modal-card" role="dialog" aria-modal="true" aria-label="Detail commande" (click)="$event.stopPropagation()">
+        <header class="modal-head">
+          <div>
+            <h3>{{ order.reference }}</h3>
+            <p>Commande du {{ order.placedAt | date: 'fullDate':'':'fr-FR' }}</p>
+          </div>
+          <button type="button" class="btn-secondary" (click)="closeDetails()">Fermer</button>
+        </header>
+
+        @if (modalError()) {
+          <div class="feedback error">{{ modalError() }}</div>
+        }
+
+        @if (detailsLoading()) {
+          <div class="loading-state">
+            <div class="dice-loader" aria-hidden="true">
+              <span class="die d1"></span>
+              <span class="die d2"></span>
+              <span class="die d3"></span>
+            </div>
+          </div>
+        } @else {
+          <div class="summary-grid">
+            <div><strong>Client:</strong> {{ buyerName(order) }}</div>
+            <div><strong>Contact:</strong> {{ order.deliveryContact.contactPhone }}</div>
+            <div><strong>Lieu:</strong> {{ order.deliveryContact.pickupLocation }}</div>
+            <div><strong>Politique:</strong> {{ order.deliveryCapacityPolicy }}</div>
+          </div>
+
+          <div class="items-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>SKU</th>
+                  <th>Qte</th>
+                  <th>PU</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of order.items; track item.product) {
+                  <tr>
+                    <td>{{ item.productName }}</td>
+                    <td>{{ item.sku }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unitPrice | number: '1.0-0' }} {{ item.currency }}</td>
+                    <td>{{ item.lineTotal | number: '1.0-0' }} {{ item.currency }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <form class="update-form" [formGroup]="updateForm" (ngSubmit)="saveOrderUpdate()">
+            <label class="field">
+              <span>Nouveau statut</span>
+              <select formControlName="fulfillmentStatus">
+                @for (status of statusOptions; track status) {
+                  <option [value]="status">{{ statusLabel(status) }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Nouvelle date de livraison (optionnel)</span>
+              <input type="date" formControlName="deliveryDate" />
+            </label>
+
+            <label class="field field-wide">
+              <span>Note (optionnel)</span>
+              <textarea formControlName="fulfillmentNote" rows="3"></textarea>
+            </label>
+
+            <div class="actions">
+              <button type="submit" class="btn-primary" [disabled]="updating()">
+                {{ updating() ? 'Mise a jour...' : 'Mettre a jour' }}
+              </button>
+            </div>
+          </form>
+        }
+      </section>
+    </div>
+  }
+</section>
+
