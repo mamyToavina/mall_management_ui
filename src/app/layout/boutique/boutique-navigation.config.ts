@@ -1,4 +1,4 @@
-﻿export interface BoutiqueNavItem {
+export interface BoutiqueNavItem {
   label: string;
   icon: string;
   route?: string;
@@ -48,5 +48,11 @@ export const BOUTIQUE_NAVIGATION: BoutiqueNavItem[] = [
         exact: true
       }
     ]
+  },
+  {
+    label: 'Facturation',
+    icon: '\u{1F4B0}',
+    route: '/boutique/billing',
+    exact: true
   }
 ];

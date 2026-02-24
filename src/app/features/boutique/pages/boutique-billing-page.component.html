@@ -1,0 +1,208 @@
+<section class="billing-page">
+  <header class="page-header">
+    <div>
+      <h1>Facturation Boutique</h1>
+      <p>Suivez votre loyer, vos factures electricite et le total a payer.</p>
+    </div>
+  </header>
+
+  <section class="filters-panel">
+    <label class="field">
+      <span>Mois</span>
+      <select [ngModel]="selectedMonth()" (ngModelChange)="selectedMonth.set($event)">
+        @for (month of months; track month.value) {
+          <option [ngValue]="month.value">{{ month.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Annee</span>
+      <select [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)">
+        @for (year of years(); track year) {
+          <option [ngValue]="year">{{ year }}</option>
+        }
+      </select>
+    </label>
+
+    <button type="button" class="btn-primary" (click)="loadData()" [disabled]="loading()">
+      {{ loading() ? 'Chargement...' : 'Actualiser' }}
+    </button>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="error-banner" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (summary(); as s) {
+    <section class="dues-grid">
+      <article class="dues-card">
+        <small>Loyer mensuel</small>
+        <strong>{{ s.dues.rentAmount | number: '1.2-2' }}</strong>
+      </article>
+
+      <article class="dues-card">
+        <small>Electricite</small>
+        <strong>{{ s.dues.electricityAmount | number: '1.2-2' }}</strong>
+      </article>
+
+      <article class="dues-card">
+        <small>Commissions</small>
+        <strong>{{ s.dues.commissionsAmount | number: '1.2-2' }}</strong>
+      </article>
+
+      <article class="dues-card total">
+        <small>Total a payer</small>
+        <strong>{{ s.dues.totalDue | number: '1.2-2' }}</strong>
+      </article>
+    </section>
+
+    <section class="contract-card">
+      <div class="contract-head">
+        <h2>Contrat actif</h2>
+        @if (contractTimeline(); as timeline) {
+          <span class="status-pill" [ngClass]="timeline.status">{{ timeline.statusLabel }}</span>
+        }
+      </div>
+      @if (s.contract) {
+        @if (contractTimeline(); as timeline) {
+          <div class="progress-section">
+            <div class="progress-meta">
+              <small>Avancement</small>
+              <strong>{{ timeline.progressPercent }}%</strong>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="timeline.progressPercent">
+              <div class="progress-value" [style.width.%]="timeline.progressPercent"></div>
+            </div>
+            <p class="progress-caption">
+              {{ timeline.elapsedDays }} / {{ timeline.totalDays }} jours ecoules
+              (reste estime: {{ timeline.remainingDays }} jours)
+            </p>
+          </div>
+        }
+
+        <div class="contract-grid">
+          <div>
+            <small>Date debut</small>
+            <p>{{ s.contract.startDate | date: 'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <small>Date fin</small>
+            <p>{{ s.contract.endDate | date: 'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <small>Temps restant</small>
+            <p>
+              {{ s.contract.remaining.years }} an(s),
+              {{ s.contract.remaining.months }} mois,
+              {{ s.contract.remaining.days }} jour(s)
+            </p>
+          </div>
+          <div>
+            <small>Jours restants</small>
+            <p>{{ s.contract.remaining.totalDays }}</p>
+          </div>
+        </div>
+      } @else {
+        <p class="empty">Aucun contrat actif pour cette boutique.</p>
+      }
+    </section>
+  }
+
+  <section class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Compteur</th>
+          <th>Montant NET</th>
+          <th>Commission</th>
+          <th>Fichier</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          <tr>
+            <td colspan="6" class="empty">Chargement des factures...</td>
+          </tr>
+        } @else {
+          @for (invoice of invoices(); track trackByInvoiceId($index, invoice)) {
+            <tr>
+              <td data-label="Date">{{ invoice.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td data-label="Compteur">{{ invoice.meterNumber }}</td>
+              <td data-label="Montant NET">{{ invoice.netAmount | number: '1.2-2' }}</td>
+              <td data-label="Commission">{{ invoice.commissionAmount | number: '1.2-2' }}</td>
+              <td data-label="Fichier" class="filename">{{ invoice.sourceFileName }}</td>
+              <td data-label="Action" class="actions">
+                <button type="button" class="btn-secondary" (click)="openInvoiceDetails(invoice)" [disabled]="detailLoading()">
+                  Voir
+                </button>
+                <a
+                  class="btn-link"
+                  [href]="invoiceFileUrl(invoice.sourceFilePath)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  PDF
+                </a>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty">Aucune facture trouvee pour cette periode.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </section>
+
+  @if (selectedInvoice(); as invoice) {
+    <div class="modal-backdrop" (click)="closeDetails()"></div>
+    <section class="modal" role="dialog" aria-modal="true" aria-label="Detail facture">
+      <header class="modal-header">
+        <h3>Detail Facture</h3>
+        <button type="button" class="btn-secondary" (click)="closeDetails()">Fermer</button>
+      </header>
+
+      <div class="modal-grid">
+        <div>
+          <small>ID</small>
+          <p>{{ invoice._id }}</p>
+        </div>
+        <div>
+          <small>Periode</small>
+          <p>{{ invoice.month }}/{{ invoice.year }}</p>
+        </div>
+        <div>
+          <small>Compteur</small>
+          <p>{{ invoice.meterNumber }}</p>
+        </div>
+        <div>
+          <small>Montant NET</small>
+          <p>{{ invoice.netAmount | number: '1.2-2' }}</p>
+        </div>
+        <div>
+          <small>Commission</small>
+          <p>{{ invoice.commissionAmount | number: '1.2-2' }}</p>
+        </div>
+        <div>
+          <small>Upload</small>
+          <p>{{ invoice.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+      </div>
+
+      <footer class="modal-actions">
+        <a
+          class="btn-link"
+          [href]="invoiceFileUrl(invoice.sourceFilePath)"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ouvrir le PDF
+        </a>
+      </footer>
+    </section>
+  }
+</section>
