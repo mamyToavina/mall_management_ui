@@ -5,7 +5,7 @@
   </header>
 
   <section class="cart-card" *ngIf="cart.items().length; else emptyCart">
-    <article class="item" *ngFor="let item of cart.items()">
+    <article class="item" *ngFor="let item of cart.items(); trackBy: trackByProductId">
       <img
         [src]="item.imageUrl || defaultPromotionImage"
         [alt]="item.productName"
@@ -17,7 +17,25 @@
         <p>{{ item.boutiqueName }}</p>
         <div class="meta">
           <strong>{{ item.unitPrice | number: '1.0-0' }} {{ item.currency }}</strong>
-          <span>Quantite: {{ item.quantity }}</span>
+          <div class="qty-control" aria-label="Controle de quantite">
+            <button type="button" class="qty-btn" (click)="decreaseItem(item.productId)" aria-label="Diminuer">
+              -
+            </button>
+            <input
+              class="qty-input"
+              type="number"
+              min="1"
+              max="9999"
+              step="1"
+              inputmode="numeric"
+              [ngModel]="item.quantity"
+              (ngModelChange)="setItemQuantity(item.productId, $event)"
+              aria-label="Quantite"
+            />
+            <button type="button" class="qty-btn" (click)="increaseItem(item.productId)" aria-label="Augmenter">
+              +
+            </button>
+          </div>
         </div>
       </div>
       <button type="button" class="remove" (click)="removeItem(item.productId)">Retirer</button>
@@ -27,6 +45,57 @@
       <strong>Total: {{ cart.total() | number: '1.0-0' }} Ar</strong>
       <button type="button" class="clear" (click)="clearCart()">Vider le panier</button>
     </footer>
+
+    <section class="checkout-box">
+      <h2>Finaliser la commande</h2>
+      <p>Livraison planifiee par boutique selon la capacite disponible.</p>
+
+      <label>
+        Lieu de retrait
+        <input
+          type="text"
+          [(ngModel)]="pickupLocation"
+          [disabled]="checkoutLoading"
+          placeholder="Ex: TI Commercial - Entree principale"
+        />
+      </label>
+      <small class="field-error" *ngIf="checkoutFieldErrors['pickupLocation']">
+        {{ checkoutFieldErrors['pickupLocation'] }}
+      </small>
+
+      <label>
+        Numero de contact
+        <input
+          type="text"
+          [(ngModel)]="contactPhone"
+          [disabled]="checkoutLoading"
+          placeholder="Ex: +261 34 12 345 67"
+        />
+      </label>
+      <small class="field-error" *ngIf="checkoutFieldErrors['contactPhone']">
+        {{ checkoutFieldErrors['contactPhone'] }}
+      </small>
+
+      <label>
+        Politique en cas de jour plein
+        <select [(ngModel)]="deliveryCapacityPolicy" [disabled]="checkoutLoading">
+          <option value="AUTO_NEXT_AVAILABLE">Reporter au prochain jour disponible</option>
+          <option value="CANCEL_IF_FULL">Annuler si la premiere date est pleine</option>
+        </select>
+      </label>
+
+      <div class="checkout-actions">
+        <button
+          type="button"
+          class="clear"
+          [disabled]="checkoutLoading"
+          (click)="submitCheckout()"
+        >
+          <span class="btn-spinner" *ngIf="checkoutLoading" aria-hidden="true"></span>
+          <span>{{ checkoutLoading ? 'Validation...' : 'Confirmer ma commande' }}</span>
+        </button>
+      </div>
+    </section>
   </section>
 
   <ng-template #emptyCart>
@@ -36,3 +105,15 @@
     </section>
   </ng-template>
 </section>
+
+<div class="result-modal-backdrop" *ngIf="isCheckoutResultModalOpen" (click)="closeCheckoutModal()">
+  <section class="result-modal" (click)="$event.stopPropagation()">
+    <h2 [class.success]="checkoutResultKind === 'success'" [class.error]="checkoutResultKind === 'error'">
+      {{ checkoutResultTitle }}
+    </h2>
+    <p>{{ checkoutResultMessage }}</p>
+    <div class="checkout-actions">
+      <button type="button" class="clear" (click)="closeCheckoutModal()">Fermer</button>
+    </div>
+  </section>
+</div>

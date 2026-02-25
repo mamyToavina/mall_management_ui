@@ -32,6 +32,11 @@ export const PUBLIC_ROUTES: Routes = [
       import('./pages/public-cart-page.component').then((m) => m.PublicCartPageComponent)
   },
   {
+    path: 'mes-commandes',
+    loadComponent: () =>
+      import('./pages/public-my-orders-page.component').then((m) => m.PublicMyOrdersPageComponent)
+  },
+  {
     path: 'register',
     loadComponent: () =>
       import('./pages/public-register-page.component').then((m) => m.PublicRegisterPageComponent)

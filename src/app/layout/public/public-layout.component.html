@@ -70,6 +70,7 @@
       <a routerLink="/promotions" routerLinkActive="active">Promotions</a>
       <a routerLink="/boutiques" routerLinkActive="active">Boutiques</a>
       <a routerLink="/events" routerLinkActive="active">Activites</a>
+      <a *ngIf="isUserConnected" routerLink="/mes-commandes" routerLinkActive="active">Mes commandes</a>
     </nav>
   </header>
 
@@ -87,6 +88,7 @@
   <section class="credit-modal profile-modal" (click)="$event.stopPropagation()">
     <h2>Modifier mon profil</h2>
     <p class="credit-help">Mettez a jour vos informations personnelles, votre mot de passe et votre photo.</p>
+    <p class="credit-help" *ngIf="profileFetching">Chargement du profil...</p>
 
     <div class="profile-avatar-row">
       <div class="avatar large">
@@ -153,8 +155,8 @@
     <small class="field-error" *ngIf="profileFieldErrors['confirmPassword']">{{ profileFieldErrors['confirmPassword'] }}</small>
 
     <div class="credit-actions">
-      <button type="button" class="btn ghost compact" [disabled]="profileLoading" (click)="closeProfileModal()">Fermer</button>
-      <button type="button" class="btn solid compact" [disabled]="profileLoading" (click)="submitProfileUpdate()">
+      <button type="button" class="btn ghost compact" [disabled]="profileLoading || profileFetching" (click)="closeProfileModal()">Fermer</button>
+      <button type="button" class="btn solid compact" [disabled]="profileLoading || profileFetching" (click)="submitProfileUpdate()">
         <span class="btn-spinner" *ngIf="profileLoading" aria-hidden="true"></span>
         <span>{{ profileLoading ? 'Enregistrement...' : 'Enregistrer' }}</span>
       </button>

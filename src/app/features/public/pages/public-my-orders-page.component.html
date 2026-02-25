@@ -1,0 +1,137 @@
+<section class="orders-page">
+  <header>
+    <h1>Mes commandes</h1>
+    <p>Suivez vos achats, statuts de traitement et details de livraison.</p>
+  </header>
+
+  <section class="orders-card" *ngIf="isUserConnected; else guestBlock">
+    <div class="toolbar">
+      <div class="toolbar-actions">
+        <button type="button" class="btn ghost" [disabled]="loading" (click)="openFilterModal()">
+          Filtres
+          <span class="badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+        </button>
+        <button type="button" class="btn ghost" [disabled]="loading" (click)="loadOrders()">Actualiser</button>
+      </div>
+    </div>
+
+    <p class="help" *ngIf="loading">Chargement des commandes...</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <div class="list" *ngIf="!loading && pagedOrders.length > 0">
+      <article class="item" *ngFor="let order of pagedOrders">
+        <div class="row">
+          <strong>{{ order.reference }}</strong>
+          <span class="status">{{ toOrderStatusLabel(order.status) }}</span>
+        </div>
+        <div class="meta">
+          <span>{{ order.placedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          <span>{{ order.totals.grandTotal | number: '1.0-0' }} {{ order.totals.currency }}</span>
+        </div>
+        <button type="button" class="btn solid" (click)="openDetails(order._id)">Voir details</button>
+      </article>
+    </div>
+
+    <p class="help" *ngIf="!loading && !error && filteredOrders.length === 0">Aucune commande avec ces filtres.</p>
+
+    <div class="pager" *ngIf="!loading && filteredOrders.length > 0">
+      <button type="button" class="btn ghost" [disabled]="page <= 1" (click)="previousPage()">Precedent</button>
+      <span>Page {{ page }} / {{ pages }}</span>
+      <button type="button" class="btn ghost" [disabled]="page >= pages" (click)="nextPage()">Suivant</button>
+    </div>
+  </section>
+
+  <ng-template #guestBlock>
+    <section class="orders-card empty">
+      <p>Connectez-vous avec un compte utilisateur pour voir vos commandes.</p>
+      <a routerLink="/login">Aller a la connexion</a>
+    </section>
+  </ng-template>
+</section>
+
+<div class="modal-backdrop" *ngIf="isFilterModalOpen" (click)="closeFilterModal()">
+  <section class="modal-sheet" (click)="$event.stopPropagation()">
+    <h2>Filtres commandes</h2>
+    <div class="filters">
+      <label>
+        Recherche
+        <input type="text" [(ngModel)]="draftQuery" placeholder="Reference, produit, boutique" />
+      </label>
+      <label>
+        Statut
+        <select [(ngModel)]="draftStatusFilter">
+          <option value="">Tous</option>
+          <option value="PLACED">Placee</option>
+          <option value="PROCESSING">En traitement</option>
+          <option value="DELIVERED">Livree</option>
+          <option value="CANCELLED">Annulee</option>
+        </select>
+      </label>
+      <label>
+        Date min
+        <input type="date" [(ngModel)]="draftFromDate" />
+      </label>
+      <label>
+        Date max
+        <input type="date" [(ngModel)]="draftToDate" />
+      </label>
+      <label>
+        Total min
+        <input type="number" min="0" [(ngModel)]="draftMinTotal" />
+      </label>
+      <label>
+        Total max
+        <input type="number" min="0" [(ngModel)]="draftMaxTotal" />
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" (click)="clearFilterModal()">Reinitialiser</button>
+      <button type="button" class="btn ghost" (click)="closeFilterModal()">Annuler</button>
+      <button type="button" class="btn solid" (click)="applyFilterModal()">Appliquer</button>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" *ngIf="isDetailsModalOpen" (click)="closeDetails()">
+  <section class="modal-sheet details-sheet" (click)="$event.stopPropagation()">
+    <div class="toolbar">
+      <h2>Detail commande</h2>
+      <button type="button" class="btn ghost" (click)="closeDetails()">Fermer</button>
+    </div>
+
+    <p class="help" *ngIf="selectedOrderLoading">Chargement du detail...</p>
+    <p class="error" *ngIf="selectedOrderError">{{ selectedOrderError }}</p>
+
+    <ng-container *ngIf="selectedOrder as detail">
+      <div class="block">
+        <div><strong>Reference:</strong> {{ detail.reference }}</div>
+        <div><strong>Date:</strong> {{ detail.placedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+        <div><strong>Statut:</strong> {{ toOrderStatusLabel(detail.status) }}</div>
+        <div><strong>Paiement:</strong> {{ detail.paymentMethod }} - {{ detail.paymentStatus }}</div>
+        <div><strong>Retrait:</strong> {{ detail.deliveryContact.pickupLocation }}</div>
+        <div><strong>Contact:</strong> {{ detail.deliveryContact.contactPhone }}</div>
+      </div>
+
+      <div class="block">
+        <strong>Articles</strong>
+        <ul class="simple-list">
+          <li *ngFor="let item of detail.items">
+            <span>{{ item.productName }} (x{{ item.quantity }})</span>
+            <span>{{ item.lineTotal | number: '1.0-0' }} {{ item.currency }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <strong>Livraison par boutique</strong>
+        <ul class="simple-list">
+          <li *ngFor="let b of detail.boutiqueBreakdown">
+            <span>{{ b.boutiqueName }} - {{ b.fulfillmentStatus }}</span>
+            <span>{{ b.deliveryDate | date: 'dd/MM/yyyy' }}</span>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+  </section>
+</div>
+
