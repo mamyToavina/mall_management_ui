@@ -6,7 +6,12 @@
 
   <section class="cart-card" *ngIf="cart.items().length; else emptyCart">
     <article class="item" *ngFor="let item of cart.items()">
-      <img [src]="item.imageUrl" [alt]="item.productName" loading="lazy" />
+      <img
+        [src]="item.imageUrl || defaultPromotionImage"
+        [alt]="item.productName"
+        loading="lazy"
+        (error)="onCartImageError($event)"
+      />
       <div class="body">
         <h2>{{ item.productName }}</h2>
         <p>{{ item.boutiqueName }}</p>

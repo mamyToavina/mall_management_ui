@@ -15,13 +15,21 @@ export class ActivitiesApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/activities`;
   private readonly assetBaseUrl = environment.apiBaseUrl.replace(/\/api\/?$/, '');
-  readonly defaultImageUrl = '/assets/activity-placeholder.svg';
+  readonly defaultImageUrl = '/assets/public-activity-placeholder.svg';
 
-  getPublicUpcoming(limit = 8) {
-    const params = new HttpParams().set('limit', String(limit));
+  getPublicUpcoming(query?: { page?: number; limit?: number }) {
+    const page = Math.max(1, Number(query?.page) || 1);
+    const limit = Math.max(1, Math.min(10, Number(query?.limit) || 10));
+    const params = new HttpParams().set('page', String(page)).set('limit', String(limit));
+
     return this.http
-      .get<ActivityPublicDto[]>(`${this.baseUrl}/public/upcoming`, { params })
-      .pipe(map((items) => items.map((item) => this.normalizePublic(item))));
+      .get<PaginatedResponse<ActivityPublicDto>>(`${this.baseUrl}/public/upcoming`, { params })
+      .pipe(
+        map((res) => ({
+          ...res,
+          data: (res.data || []).map((item) => this.normalizePublic(item))
+        }))
+      );
   }
 
   list(query: ActivityListQuery) {
@@ -83,25 +91,61 @@ export class ActivitiesApiService {
   }
 
   private normalizePublic(item: ActivityPublicDto): ActivityPublicDto {
-    const raw = item as ActivityPublicDto & { _id?: string; date?: string; eventDate?: string };
+    const raw = item as ActivityPublicDto & {
+      _id?: string;
+      date?: string;
+      eventDate?: string;
+      startDate?: string;
+      startDateIso?: string;
+      endDate?: string;
+      endDateIso?: string;
+    };
+    const startDateIso = raw.startDateIso || raw.startDate || raw.dateIso || raw.eventDate || raw.date || '';
+    const durationDays = Number(item.durationDays) || 1;
+    const endDateIso = raw.endDateIso || raw.endDate || this.computeEndDateIso(startDateIso, durationDays);
+
     return {
       ...raw,
       id: raw.id || raw._id || '',
-      dateIso: raw.dateIso || raw.eventDate || raw.date || '',
-      durationDays: Number(item.durationDays) || 1,
+      startDateIso,
+      endDateIso,
+      dateIso: startDateIso,
+      durationDays,
       imageUrl: this.toAbsoluteImageUrl(item.imageUrl)
     };
   }
 
   private normalizeAdmin(item: ActivityDto): ActivityDto {
-    const raw = item as ActivityDto & { _id?: string; date?: string; eventDate?: string };
+    const raw = item as ActivityDto & {
+      _id?: string;
+      date?: string;
+      eventDate?: string;
+      startDate?: string;
+      startDateIso?: string;
+      endDate?: string;
+      endDateIso?: string;
+    };
+    const startDateIso = raw.startDateIso || raw.startDate || raw.dateIso || raw.eventDate || raw.date || '';
+    const durationDays = Number(item.durationDays) || 1;
+    const endDateIso = raw.endDateIso || raw.endDate || this.computeEndDateIso(startDateIso, durationDays);
+
     return {
       ...raw,
       id: raw.id || raw._id || '',
-      dateIso: raw.dateIso || raw.eventDate || raw.date || '',
-      durationDays: Number(item.durationDays) || 1,
+      startDateIso,
+      endDateIso,
+      dateIso: startDateIso,
+      durationDays,
       imageUrl: this.toAbsoluteImageUrl(item.imageUrl)
     };
+  }
+
+  private computeEndDateIso(startDateIso: string, durationDays: number): string {
+    const start = new Date(startDateIso);
+    if (Number.isNaN(start.getTime())) return '';
+    const end = new Date(start);
+    end.setDate(end.getDate() + Math.max(1, durationDays) - 1);
+    return end.toISOString();
   }
 
   private toAbsoluteImageUrl(value: string): string {

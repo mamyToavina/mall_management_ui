@@ -57,12 +57,17 @@
       (touchstart)="pauseAutoScroll()"
       (touchend)="resumeAutoScroll()"
     >
-      <article class="promo-card" *ngFor="let item of promoProducts">
-        <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
+      <article class="promo-card" *ngFor="let item of promoProducts()">
+        <img
+          [src]="item.imageUrl || defaultPromotionImage"
+          [alt]="item.name"
+          loading="lazy"
+          (error)="onPromotionImageError($event)"
+        />
         <div class="promo-body">
-          <span class="badge">{{ item.badge }}</span>
+          <span class="badge">-{{ item.discountRate || discountRate(item.originalPrice, item.promoPrice) }}%</span>
           <h3>{{ item.name }}</h3>
-          <p class="shop">{{ item.boutiqueName }}</p>
+          <p class="shop">{{ item.boutique.name }}</p>
 
           <div class="price-row">
             <strong>{{ item.promoPrice | number: '1.0-0' }} {{ item.currency }}</strong>
@@ -72,7 +77,13 @@
           <small>{{ item.category }} • Economie {{ discountRate(item.originalPrice, item.promoPrice) }}%</small>
 
           <div class="promo-actions">
-            <a class="shop-link" [routerLink]="['/boutiques', item.boutiqueId]">Voir boutique</a>
+            <a
+              class="shop-link"
+              [routerLink]="['/boutiques', item.boutique.id]"
+              [queryParams]="{ bn: item.boutique.name, ac: item.category }"
+            >
+              Voir boutique
+            </a>
             <button type="button" class="cart-action" (click)="addPromoToCart(item.id)">
               &#128722; Ajouter au panier
             </button>
@@ -92,32 +103,68 @@
       &#10095;
     </button>
   </div>
+  <p class="empty" *ngIf="!loadingPromotions() && !promoProducts().length">
+    Aucune promotion en vedette disponible pour le moment.
+  </p>
 </section>
 
 <section class="section reveal-up delay-3">
   <div class="section-head">
     <div>
       <h2>Activites a venir chez TI Commercial</h2>
-      <p>Planifiez votre prochaine visite avec des evenements pour toute la famille.</p>
+      <p>Planifiez votre prochaine visite grace a des evenements pour toute la famille.</p>
     </div>
     <a class="link" routerLink="/events">Voir toutes les activites</a>
   </div>
 
-  <div class="event-grid">
-    <article class="event-card" *ngFor="let event of events()">
-      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" (error)="onEventImageError($event)" />
-      <div class="event-body">
-        <span class="tag">{{ event.tag }}</span>
-        <h3>{{ event.title }}</h3>
-        <p>{{ event.description }}</p>
-        <div class="event-meta">
-          <strong>{{ event.dateIso | date: 'fullDate':'':'fr-FR' }}</strong>
-          <span>Duree: {{ event.durationDays }} jour(s)</span>
-          <span>{{ event.location }}</span>
+  <div class="event-wrap">
+    <button
+      type="button"
+      class="arrow left"
+      (click)="scrollEvents('left')"
+      aria-label="Defiler les activites vers la gauche"
+    >
+      &#10094;
+    </button>
+
+    <div class="event-track" #eventTrack>
+      <article class="event-card" *ngFor="let event of events()">
+        <img
+          [src]="event.imageUrl || defaultActivityImage"
+          [alt]="event.title"
+          loading="lazy"
+          (error)="onEventImageError($event)"
+        />
+        <div class="event-body">
+          <span class="tag">{{ event.tag }}</span>
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.description }}</p>
+          <div class="event-meta">
+            <div class="period-badge" aria-label="Periode de l activite">
+              <span class="period-icon" aria-hidden="true">&#128197;</span>
+              <span class="period-text">{{ activityPeriodLabel(event) }}</span>
+            </div>
+            <div class="location-chip" aria-label="Lieu de l activite">
+              <span class="location-icon" aria-hidden="true">&#128205;</span>
+              <span class="location-text">{{ event.location || 'Lieu a confirmer' }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </div>
+
+    <button
+      type="button"
+      class="arrow right"
+      (click)="scrollEvents('right')"
+      aria-label="Defiler les activites vers la droite"
+    >
+      &#10095;
+    </button>
   </div>
+  <p class="empty" *ngIf="!loadingEvents() && !events().length">
+    Aucune activite publique disponible pour le moment.
+  </p>
 </section>
 
 <section id="map-ti" class="section reveal-up delay-3">

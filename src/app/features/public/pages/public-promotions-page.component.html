@@ -4,11 +4,20 @@
     <p>Offres selectionnees dans les boutiques de TI Commercial.</p>
   </header>
 
+  @if (loading()) {
+    <p>Chargement...</p>
+  }
+
   <div class="grid">
-    <article class="card" *ngFor="let item of items">
-      <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
+    <article class="card" *ngFor="let item of items()">
+      <img
+        [src]="item.imageUrl || defaultPromotionImage"
+        [alt]="item.name"
+        loading="lazy"
+        (error)="onPromotionImageError($event)"
+      />
       <div class="body">
-        <span class="shop">{{ item.boutiqueName }}</span>
+        <span class="shop">{{ item.boutique.name }}</span>
         <h3>{{ item.name }}</h3>
         <p>{{ item.category }}</p>
         <div class="prices">
@@ -17,7 +26,7 @@
         </div>
 
         <div class="actions">
-          <a class="shop-link" [routerLink]="['/boutiques', item.boutiqueId]">Voir boutique</a>
+          <a class="shop-link" [routerLink]="['/boutiques', item.boutique.id]">Voir boutique</a>
           <button type="button" class="cart-action" (click)="addToCart(item.id)">
             &#128722; Ajouter au panier
           </button>
@@ -25,4 +34,8 @@
       </div>
     </article>
   </div>
+
+  @if (!loading() && !items().length) {
+    <p>Aucune promotion publique disponible pour le moment.</p>
+  }
 </section>

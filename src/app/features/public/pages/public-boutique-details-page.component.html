@@ -1,105 +1,127 @@
-﻿<section class="details-page" *ngIf="boutique() as shop; else notFound">
-  <article class="hero">
-    <img class="cover" [src]="shop.coverUrl" [alt]="shop.name" loading="lazy" />
-
-    <div class="hero-body">
-      <div class="identity">
-        <img class="logo" [src]="shop.logoUrl" [alt]="'Logo ' + shop.name" loading="lazy" />
-        <div>
-          <h1>{{ shop.name }}</h1>
-          <p class="activity">{{ shop.activity }}</p>
-        </div>
-      </div>
-
-      <p class="slogan">{{ shop.slogan }}</p>
-      <p class="desc">{{ shop.description }}</p>
-
-      <div class="stats">
-        <span>{{ averageRating() }} ★</span>
-        <span>{{ shop.reviewsCount + reviews().length }} avis</span>
-      </div>
-    </div>
-  </article>
-
-  <section class="products">
-    <div class="section-head">
-      <h2>Produits de la boutique</h2>
-      <a class="back" routerLink="/boutiques">Retour aux boutiques</a>
-    </div>
-
-    <div class="grid">
-      <article class="product-card" *ngFor="let product of products()">
-        <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
-        <div class="body">
-          <h3>{{ product.name }}</h3>
-          <p>{{ product.description }}</p>
-          <div class="price-row">
-            <strong>{{ (product.promoPrice ?? product.price) | number: '1.0-0' }} {{ product.currency }}</strong>
-            <span *ngIf="product.promoPrice">{{ product.price | number: '1.0-0' }} {{ product.currency }}</span>
-          </div>
-          <button type="button" class="cart-action" (click)="addToCart(product.id)">
-            &#128722; Ajouter au panier
-          </button>
-        </div>
-      </article>
-    </div>
+@if (loading()) {
+  <section class="details-page">
+    <p>Chargement de la boutique...</p>
+    <a class="back" routerLink="/boutiques">Retour aux boutiques</a>
   </section>
-
-  <section class="reviews">
-    <h2>Noter la boutique et laisser un avis</h2>
-
-    <div class="stars" role="radiogroup" aria-label="Note boutique">
-      <button
-        type="button"
-        *ngFor="let star of [1, 2, 3, 4, 5]"
-        [class.active]="star <= selectedRating()"
-        (click)="setRating(star)"
-        [attr.aria-label]="star + ' etoiles'"
-      >
-        ★
-      </button>
-    </div>
-
-    <form class="review-form" (ngSubmit)="submitReview()">
-      <input
-        type="text"
-        name="author"
-        placeholder="Votre nom"
-        [ngModel]="reviewAuthor()"
-        (ngModelChange)="reviewAuthor.set($event)"
-        required
+} @else if (boutique(); as shop) {
+  <section class="details-page">
+    <article class="hero">
+      <img
+        class="cover"
+        [src]="shop.coverUrl || defaultBoutiqueCover"
+        [alt]="shop.name"
+        loading="lazy"
+        (error)="onBoutiqueCoverError($event)"
       />
 
-      <textarea
-        name="message"
-        rows="3"
-        placeholder="Partagez votre experience"
-        [ngModel]="reviewMessage()"
-        (ngModelChange)="reviewMessage.set($event)"
-        required
-      ></textarea>
-
-      <button type="submit" [disabled]="!selectedRating() || !reviewAuthor().trim() || !reviewMessage().trim()">
-        Publier l avis
-      </button>
-    </form>
-
-    <div class="review-list">
-      <article class="review-item" *ngFor="let review of reviews()">
-        <div class="head">
-          <strong>{{ review.author }}</strong>
-          <span>{{ review.rating }} ★</span>
+      <div class="hero-body">
+        <div class="identity">
+          <img
+            class="logo"
+            [src]="shop.logoUrl || defaultBoutiqueLogo"
+            [alt]="'Logo ' + shop.name"
+            loading="lazy"
+            (error)="onBoutiqueLogoError($event)"
+          />
+          <div>
+            <h1>{{ shop.name }}</h1>
+            <p class="activity">{{ shop.activity }}</p>
+          </div>
         </div>
-        <p>{{ review.message }}</p>
-        <small>{{ review.createdAt | date: 'mediumDate' }}</small>
-      </article>
-    </div>
-  </section>
-</section>
 
-<ng-template #notFound>
+        <p class="slogan">{{ shop.slogan }}</p>
+        <p class="desc">{{ shop.description }}</p>
+
+        <div class="stats">
+          <span>{{ averageRating() }} ★</span>
+          <span>{{ shop.reviewsCount + reviews().length }} avis</span>
+        </div>
+      </div>
+    </article>
+
+    <section class="products">
+      <div class="section-head">
+        <h2>Produits de la boutique</h2>
+        <a class="back" routerLink="/boutiques">Retour aux boutiques</a>
+      </div>
+
+      <div class="grid">
+        <article class="product-card" *ngFor="let product of products()">
+          <img
+            [src]="product.imageUrl || defaultPromotionImage"
+            [alt]="product.name"
+            loading="lazy"
+            (error)="onProductImageError($event)"
+          />
+          <div class="body">
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <div class="price-row">
+              <strong>{{ (product.promoPrice ?? product.price) | number: '1.0-0' }} {{ product.currency }}</strong>
+              <span *ngIf="product.promoPrice">{{ product.price | number: '1.0-0' }} {{ product.currency }}</span>
+            </div>
+            <button type="button" class="cart-action" (click)="addToCart(product.id)">
+              &#128722; Ajouter au panier
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="reviews">
+      <h2>Noter la boutique et laisser un avis</h2>
+
+      <div class="stars" role="radiogroup" aria-label="Note boutique">
+        <button
+          type="button"
+          *ngFor="let star of [1, 2, 3, 4, 5]"
+          [class.active]="star <= selectedRating()"
+          (click)="setRating(star)"
+          [attr.aria-label]="star + ' etoiles'"
+        >
+          ★
+        </button>
+      </div>
+
+      <form class="review-form" (ngSubmit)="submitReview()">
+        <input
+          type="text"
+          name="author"
+          placeholder="Votre nom"
+          [ngModel]="reviewAuthor()"
+          (ngModelChange)="reviewAuthor.set($event)"
+          required
+        />
+
+        <textarea
+          name="message"
+          rows="3"
+          placeholder="Partagez votre experience"
+          [ngModel]="reviewMessage()"
+          (ngModelChange)="reviewMessage.set($event)"
+          required
+        ></textarea>
+
+        <button type="submit" [disabled]="!selectedRating() || !reviewAuthor().trim() || !reviewMessage().trim()">
+          Publier l avis
+        </button>
+      </form>
+
+      <div class="review-list">
+        <article class="review-item" *ngFor="let review of reviews()">
+          <div class="head">
+            <strong>{{ review.author }}</strong>
+            <span>{{ review.rating }} ★</span>
+          </div>
+          <p>{{ review.message }}</p>
+          <small>{{ review.createdAt | date: 'mediumDate' }}</small>
+        </article>
+      </div>
+    </section>
+  </section>
+} @else {
   <section class="details-page">
     <p>Boutique introuvable.</p>
     <a class="back" routerLink="/boutiques">Retour aux boutiques</a>
   </section>
-</ng-template>
+}
