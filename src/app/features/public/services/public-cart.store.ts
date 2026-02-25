@@ -66,6 +66,59 @@ export class PublicCartStore {
     });
   }
 
+  increase(productId: string): void {
+    this.itemsMap.update((current) => {
+      const existing = current[productId];
+      if (!existing) return current;
+
+      return {
+        ...current,
+        [productId]: {
+          ...existing,
+          quantity: existing.quantity + 1
+        }
+      };
+    });
+  }
+
+  decrease(productId: string): void {
+    this.itemsMap.update((current) => {
+      const existing = current[productId];
+      if (!existing) return current;
+
+      if (existing.quantity <= 1) {
+        const next = { ...current };
+        delete next[productId];
+        return next;
+      }
+
+      return {
+        ...current,
+        [productId]: {
+          ...existing,
+          quantity: existing.quantity - 1
+        }
+      };
+    });
+  }
+
+  setQuantity(productId: string, quantity: number): void {
+    this.itemsMap.update((current) => {
+      const existing = current[productId];
+      if (!existing) return current;
+
+      const safeQuantity = Math.max(1, Math.min(9999, Math.trunc(Number(quantity) || 1)));
+
+      return {
+        ...current,
+        [productId]: {
+          ...existing,
+          quantity: safeQuantity
+        }
+      };
+    });
+  }
+
   clear(): void {
     this.itemsMap.set({});
   }

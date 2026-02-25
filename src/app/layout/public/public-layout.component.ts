@@ -41,6 +41,7 @@ export class PublicLayoutComponent {
     { date: '2026-02-18 09:40', label: 'Recharge code mobile', amount: +50000 }
   ];
   profileLoading = false;
+  profileFetching = false;
   profileMessage = '';
   profileError = '';
   profileFieldErrors: Record<string, string> = {};
@@ -119,7 +120,8 @@ export class PublicLayoutComponent {
 
   openProfileModal(): void {
     this.isProfileModalOpen = true;
-    this.profileLoading = true;
+    this.profileLoading = false;
+    this.profileFetching = true;
     this.profileMessage = '';
     this.profileError = '';
     this.profileFieldErrors = {};
@@ -161,10 +163,10 @@ export class PublicLayoutComponent {
           lastName: this.profileLastName,
           gender: this.profileGender
         };
-        this.profileLoading = false;
+        this.profileFetching = false;
       },
       error: (err) => {
-        this.profileLoading = false;
+        this.profileFetching = false;
         this.profileError =
           err?.error?.message ||
           'Impossible de charger votre profil pour le moment.';
@@ -174,6 +176,7 @@ export class PublicLayoutComponent {
 
   closeProfileModal(): void {
     this.isProfileModalOpen = false;
+    this.profileFetching = false;
   }
 
   onProfileAvatarChange(event: Event): void {
