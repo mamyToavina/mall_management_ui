@@ -65,7 +65,7 @@ export const routes: Routes = [
   // ===== ADMIN AREA =====
   {
     path: 'admin',
-    canActivate: [authGuard, roleGuard(['USER', 'ADMIN'])], 
+    canActivate: [authGuard, roleGuard(['ADMIN'])], 
     loadComponent: () =>
       import('./layout/admin/admin-layout.component')
         .then(m => m.AdminLayoutComponent),

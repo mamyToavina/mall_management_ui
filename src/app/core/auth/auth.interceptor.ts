@@ -23,7 +23,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (err.status === 401) {
         return authService.refreshToken().pipe(
           switchMap((res: any) => {
-            store.setSession(store.user()!, res.accessToken);
+            const user = res?.user || store.user();
+            if (!user || !res?.accessToken) {
+              store.clear();
+              return throwError(() => err);
+            }
+            store.setSession(user, res.accessToken);
 
             const newReq = req.clone({
               setHeaders: {

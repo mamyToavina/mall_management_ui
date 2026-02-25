@@ -13,6 +13,26 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+export interface MyProfileResponse {
+  user: AuthUser;
+}
+
+export interface UpdateMyProfilePayload {
+  pseudo?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: 'Male' | 'Female' | 'Other' | '';
+  avatar?: File | null;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+export interface UpdateMyProfileResponse {
+  message: string;
+  user: AuthUser;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = `${environment.apiBaseUrl}/auth`;
@@ -40,7 +60,7 @@ export class AuthService {
       .pipe(
         tap(() => {
           this.store.clear();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/']);
         })
       );
   }
@@ -53,6 +73,29 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.api}/refresh`, {}, { withCredentials: true });
   }
 
+  getMyProfile(): Observable<MyProfileResponse> {
+    return this.http.get<MyProfileResponse>(`${environment.apiBaseUrl}/users/me`);
+  }
+
+  updateMyProfile(payload: UpdateMyProfilePayload): Observable<UpdateMyProfileResponse> {
+    const formData = new FormData();
+    if (payload.pseudo !== undefined) formData.set('pseudo', payload.pseudo.trim());
+    if (payload.email !== undefined) formData.set('email', payload.email.trim());
+
+    if (payload.firstName !== undefined) formData.set('firstName', payload.firstName.trim());
+    if (payload.lastName !== undefined) formData.set('lastName', payload.lastName.trim());
+    if (payload.gender !== undefined) formData.set('gender', payload.gender);
+    if (payload.avatar) formData.append('avatar', payload.avatar, payload.avatar.name);
+    if (payload.currentPassword) formData.set('currentPassword', payload.currentPassword);
+    if (payload.newPassword) formData.set('newPassword', payload.newPassword);
+
+    return this.http.patch<UpdateMyProfileResponse>(`${environment.apiBaseUrl}/users/me`, formData).pipe(
+      tap((res) => {
+        this.store.updateUser(res.user);
+      })
+    );
+  }
+
   redirectByRole(role: Role): void {
     switch (role) {
       case 'ADMIN':
@@ -62,7 +105,7 @@ export class AuthService {
         this.router.navigate(['/boutique']);
         break;
       case 'USER':
-        this.router.navigate(['/admin']);
+        this.router.navigate(['/']);
         break;
       case 'ACHETEUR':
         this.router.navigate(['/acheteur']);
