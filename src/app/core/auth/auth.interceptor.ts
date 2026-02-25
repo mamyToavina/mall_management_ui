@@ -7,10 +7,11 @@ import { catchError, switchMap, throwError } from 'rxjs';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const store = inject(AuthStore);
   const authService = inject(AuthService);
+  const isRefreshRequest = req.url.includes('/auth/refresh');
 
   const token = store.accessToken();
 
-  if (token) {
+  if (token && !isRefreshRequest) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -21,6 +22,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError(err => {
       if (err.status === 401) {
+        if (isRefreshRequest) {
+          store.clear();
+          return throwError(() => err);
+        }
+
         return authService.refreshToken().pipe(
           switchMap((res: any) => {
             const user = res?.user || store.user();
