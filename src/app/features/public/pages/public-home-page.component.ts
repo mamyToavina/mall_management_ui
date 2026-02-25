@@ -9,20 +9,22 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { CommonModule, DatePipe, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser';
 
 import { ActivityPublicDto } from '../../activities/models/activity.models';
 import { ActivitiesApiService } from '../../activities/services/activities-api.service';
-import { PROMO_PRODUCTS } from '../data/public-content.data';
+import { PublicPromotionDto } from '../models/public-catalog.models';
+import { PublicCatalogApiService } from '../services/public-catalog-api.service';
 import { PublicCartStore } from '../services/public-cart.store';
+import { PROMO_PRODUCTS } from '../data/public-content.data';
 
 @Component({
   selector: 'app-public-home-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe],
+  imports: [CommonModule, RouterLink],
   templateUrl: './public-home-page.component.html',
   styleUrls: ['./public-home-page.component.css']
 })
@@ -33,15 +35,19 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
   private readonly activitiesApi = inject(ActivitiesApiService);
+  private readonly catalogApi = inject(PublicCatalogApiService);
 
   readonly cart = inject(PublicCartStore);
 
   @ViewChild('promoTrack') promoTrack?: ElementRef<HTMLDivElement>;
+  @ViewChild('eventTrack') eventTrack?: ElementRef<HTMLDivElement>;
 
-  readonly promoProducts = PROMO_PRODUCTS;
+  readonly promoProducts = signal<PublicPromotionDto[]>([]);
+  readonly loadingPromotions = signal(false);
   readonly events = signal<ActivityPublicDto[]>([]);
   readonly loadingEvents = signal(false);
-  readonly defaultActivityImage = '/assets/activity-placeholder.svg';
+  readonly defaultPromotionImage = this.catalogApi.defaultPromotionImage;
+  readonly defaultActivityImage = '/assets/public-activity-placeholder.svg';
   readonly mapLabel = 'TI Commercial';
   readonly mapLat = -18.9157;
   readonly mapLng = 47.5361;
@@ -52,9 +58,19 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
   private rafId: number | null = null;
   private lastFrame = 0;
   private paused = false;
+  private readonly dateLongFormatter = new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+  private readonly dateShortFormatter = new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'short'
+  });
 
   constructor() {
     this.applySeo();
+    this.loadFeaturedPromotions();
     this.loadUpcomingEvents();
   }
 
@@ -75,15 +91,23 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
     node.scrollBy({ left: amount, behavior: 'smooth' });
   }
 
+  scrollEvents(direction: 'left' | 'right'): void {
+    const node = this.eventTrack?.nativeElement;
+    if (!node) return;
+
+    const amount = direction === 'left' ? -340 : 340;
+    node.scrollBy({ left: amount, behavior: 'smooth' });
+  }
+
   addPromoToCart(productId: string): void {
-    const product = this.promoProducts.find((item) => item.id === productId);
+    const product = this.promoProducts().find((item) => item.id === productId);
     if (!product) return;
 
     this.cart.add({
       productId: product.id,
       productName: product.name,
-      boutiqueName: product.boutiqueName,
-      imageUrl: product.imageUrl,
+      boutiqueName: product.boutique.name,
+      imageUrl: product.imageUrl || this.catalogApi.defaultPromotionImage,
       unitPrice: product.promoPrice,
       currency: product.currency
     });
@@ -135,6 +159,43 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
   discountRate(original: number, current: number): number {
     if (!original || original <= current) return 0;
     return Math.round(((original - current) / original) * 100);
+  }
+
+  private loadFeaturedPromotions(): void {
+    this.loadingPromotions.set(true);
+    this.catalogApi
+      .getFeaturedPromotions(12)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const items = res.data || [];
+          this.promoProducts.set(items.length ? items : this.toFallbackPromotions());
+          this.loadingPromotions.set(false);
+        },
+        error: () => {
+          this.promoProducts.set(this.toFallbackPromotions());
+          this.loadingPromotions.set(false);
+        }
+      });
+  }
+
+  private toFallbackPromotions(): PublicPromotionDto[] {
+    return PROMO_PRODUCTS.map((item) => ({
+      id: item.id,
+      name: item.name,
+      description: item.category,
+      category: item.category,
+      imageUrl: item.imageUrl,
+      currency: item.currency,
+      originalPrice: item.originalPrice,
+      promoPrice: item.promoPrice,
+      discountRate: this.discountRate(item.originalPrice, item.promoPrice),
+      boutique: {
+        id: item.boutiqueId,
+        name: item.boutiqueName,
+        logo: null
+      }
+    }));
   }
 
   mapSrc(): SafeResourceUrl {
@@ -196,11 +257,11 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
     this.loadingEvents.set(true);
 
     this.activitiesApi
-      .getPublicUpcoming(8)
+      .getPublicUpcoming({ page: 1, limit: 8 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (items) => {
-          this.events.set(items);
+        next: (res) => {
+          this.events.set(res.data || []);
           this.loadingEvents.set(false);
         },
         error: () => {
@@ -214,5 +275,41 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
     const img = event.target as HTMLImageElement | null;
     if (!img || img.src.endsWith(this.defaultActivityImage)) return;
     img.src = this.defaultActivityImage;
+  }
+
+  onPromotionImageError(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (!img || img.src.endsWith(this.defaultPromotionImage)) return;
+    img.src = this.defaultPromotionImage;
+  }
+
+  activityPeriodLabel(event: ActivityPublicDto): string {
+    const start = new Date(event.startDateIso || event.dateIso);
+    const end = new Date(event.endDateIso || event.dateIso);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return 'Date a confirmer';
+    }
+
+    const sameDay =
+      start.getFullYear() === end.getFullYear() &&
+      start.getMonth() === end.getMonth() &&
+      start.getDate() === end.getDate();
+    if (sameDay) {
+      return `Le ${this.dateLongFormatter.format(start)}`;
+    }
+
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const sameMonth = sameYear && start.getMonth() === end.getMonth();
+
+    if (sameMonth) {
+      return `Du ${start.getDate()} au ${this.dateLongFormatter.format(end)}`;
+    }
+
+    if (sameYear) {
+      return `Du ${this.dateShortFormatter.format(start)} au ${this.dateLongFormatter.format(end)}`;
+    }
+
+    return `Du ${this.dateLongFormatter.format(start)} au ${this.dateLongFormatter.format(end)}`;
   }
 }

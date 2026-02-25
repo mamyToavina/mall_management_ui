@@ -1,7 +1,10 @@
 ﻿<section class="events-page">
   <header>
     <h1>Activites a TI Commercial</h1>
-    <p>Restez informe des prochaines activites, dates et lieux.</p>
+    <p>Restez informe des prochaines activites, de leurs dates et de leurs lieux.</p>
+    @if (!loading() && totalItems() > 0) {
+      <small class="summary">{{ totalItems() }} activites publiques trouvees</small>
+    }
   </header>
 
   @if (loading()) {
@@ -10,17 +13,38 @@
 
   <div class="timeline">
     <article class="item" *ngFor="let event of events()">
-      <img [src]="event.imageUrl" [alt]="event.title" loading="lazy" (error)="onEventImageError($event)" />
+      <img [src]="event.imageUrl || defaultActivityImage" [alt]="event.title" loading="lazy" (error)="onEventImageError($event)" />
       <div class="content">
         <span class="tag">{{ event.tag }}</span>
         <h3>{{ event.title }}</h3>
         <p>{{ event.description }}</p>
         <div class="meta">
-          <strong>{{ event.dateIso | date: 'fullDate':'':'fr-FR' }}</strong>
-          <span>Duree: {{ event.durationDays }} jour(s)</span>
-          <span>{{ event.location }}</span>
+          <div class="period-badge" aria-label="Periode de l activite">
+            <span class="period-icon" aria-hidden="true">&#128197;</span>
+            <span class="period-text">{{ activityPeriodLabel(event) }}</span>
+          </div>
+          <div class="location-chip" aria-label="Lieu de l activite">
+            <span class="location-icon" aria-hidden="true">&#128205;</span>
+            <span class="location-text">{{ event.location || 'Lieu a confirmer' }}</span>
+          </div>
         </div>
       </div>
     </article>
   </div>
+  @if (!loading() && !events().length) {
+    <p class="state">Aucune activite publique disponible pour le moment.</p>
+  }
+
+  @if (!loading() && totalItems() > 0) {
+    <div class="pager">
+      <button type="button" (click)="prevPage()" [disabled]="currentPage() <= 1" aria-label="Page precedente">
+        Page precedente
+      </button>
+      <span>Page {{ currentPage() }} sur {{ totalPages() }} • {{ totalItems() }} activites</span>
+      <button type="button" (click)="nextPage()" [disabled]="currentPage() >= totalPages()" aria-label="Page suivante">
+        Page suivante
+      </button>
+    </div>
+  }
 </section>
+

@@ -18,12 +18,12 @@ import { CommonModule } from '@angular/common';
 
       <div class="card" *ngIf="buyer">
         <div class="card-top">
-          <img class="photo" [src]="avatarUrl(buyer?.avatar)" alt="Photo profil" />
+          <img class="photo" [src]="avatarUrl(buyer.avatar)" alt="Photo profil" />
           <div class="who">
-            <div class="pseudo">{{ buyer?.pseudo }}</div>
+            <div class="pseudo">{{ buyer.pseudo }}</div>
             <div class="sub">
-              <span class="badge" [class.blocked]="buyer?.status==='BLOCKED'">{{ buyer?.status }}</span>
-              @if (buyer?.createdAt; as createdAt) {
+              <span class="badge" [class.blocked]="buyer.status==='BLOCKED'">{{ buyer.status }}</span>
+              @if (buyer.createdAt; as createdAt) {
                 <span class="muted">{{ ago(createdAt) }}</span>
               }
 
@@ -34,17 +34,17 @@ import { CommonModule } from '@angular/common';
         <div class="grid">
           <div class="field">
             <div class="label">Nom</div>
-            <div class="value">{{ buyer?.firstName || '—' }}</div>
+            <div class="value">{{ buyer.firstName || '—' }}</div>
           </div>
 
           <div class="field">
             <div class="label">Email</div>
-            <div class="value">{{ buyer?.email }}</div>
+            <div class="value">{{ buyer.email }}</div>
           </div>
 
           <div class="field">
             <div class="label">Solde</div>
-            @if (buyer?.credit; as credit) {
+            @if (buyer.credit; as credit) {
                 <div class="value strong">{{ money(credit) }}</div>
             }
 
@@ -52,7 +52,7 @@ import { CommonModule } from '@angular/common';
 
           <div class="field">
             <div class="label">Compte complété</div>
-            <div class="value">{{ buyer?.isAccountCompleted ? 'Oui' : 'Non' }}</div>
+            <div class="value">{{ buyer.isAccountCompleted ? 'Oui' : 'Non' }}</div>
           </div>
 
           @if (buyer; as b) {
@@ -72,7 +72,7 @@ import { CommonModule } from '@angular/common';
 
           <div class="field span2">
             <div class="label">ID</div>
-            <div class="value mono">{{ buyer?._id }}</div>
+            <div class="value mono">{{ buyer._id }}</div>
           </div>
         </div>
       </div>
@@ -176,3 +176,4 @@ export class BuyerCardModalComponent {
   money = formatAriary;
   avatarUrl = resolveAvatarUrl;
 }
+

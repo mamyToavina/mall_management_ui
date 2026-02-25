@@ -2,6 +2,8 @@ export interface ActivityPublicDto {
   id: string;
   title: string;
   description: string;
+  startDateIso: string;
+  endDateIso: string;
   dateIso: string;
   durationDays: number;
   location: string;

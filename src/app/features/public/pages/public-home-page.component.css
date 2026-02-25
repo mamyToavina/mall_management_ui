@@ -225,22 +225,55 @@ h1 {
 .price-row span { color: #98769d; text-decoration: line-through; font-weight: 700; }
 .promo-body small { color: var(--text-muted); font-weight: 700; }
 
-.event-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+.event-wrap {
+  position: relative;
+  min-width: 0;
 }
 
+.event-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  padding: 6px 54px 8px;
+  scroll-behavior: smooth;
+  max-width: 100%;
+}
+
+.event-track::-webkit-scrollbar { height: 6px; }
+
 .event-card {
+  min-width: clamp(220px, 74vw, 320px);
+  max-width: 340px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
   border: 1px solid color-mix(in oklab, var(--accent) 20%, white);
   border-radius: 16px;
   overflow: hidden;
   background: #fff;
-  min-width: 0;
+  scroll-snap-align: start;
+  box-shadow: 0 10px 24px rgba(136, 12, 116, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.event-card:hover,
+.event-card:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(136, 12, 116, 0.2);
+  border-color: color-mix(in oklab, var(--accent) 34%, white);
 }
 
 .event-card img { width: 100%; height: 190px; object-fit: cover; }
-.event-body { padding: 12px; display: grid; gap: 8px; }
+.event-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
 
 .tag {
   width: fit-content;
@@ -253,8 +286,80 @@ h1 {
 }
 
 .event-body h3 { margin: 0; color: var(--text-main); }
-.event-body p { margin: 0; color: var(--text-muted); line-height: 1.5; }
-.event-meta { display: grid; gap: 2px; color: var(--text-muted); }
+.event-body p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.event-meta {
+  display: grid;
+  gap: 8px;
+  color: var(--text-muted);
+  margin-top: auto;
+}
+.period-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 18%, white);
+  background: color-mix(in oklab, var(--accent) 10%, white);
+}
+
+.period-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--accent-deep);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.period-text {
+  color: color-mix(in oklab, var(--text-main) 82%, #000);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.location-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--accent) 14%, white);
+  background: color-mix(in oklab, var(--accent) 5%, white);
+}
+
+.location-icon {
+  color: var(--accent-deep);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.location-text {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
 
 .link,
 .shop-link {
@@ -275,6 +380,12 @@ h1 {
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.empty {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  font-weight: 700;
 }
 
 .map-card {
@@ -401,17 +512,18 @@ h1 {
 }
 
 @media (max-width: 1024px) {
-  .hero,
-  .event-grid {
-    grid-template-columns: 1fr;
-  }
+  .hero { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {
   .arrow { width: 38px; height: 38px; }
   .arrow.left { left: 4px; }
   .arrow.right { right: 4px; }
-  .promo-track { padding-left: 44px; padding-right: 44px; }
+  .promo-track,
+  .event-track {
+    padding-left: 44px;
+    padding-right: 44px;
+  }
 }
 
 @media (max-width: 620px) {

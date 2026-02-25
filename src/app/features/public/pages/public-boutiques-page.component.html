@@ -5,12 +5,24 @@
   </header>
 
   <div class="boutique-grid">
-    <article class="boutique-card" *ngFor="let shop of boutiques">
-      <img class="cover" [src]="shop.coverUrl" [alt]="shop.name" loading="lazy" />
+    <article class="boutique-card" *ngFor="let shop of boutiques()">
+      <img
+        class="cover"
+        [src]="shop.coverUrl || defaultBoutiqueCover"
+        [alt]="shop.name"
+        loading="lazy"
+        (error)="onBoutiqueCoverError($event)"
+      />
 
       <div class="content">
         <div class="top-row">
-          <img class="logo" [src]="shop.logoUrl" [alt]="'Logo ' + shop.name" loading="lazy" />
+          <img
+            class="logo"
+            [src]="shop.logoUrl || defaultBoutiqueLogo"
+            [alt]="'Logo ' + shop.name"
+            loading="lazy"
+            (error)="onBoutiqueLogoError($event)"
+          />
           <div>
             <h2>{{ shop.name }}</h2>
             <p class="activity">{{ shop.activity }}</p>
@@ -26,9 +38,13 @@
 
         <div class="bottom-row">
           <div class="rating">{{ shop.rating }} ★ ({{ shop.reviewsCount }} avis)</div>
-          <a class="btn" [routerLink]="['/boutiques', shop.id]">Voir la boutique</a>
+          <a class="btn" [routerLink]="['/boutiques', shop.id]" [queryParams]="{ bn: shop.name, ac: shop.activity }">
+            Voir la boutique
+          </a>
         </div>
       </div>
     </article>
   </div>
+
+  <p *ngIf="!loading() && !boutiques().length">Aucune boutique disponible.</p>
 </section>
