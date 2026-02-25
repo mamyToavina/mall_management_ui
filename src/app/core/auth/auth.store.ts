@@ -6,8 +6,13 @@ export interface AuthUser {
   id: string;
   pseudo: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
   role: UserRole;
   avatar?: string;
+  credit?: number;
+  gender?: 'Male' | 'Female' | 'Other';
+  status?: 'ACTIVE' | 'BLOCKED' | 'DELETED';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,6 +29,12 @@ export class AuthStore {
   setSession(user: AuthUser, token: string) {
     this._user.set(user);
     this._accessToken.set(token);
+  }
+
+  updateUser(patch: Partial<AuthUser>) {
+    const current = this._user();
+    if (!current) return;
+    this._user.set({ ...current, ...patch });
   }
 
   clear() {
