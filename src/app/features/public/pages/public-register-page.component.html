@@ -1,20 +1,203 @@
-﻿<section class="register-wrap">
+<section class="register-wrap">
   <article class="register-card">
-    <h1>Creez votre compte acheteur</h1>
-    <p>Profitez des offres exclusives, rappels d activites et recommandations personnalisees.</p>
+    <h1>Creer votre compte acheteur</h1>
+    <p>Achetez vos produits et gerez votre credit en toute simplicite.</p>
 
     <form (ngSubmit)="submit()" class="form">
       <label>
-        Nom complet
-        <input type="text" name="fullName" [(ngModel)]="fullName" required />
+        Pseudo
+        <input
+          type="text"
+          name="pseudo"
+          #pseudoModel="ngModel"
+          [(ngModel)]="pseudo"
+          (ngModelChange)="clearBackendFieldError('pseudo')"
+          required
+          [class.invalid]="isFieldInvalid(!!pseudoModel.invalid, !!pseudoModel.touched)"
+        />
+        <small class="field-error" *ngIf="isFieldInvalid(!!pseudoModel.invalid, !!pseudoModel.touched)">
+          Le pseudo est obligatoire.
+        </small>
+        <small class="field-error" *ngIf="backendFieldErrors['pseudo']">{{ backendFieldErrors['pseudo'] }}</small>
       </label>
 
       <label>
         Email
-        <input type="email" name="email" [(ngModel)]="email" required />
+        <input
+          type="email"
+          name="email"
+          #emailModel="ngModel"
+          [(ngModel)]="email"
+          (ngModelChange)="clearBackendFieldError('email')"
+          required
+          email
+          [class.invalid]="isFieldInvalid(!!emailModel.invalid, !!emailModel.touched)"
+        />
+        <small class="field-error" *ngIf="isFieldInvalid(!!emailModel.invalid, !!emailModel.touched)">
+          Entrez un email valide.
+        </small>
+        <small class="field-error" *ngIf="backendFieldErrors['email']">{{ backendFieldErrors['email'] }}</small>
       </label>
 
-      <button type="submit">Creer un compte</button>
+      <label>
+        Mot de passe
+        <input
+          type="password"
+          name="password"
+          #passwordModel="ngModel"
+          [(ngModel)]="password"
+          (ngModelChange)="clearBackendFieldError('password')"
+          minlength="8"
+          required
+          [class.invalid]="isFieldInvalid(!!passwordModel.invalid, !!passwordModel.touched)"
+        />
+        <small class="field-error" *ngIf="isFieldInvalid(!!passwordModel.invalid, !!passwordModel.touched)">
+          Minimum 8 caracteres.
+        </small>
+        <small class="field-error" *ngIf="backendFieldErrors['password']">{{ backendFieldErrors['password'] }}</small>
+      </label>
+
+      <label>
+        Repeter le mot de passe
+        <input
+          type="password"
+          name="confirmPassword"
+          #confirmPasswordModel="ngModel"
+          [(ngModel)]="confirmPassword"
+          required
+          [class.invalid]="isFieldInvalid(!!confirmPasswordModel.invalid, !!confirmPasswordModel.touched) || isPasswordMismatch"
+        />
+        <small class="field-error" *ngIf="isFieldInvalid(!!confirmPasswordModel.invalid, !!confirmPasswordModel.touched)">
+          Veuillez repeter votre mot de passe.
+        </small>
+        <small class="field-error" *ngIf="!confirmPasswordModel.invalid && isPasswordMismatch">
+          Les mots de passe ne correspondent pas.
+        </small>
+      </label>
+
+      <label>
+        Prenom (optionnel)
+        <input type="text" name="firstName" [(ngModel)]="firstName" />
+      </label>
+
+      <label>
+        Nom (optionnel)
+        <input type="text" name="lastName" [(ngModel)]="lastName" />
+      </label>
+
+      <div class="gender-field">
+        <span class="gender-label">Genre (optionnel)</span>
+        <div class="gender-options">
+          <button
+            type="button"
+            class="gender-option"
+            [class.active]="gender === 'Male'"
+            (click)="selectGender('Male')"
+          >
+            <span class="gender-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path
+                  d="M14.6 3h6.4v6.4m-6.9.6L21 3m-7.8 8.7a5.2 5.2 0 1 1-10.4 0a5.2 5.2 0 0 1 10.4 0Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="gender-copy">
+              <strong>Homme</strong>
+              <small>Profil masculin</small>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="gender-option"
+            [class.active]="gender === 'Female'"
+            (click)="selectGender('Female')"
+          >
+            <span class="gender-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path
+                  d="M12 14.2v6.3m-2.8-3.2h5.6M16.8 8.7a4.8 4.8 0 1 1-9.6 0a4.8 4.8 0 0 1 9.6 0Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="gender-copy">
+              <strong>Femme</strong>
+              <small>Profil feminin</small>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="gender-option"
+            [class.active]="gender === 'Other'"
+            (click)="selectGender('Other')"
+          >
+            <span class="gender-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path
+                  d="M12 12.2a3.8 3.8 0 1 0 0-7.6a3.8 3.8 0 0 0 0 7.6Zm0 0v7.2m-3.2-3.2h6.4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="gender-copy">
+              <strong>Autre</strong>
+              <small>Profil libre</small>
+            </span>
+          </button>
+        </div>
+        <small class="field-error" *ngIf="backendFieldErrors['gender']">{{ backendFieldErrors['gender'] }}</small>
+      </div>
+
+      <div class="photo-field">
+        <span class="photo-label">Votre photo de profil (optionnel)</span>
+        <input
+          #photoInput
+          class="photo-input"
+          type="file"
+          name="photoProfil"
+          accept="image/*"
+          (change)="onAvatarChange($event)"
+        />
+        <div
+          class="dropzone"
+          [class.dragover]="isDragOver"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="photoInput.click()"
+        >
+          <p class="dropzone-title">Glissez-deposez votre photo ici</p>
+          <p class="dropzone-subtitle">ou cliquez pour choisir un fichier</p>
+          <span class="file-chip" *ngIf="selectedPhotoName">{{ selectedPhotoName }}</span>
+        </div>
+        <small class="field-error" *ngIf="photoErrorMessage">{{ photoErrorMessage }}</small>
+        <small class="field-error" *ngIf="backendFieldErrors['avatar']">{{ backendFieldErrors['avatar'] }}</small>
+        <button
+          class="link-btn"
+          type="button"
+          *ngIf="selectedPhotoName"
+          (click)="removePhoto(photoInput)"
+        >
+          Retirer la photo
+        </button>
+      </div>
+
+      <button type="submit" [disabled]="isSubmitting || !canSubmit">
+        {{ isSubmitting ? 'Creation...' : 'Creer un compte' }}
+      </button>
     </form>
 
     <p class="hint">
@@ -23,3 +206,55 @@
     </p>
   </article>
 </section>
+
+<div class="result-modal-backdrop" *ngIf="isResultModalOpen" (click)="closeResultModal()">
+  <section
+    class="result-modal"
+    [class.success]="resultModalType === 'success'"
+    [class.error]="resultModalType === 'error'"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="result-badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24" focusable="false" *ngIf="resultModalType === 'loading'" class="spinner">
+        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.2" opacity="0.35" />
+        <path
+          d="M12 4a8 8 0 0 1 8 8"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+        />
+      </svg>
+      <svg viewBox="0 0 24 24" focusable="false" *ngIf="resultModalType === 'success'">
+        <path
+          d="M20 7L10.8 16.2L6 11.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <svg viewBox="0 0 24 24" focusable="false" *ngIf="resultModalType === 'error'">
+        <path
+          d="M12 8v5m0 3h.01M21 12a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+
+    <h2>{{ resultModalTitle }}</h2>
+    <p>{{ resultModalMessage }}</p>
+    <ul class="modal-details" *ngIf="resultModalDetails.length > 0">
+      <li *ngFor="let detail of resultModalDetails">{{ detail }}</li>
+    </ul>
+
+    <button type="button" class="modal-btn" (click)="closeResultModal()" *ngIf="resultModalType !== 'loading'">
+      Fermer
+    </button>
+  </section>
+</div>

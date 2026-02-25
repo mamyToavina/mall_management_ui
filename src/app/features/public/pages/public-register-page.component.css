@@ -1,8 +1,10 @@
 :host {
   --accent: #d71db8;
   --accent-deep: #9b0f86;
+  --accent-soft: #f8c9ef;
   --text-main: #2e1232;
   --text-muted: #75537a;
+  --line: color-mix(in oklab, var(--accent) 22%, white);
   display: block;
   position: relative;
   isolation: isolate;
@@ -18,18 +20,18 @@
 }
 
 :host::before {
-  inset: -140px -80px auto;
-  height: 320px;
+  inset: -150px -80px auto;
+  height: 340px;
   opacity: 0.56;
   background:
-    radial-gradient(460px 220px at 15% 30%, #f8c0ee, transparent 72%),
-    radial-gradient(440px 210px at 88% 20%, color-mix(in oklab, var(--accent) 44%, #fff), transparent 74%);
+    radial-gradient(500px 230px at 10% 30%, #f8c0ee, transparent 72%),
+    radial-gradient(480px 220px at 92% 20%, color-mix(in oklab, var(--accent) 44%, #fff), transparent 74%);
 }
 
 :host::after {
   inset: auto -120px -220px;
   height: 420px;
-  opacity: 0.48;
+  opacity: 0.45;
   background: radial-gradient(520px 260px at 24% 80%, #f5c0ec, transparent 76%);
 }
 
@@ -40,20 +42,24 @@
 }
 
 .register-card {
-  width: min(560px, 100%);
-  border: 1px solid color-mix(in oklab, var(--accent) 24%, white);
-  border-radius: 20px;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(252, 232, 247, 0.88));
-  box-shadow: 0 20px 38px rgba(140, 14, 120, 0.17);
+  width: min(760px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background:
+    linear-gradient(142deg, rgba(255, 255, 255, 0.96), rgba(252, 232, 247, 0.9)),
+    radial-gradient(500px 250px at 100% 0%, rgba(215, 29, 184, 0.14), transparent 70%);
+  box-shadow: 0 22px 42px rgba(140, 14, 120, 0.17);
   backdrop-filter: blur(6px);
-  padding: clamp(16px, 3vw, 26px);
+  padding: clamp(18px, 3vw, 30px);
   display: grid;
   gap: 12px;
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(26px, 4vw, 38px);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   color: var(--text-main);
 }
 
@@ -64,8 +70,10 @@ p {
 }
 
 .form {
+  margin-top: 8px;
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 label {
@@ -75,26 +83,344 @@ label {
   color: var(--text-main);
 }
 
+.form > label:nth-child(1),
+.form > label:nth-child(2),
+.form > label:nth-child(3),
+.form > label:nth-child(4),
+.gender-field,
+.photo-field,
+.form > button {
+  grid-column: 1 / -1;
+}
+
 input {
-  height: 42px;
+  height: 44px;
   border: 1px solid color-mix(in oklab, var(--accent) 26%, white);
   border-radius: 12px;
   padding: 0 12px;
   font: inherit;
+  background: #fff;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
-button {
+input:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--accent) 55%, white);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 14%, transparent);
+}
+
+input.invalid {
+  border-color: #cf174e;
+  box-shadow: 0 0 0 4px rgba(207, 23, 78, 0.12);
+}
+
+.field-error {
+  margin-top: -2px;
+  color: #b11645;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gender-field {
+  display: grid;
+  gap: 8px;
+}
+
+.gender-label {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.gender-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gender-option {
+  min-height: 76px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--accent) 26%, white);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.gender-option:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--accent) 46%, white);
+}
+
+.gender-option.active {
+  border-color: transparent;
+  color: #fff;
+  background: linear-gradient(135deg, #d71db8, #a1148d 60%, #7f116f);
+  box-shadow: 0 10px 20px rgba(146, 15, 125, 0.32);
+}
+
+.gender-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  background: color-mix(in oklab, currentColor 14%, transparent);
+  flex: 0 0 auto;
+}
+
+.gender-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.gender-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.gender-copy strong {
+  font-size: 14px;
+  line-height: 1.15;
+}
+
+.gender-copy small {
+  font-size: 12px;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+
+.photo-field {
+  display: grid;
+  gap: 8px;
+}
+
+.photo-label {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.photo-input {
+  display: none;
+}
+
+.dropzone {
+  min-height: 132px;
+  border: 1.5px dashed color-mix(in oklab, var(--accent) 36%, white);
+  border-radius: 16px;
+  background:
+    linear-gradient(150deg, #fff, #fef5fc),
+    repeating-linear-gradient(45deg, #fff6fd 0 14px, #fffbff 14px 28px);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.dropzone:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--accent) 58%, white);
+}
+
+.dropzone.dragover {
+  border-color: var(--accent);
+  background:
+    linear-gradient(150deg, #fff2fc, #fceaf9),
+    repeating-linear-gradient(45deg, #fdeefa 0 14px, #fff4fd 14px 28px);
+}
+
+.dropzone-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.dropzone-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.file-chip {
+  margin-top: 6px;
+  max-width: 95%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7c0f6b;
+  background: #f9d7f3;
+}
+
+.link-btn {
+  width: fit-content;
+  border: 0;
+  background: transparent;
+  color: var(--accent-deep);
+  font: inherit;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: #7a106d;
+}
+
+button[type="submit"] {
   margin-top: 4px;
-  height: 44px;
+  height: 46px;
   border: 0;
   border-radius: 12px;
   font-weight: 800;
   color: #fff;
   background: linear-gradient(135deg, #d71db8, #a1148d 60%, #7f116f);
+  box-shadow: 0 12px 24px rgba(146, 15, 125, 0.34);
   cursor: pointer;
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.72;
+  cursor: default;
+  box-shadow: none;
+}
+
+.feedback {
+  margin-top: 8px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.feedback.success {
+  color: #0f5132;
+  background: #ecfdf3;
+  border: 1px solid #b7ebc8;
+}
+
+.feedback.error {
+  color: #9f1239;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
 }
 
 .hint a {
   color: var(--accent-deep);
   font-weight: 800;
+}
+
+.result-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(40, 13, 39, 0.42);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+
+.result-modal {
+  width: min(420px, 100%);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, white);
+  background: linear-gradient(145deg, #fff, #fff8fd);
+  box-shadow: 0 26px 48px rgba(37, 8, 33, 0.28);
+}
+
+.result-modal h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 24px;
+}
+
+.result-modal p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.modal-details {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-main);
+  display: grid;
+  gap: 4px;
+}
+
+.result-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.result-badge svg {
+  width: 24px;
+  height: 24px;
+}
+
+.result-modal.success .result-badge {
+  background: #ecfdf3;
+  color: #0f5132;
+}
+
+.result-modal.loading .result-badge {
+  background: #f3f0ff;
+  color: #6d28d9;
+}
+
+.result-modal.error .result-badge {
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+.modal-btn {
+  margin-top: 4px;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  background: linear-gradient(135deg, #d71db8, #a1148d 60%, #7f116f);
+}
+
+.modal-btn:hover {
+  filter: brightness(1.02);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .gender-options {
+    grid-template-columns: 1fr;
+  }
 }
