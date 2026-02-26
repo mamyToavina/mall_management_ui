@@ -1,18 +1,53 @@
-<div class="toolbar no-print">
-    <button type="button" (click)="print()">Imprimer</button>
-    <button type="button" (click)="finalize()" [disabled]="finalizing">
-      {{ finalizing ? 'Finalisation...' : 'Finaliser' }}
-    </button>
-  </div>
-  
-  <div class="sheet">
-    <div class="grid">
-      <div class="ticket" *ngFor="let c of credits; trackBy: trackById">
-        <div class="title">Crédit Prépayé</div>
-        <div><strong>Code:</strong> {{ c.code }}</div>
-        <div><strong>Valeur:</strong> {{ c.value }} Ar</div>
-        <div class="hint">Découper ici ✂</div>
-      </div>
+﻿<div class="toolbar no-print">
+  <button type="button" class="btn" (click)="print()" [disabled]="finalizing">Imprimer les cartes</button>
+  <span class="auto-note">{{ finalizing ? 'Finalisation en cours...' : 'Finalisation automatique après impression' }}</span>
+</div>
+
+@if (finalizing) {
+  <div class="loading-state no-print" role="status" aria-live="polite" aria-label="Finalisation en cours">
+    <div class="dice-loader" aria-hidden="true">
+      <span class="die d1"></span>
+      <span class="die d2"></span>
+      <span class="die d3"></span>
     </div>
+    <p>Finalisation automatique en cours...</p>
+    <span class="sr-only">Finalisation automatique en cours</span>
   </div>
-  
+}
+
+<section class="print-sheet">
+  <div class="cards-grid">
+    <article class="credit-card" *ngFor="let c of credits; trackBy: trackById" [ngClass]="themeByValue(c.value)">
+      <div class="credit-card__noise" aria-hidden="true"></div>
+      <div class="credit-card__top">
+        <div class="brand">TI commercial credit</div>
+        <div class="emblem">{{ emblemByValue(c.value) }}</div>
+      </div>
+
+      <div class="credit-card__amount">{{ valueLabel(c.value) }}</div>
+
+      <div class="scratch-note">Remarque: gratter soigneusement.</div>
+      <div class="credit-card__code">{{ c.code }}</div>
+
+      <div class="credit-card__bottom">
+        <div class="chip" aria-hidden="true"></div>
+        <div class="meta">
+          <small>Carte prépayée</small>
+          <strong>Utilisation unique</strong>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+@if (showResultModal) {
+  <div class="modal-backdrop no-print" (click)="closeResultModal()"></div>
+  <section class="modal no-print" role="dialog" aria-modal="true" aria-label="Résultat impression">
+    <h3 [class.ok]="resultSuccess" [class.error]="!resultSuccess">{{ resultTitle }}</h3>
+    <p>{{ resultMessage }}</p>
+    <div class="modal-actions">
+      <button type="button" class="btn" (click)="closeResultModal()">Fermer</button>
+      <button type="button" class="btn btn-primary" (click)="goBackToCredits()">Retour au formulaire</button>
+    </div>
+  </section>
+}

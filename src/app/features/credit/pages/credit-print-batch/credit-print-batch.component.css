@@ -1,41 +1,330 @@
-/* boutons hors impression */
-.no-print { display: flex; gap: 12px; margin-bottom: 12px; }
-@media print {
-  .no-print { display: none !important; }
+﻿:root {
+  --card-radius: 20px;
 }
 
-/* feuille */
-.sheet {
-  padding: 12px;
+.no-print {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
-/* grille de tickets (ex: 3 colonnes) */
-.grid {
+.auto-note {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--muted, #64748b);
+}
+
+.loading-state {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  place-items: center;
+  gap: 10px;
+  min-height: 160px;
+  border: 1px solid var(--border, #d1d5db);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  margin-bottom: 12px;
+}
+
+.loading-state p {
+  margin: 0;
+  color: var(--muted, #64748b);
+  font-weight: 700;
+}
+
+.btn {
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border, #d1d5db);
+  background: var(--surface, #fff);
+  color: var(--text, #111827);
+  padding: 0 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: color-mix(in oklab, var(--primary, #2563eb) 14%, var(--surface, #fff));
+  border-color: color-mix(in oklab, var(--primary, #2563eb) 36%, var(--border, #d1d5db));
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.print-sheet {
+  padding: 8px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 320px);
+  gap: 16px;
+  justify-content: center;
+}
+
+.credit-card {
+  position: relative;
+  width: 320px;
+  height: 190px;
+  border-radius: var(--card-radius);
+  padding: 16px;
+  color: #f8fafc;
+  overflow: hidden;
+  page-break-inside: avoid;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.28);
+}
+
+.credit-card::before,
+.credit-card::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.credit-card::before {
+  width: 210px;
+  height: 210px;
+  top: -110px;
+  right: -75px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.credit-card::after {
+  width: 180px;
+  height: 180px;
+  bottom: -100px;
+  left: -60px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.credit-card__noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.7) 0.8px, transparent 0.8px);
+  background-size: 4px 4px;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.credit-card__top,
+.credit-card__amount,
+.credit-card__code,
+.credit-card__bottom {
+  position: relative;
+  z-index: 1;
+}
+
+.credit-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.brand {
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.emblem {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.credit-card__amount {
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  margin-bottom: 16px;
+}
+
+.credit-card__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  background: rgba(15, 23, 42, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.scratch-note {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-bottom: 6px;
+  color: rgba(248, 250, 252, 0.95);
+}
+
+.credit-card__bottom {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chip {
+  width: 40px;
+  height: 30px;
+  border-radius: 7px;
+  background: linear-gradient(145deg, #fef3c7, #d4af37);
+  box-shadow: inset 0 0 0 1px rgba(68, 64, 60, 0.28);
+}
+
+.meta {
+  display: grid;
+  gap: 2px;
+}
+
+.meta small {
+  opacity: 0.9;
+  font-size: 0.72rem;
+}
+
+.meta strong {
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+}
+
+.theme-ocean {
+  background: linear-gradient(135deg, #0f172a, #1d4ed8 45%, #0ea5e9);
+}
+
+.theme-emerald {
+  background: linear-gradient(135deg, #052e16, #059669 48%, #22c55e);
+}
+
+.theme-sunset {
+  background: linear-gradient(135deg, #431407, #f97316 42%, #facc15);
+}
+
+.theme-royal {
+  background: linear-gradient(135deg, #1f1147, #7c3aed 46%, #ec4899);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 1200;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1201;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 460px);
+  border-radius: 14px;
+  border: 1px solid var(--border, #d1d5db);
+  background: var(--surface, #fff);
+  color: var(--text, #111827);
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
+  padding: 16px;
+  display: grid;
   gap: 12px;
 }
 
-/* ticket style */
-.ticket {
-  border: 1px dashed #000;
-  padding: 10px;
-  min-height: 90px;
-  page-break-inside: avoid;
+.modal h3 {
+  margin: 0;
 }
 
-.title {
-  font-weight: bold;
-  margin-bottom: 6px;
+.modal h3.ok {
+  color: #059669;
 }
 
-.hint {
-  margin-top: 10px;
-  font-size: 12px;
+.modal h3.error {
+  color: #dc2626;
 }
 
-/* meilleure impression A4 */
-@page {
-  size: A4;
-  margin: 10mm;
+.modal p {
+  margin: 0;
+  color: var(--muted, #64748b);
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 760px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 6mm;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    min-height: 297mm;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-sheet,
+  .print-sheet * {
+    visibility: visible !important;
+  }
+
+  .print-sheet {
+    width: 198mm;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, 96mm);
+    grid-auto-rows: 58mm;
+    justify-content: center;
+    gap: 3mm;
+    width: 100%;
+  }
+
+  .credit-card {
+    width: 96mm;
+    min-height: 58mm;
+    height: 58mm;
+    box-sizing: border-box;
+    box-shadow: none;
+    border: 0.2mm solid rgba(15, 23, 42, 0.2);
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .credit-card::before,
+  .credit-card::after,
+  .credit-card__noise {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
