@@ -1,0 +1,134 @@
+<section class="billing-upload-page">
+  <header class="page-header">
+    <h1>Facturation admin</h1>
+    <p>Uploader les factures d'electricite PDF par mois et annee.</p>
+  </header>
+
+  <article class="panel">
+    <h2>Upload des factures</h2>
+
+    <div class="filters">
+      <label>
+        <span>Mois</span>
+        <select [ngModel]="selectedMonth()" (ngModelChange)="selectedMonth.set($event)">
+          @for (month of months; track month.value) {
+            <option [ngValue]="month.value">{{ month.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        <span>Annee</span>
+        <select [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)">
+          @for (year of years(); track year) {
+            <option [ngValue]="year">{{ year }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    <div class="file-picker">
+      <input
+        #pdfInput
+        type="file"
+        multiple
+        accept="application/pdf,.pdf"
+        (change)="onFilesChange($event)"
+      />
+      <div class="actions">
+        <button type="button" class="btn" (click)="pdfInput.click()">Choisir des PDF</button>
+        <button type="button" class="btn ghost" (click)="clearFiles()" [disabled]="!selectedFiles().length">
+          Vider
+        </button>
+      </div>
+      <small>Maximum backend: 50 fichiers, 10MB max par fichier.</small>
+    </div>
+
+    @if (selectedFiles().length) {
+      <div class="files-summary">
+        <strong>{{ selectedFiles().length }} fichier(s)</strong>
+        <span>{{ totalSelectedSizeMb() | number: '1.2-2' }} MB</span>
+      </div>
+
+      <ul class="files-list">
+        @for (file of selectedFiles(); track trackByName($index, file); let index = $index) {
+          <li>
+            <span class="name">{{ file.name }}</span>
+            <span class="meta">{{ (file.size / 1024) | number: '1.0-0' }} KB</span>
+            <button type="button" class="btn-link" (click)="removeFile(index)">Retirer</button>
+          </li>
+        }
+      </ul>
+    }
+
+    <div class="submit-row">
+      <button type="button" class="btn primary" (click)="submitUpload()" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Upload en cours...' : 'Lancer upload' }}
+      </button>
+    </div>
+  </article>
+
+  @if (errorMessage()) {
+    <p class="feedback error">{{ errorMessage() }}</p>
+  }
+
+  @if (successMessage()) {
+    <p class="feedback success">{{ successMessage() }}</p>
+  }
+
+  @if (uploadResult(); as result) {
+    <article class="panel">
+      <h2>Resultat ({{ result.month }}/{{ result.year }})</h2>
+      <div class="stats">
+        <div><span>Succes</span><strong>{{ result.uploaded }}</strong></div>
+        <div><span>Echecs</span><strong>{{ result.failed }}</strong></div>
+      </div>
+
+      @if (result.successes.length) {
+        <h3>Factures enregistrees</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Fichier</th>
+                <th>Compteur</th>
+                <th>Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of result.successes; track item.invoiceId) {
+                <tr>
+                  <td>{{ item.fileName }}</td>
+                  <td>{{ item.meterNumber }}</td>
+                  <td>{{ item.netAmount | number: '1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (result.errors.length) {
+        <h3>Erreurs</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Fichier</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of result.errors; track item.fileName + item.message) {
+                <tr>
+                  <td>{{ item.fileName }}</td>
+                  <td>{{ item.message }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  }
+</section>

@@ -106,6 +106,13 @@ export const routes: Routes = [
           import('./features/tenants/tenant.routes')
             .then(m => m.TENANTS_ROUTES),
       },
+      {
+        path: 'billing',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadChildren: () =>
+          import('./features/admin-billing/admin-billing.routes')
+            .then(m => m.ADMIN_BILLING_ROUTES),
+      },
 
       { path: '', redirectTo: 'buyers', pathMatch: 'full' }
     ]
