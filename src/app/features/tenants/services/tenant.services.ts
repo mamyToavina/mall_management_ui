@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import {
+  ContractRenewalPaginatedResponse,
   ContractStatus,
   CreateBoutiqueContractDto,
   CreateTenantApiRequest,
@@ -123,6 +124,71 @@ export class BoutiqueService {
           const fallback = 'Erreur lors de la mise à jour du contrat.';
           const message = extractApiErrorMessage(err, fallback, '/admin/contracts/:id/status');
 
+          return throwError(() => new Error(message));
+        })
+      );
+  }
+
+  listRenewalRequests(params: {
+    page?: number;
+    limit?: number;
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+    boutiqueId?: string;
+  } = {}) {
+    let httpParams = new HttpParams()
+      .set('page', String(params.page ?? 1))
+      .set('limit', String(params.limit ?? 20));
+
+    if (params.status) httpParams = httpParams.set('status', params.status);
+    if (params.boutiqueId) httpParams = httpParams.set('boutiqueId', params.boutiqueId);
+
+    return this.http
+      .get<ContractRenewalPaginatedResponse>(`${environment.apiBaseUrl}/admin/contract-renewals`, { params: httpParams })
+      .pipe(
+        timeout(API_TIMEOUT_MS),
+        catchError((err) => {
+          const fallback = 'Erreur lors du chargement des demandes de renouvellement.';
+          const message = extractApiErrorMessage(err, fallback, '/admin/contract-renewals');
+          return throwError(() => new Error(message));
+        })
+      );
+  }
+
+  approveRenewalRequest(
+    requestId: string,
+    payload: {
+      finalTerms: {
+        durationMonths: number;
+        monthlyRent: number;
+        penaltyFee: number;
+        penaltyGrowthFactor: number;
+        terminationFee: number;
+        onlineSalesCommissionPercent: number;
+        notes?: string;
+      };
+      reviewNote?: string;
+    }
+  ) {
+    return this.http
+      .post<{ message: string }>(`${environment.apiBaseUrl}/admin/contract-renewals/${requestId}/approve`, payload)
+      .pipe(
+        timeout(API_TIMEOUT_MS),
+        catchError((err) => {
+          const fallback = "Erreur lors de l'approbation de la demande.";
+          const message = extractApiErrorMessage(err, fallback, '/admin/contract-renewals/:id/approve');
+          return throwError(() => new Error(message));
+        })
+      );
+  }
+
+  rejectRenewalRequest(requestId: string, reviewNote: string) {
+    return this.http
+      .post<{ message: string }>(`${environment.apiBaseUrl}/admin/contract-renewals/${requestId}/reject`, { reviewNote })
+      .pipe(
+        timeout(API_TIMEOUT_MS),
+        catchError((err) => {
+          const fallback = 'Erreur lors du rejet de la demande.';
+          const message = extractApiErrorMessage(err, fallback, '/admin/contract-renewals/:id/reject');
           return throwError(() => new Error(message));
         })
       );

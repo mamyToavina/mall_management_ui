@@ -5,12 +5,18 @@
 }
 
 .page-card {
-  width: min(1200px, 100%);
+  width: min(1250px, 100%);
   border: 1px solid var(--border);
-  border-radius: calc(var(--radius) + 4px);
+  border-radius: calc(var(--radius) + 6px);
   background: var(--surface);
   box-shadow: var(--shadow);
   padding: 18px;
+}
+
+.page-card.premium {
+  background:
+    radial-gradient(120% 180% at 100% 0%, color-mix(in oklab, var(--primary) 10%, transparent) 0%, transparent 55%),
+    var(--surface);
 }
 
 .head h2 {
@@ -22,8 +28,10 @@
   margin: 6px 0 0;
   color: var(--muted);
   font-size: 13px;
+  font-weight: 700;
 }
 
+.top-tabs,
 .status-tabs {
   margin-top: 14px;
   display: flex;
@@ -38,16 +46,15 @@
   background: var(--surface);
   color: var(--text);
   border-radius: 10px;
-  height: 36px;
+  height: 38px;
   padding: 0 12px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
 
 .tab.active {
-  background: var(--primary);
-  color: #fff;
-  border-color: color-mix(in oklab, var(--primary) 60%, var(--border));
+  background: color-mix(in oklab, var(--primary) 15%, var(--surface));
+  border-color: color-mix(in oklab, var(--primary) 48%, var(--border));
 }
 
 .reload {
@@ -72,7 +79,7 @@
   background: color-mix(in oklab, #ef4444 12%, var(--surface));
 }
 
-.loading,
+.loading-state,
 .empty {
   margin-top: 14px;
   color: var(--muted);
@@ -82,12 +89,15 @@
 .table-wrap {
   margin-top: 14px;
   overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px;
+  min-width: 1080px;
+  background: var(--surface);
 }
 
 th,
@@ -101,6 +111,7 @@ td {
 th {
   color: var(--muted);
   font-weight: 800;
+  background: color-mix(in oklab, var(--surface) 92%, var(--primary) 8%);
 }
 
 .main {
@@ -117,6 +128,36 @@ th {
   color: #ef4444;
 }
 
+.actions-col {
+  display: flex;
+  gap: 8px;
+}
+
+.decision {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 10px;
+}
+
+.decision.pending {
+  background: color-mix(in oklab, #f59e0b 16%, var(--surface));
+  border: 1px solid color-mix(in oklab, #f59e0b 46%, var(--border));
+}
+
+.decision.approved {
+  background: color-mix(in oklab, #16a34a 16%, var(--surface));
+  border: 1px solid color-mix(in oklab, #16a34a 46%, var(--border));
+}
+
+.decision.rejected {
+  background: color-mix(in oklab, #ef4444 16%, var(--surface));
+  border: 1px solid color-mix(in oklab, #ef4444 46%, var(--border));
+}
+
 .pager {
   margin-top: 12px;
   display: flex;
@@ -130,6 +171,115 @@ th {
   font-weight: 700;
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 11, 18, 0.45);
+  z-index: 70;
+}
+
+.modal {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(860px, calc(100vw - 32px));
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.wizard-steps {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wizard-steps span {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.wizard-steps span.active {
+  color: var(--text);
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  background: color-mix(in oklab, var(--primary) 12%, var(--surface));
+}
+
+.wizard-panel {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+}
+
+label span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+input,
+textarea {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+input {
+  height: 40px;
+  padding: 0 12px;
+}
+
+textarea {
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.wizard-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 @media (max-width: 760px) {
   .reload {
     margin-left: 0;
@@ -138,5 +288,14 @@ th {
   .pager {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .wizard-steps,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-col {
+    flex-direction: column;
   }
 }

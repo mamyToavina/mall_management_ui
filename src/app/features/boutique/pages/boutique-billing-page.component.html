@@ -176,6 +176,53 @@
                   <p>{{ s.contract.notes || '-' }}</p>
                 </div>
               </div>
+
+              <section class="renewal-panel">
+                <header class="renewal-head">
+                  <div>
+                    <h3>Renouvellement du contrat</h3>
+                    <p>La nouvelle période commence à la date de fin du contrat actuel.</p>
+                  </div>
+                  <button class="btn-primary" (click)="openRenewalWizard()" [disabled]="hasOutstandingDue()">
+                    Demander un renouvellement
+                  </button>
+                </header>
+
+                @if (hasOutstandingDue()) {
+                  <div class="error-banner">
+                    Renouvellement bloqué: le solde dû doit être à 0 (total restant actuel: {{ totalToPayExtended() | number: '1.2-2' }} Ar).
+                  </div>
+                }
+
+                <div class="table-wrap compact">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date demande</th>
+                        <th>Décision</th>
+                        <th>Début renouvelé</th>
+                        <th>Durée</th>
+                        <th>Loyer</th>
+                        <th>Note admin</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (req of renewalRequests(); track req._id) {
+                        <tr>
+                          <td>{{ req.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                          <td>{{ req.adminDecision }}</td>
+                          <td>{{ req.approvedContract?.startDate ? (req.approvedContract?.startDate | date: 'dd/MM/yyyy') : '-' }}</td>
+                          <td>{{ req.requestedTerms.durationMonths }} mois</td>
+                          <td>{{ req.requestedTerms.monthlyRent | number: '1.2-2' }} Ar</td>
+                          <td>{{ req.reviewNote || '-' }}</td>
+                        </tr>
+                      } @empty {
+                        <tr><td colspan="6" class="empty">Aucune demande de renouvellement pour le moment.</td></tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             }
           } @else {
             <p class="empty">Aucun contrat actif pour cette boutique.</p>
@@ -405,5 +452,74 @@
         </div>
       </section>
     }
+  }
+
+  @if (showRenewalWizard()) {
+    <div class="modal-backdrop" (click)="closeRenewalWizard()"></div>
+    <section class="modal modal--wide renewal-modal" role="dialog" aria-modal="true" aria-label="Demande de renouvellement">
+      <header class="modal-header">
+        <h3>Demande de renouvellement</h3>
+        <button type="button" class="btn-secondary" (click)="closeRenewalWizard()">Fermer</button>
+      </header>
+
+      <div class="wizard-grid">
+        <article class="wizard-block">
+          <h4>Bloc 1 - Contrat actuel</h4>
+          @if (summary()?.contract; as contract) {
+            <p><strong>Fin du contrat actuel:</strong> {{ contract.endDate | date: 'dd/MM/yyyy' }}</p>
+            <p><strong>Début du renouvellement:</strong> {{ contract.endDate | date: 'dd/MM/yyyy' }}</p>
+            <p><strong>Règle:</strong> le renouvellement démarre à la date de fin de l’ancien contrat.</p>
+          } @else {
+            <p>Aucun contrat actif.</p>
+          }
+        </article>
+
+        <article class="wizard-block">
+          <h4>Bloc 2 - Conditions proposées</h4>
+          <div class="wizard-form">
+            <label>
+              <span>Durée (mois)</span>
+              <input type="number" min="1" [ngModel]="renewalForm().durationMonths" (ngModelChange)="updateRenewalField('durationMonths', $event)" />
+            </label>
+            <label>
+              <span>Loyer mensuel (Ar)</span>
+              <input type="number" min="0" [ngModel]="renewalForm().monthlyRent" (ngModelChange)="updateRenewalField('monthlyRent', $event)" />
+            </label>
+            <label>
+              <span>Frais de pénalité (Ar)</span>
+              <input type="number" min="0" [ngModel]="renewalForm().penaltyFee" (ngModelChange)="updateRenewalField('penaltyFee', $event)" />
+            </label>
+            <label>
+              <span>Coefficient pénalité</span>
+              <input type="number" min="1" [ngModel]="renewalForm().penaltyGrowthFactor" (ngModelChange)="updateRenewalField('penaltyGrowthFactor', $event)" />
+            </label>
+            <label>
+              <span>Frais de rupture (Ar)</span>
+              <input type="number" min="0" [ngModel]="renewalForm().terminationFee" (ngModelChange)="updateRenewalField('terminationFee', $event)" />
+            </label>
+            <label>
+              <span>Commission vente en ligne (%)</span>
+              <input type="number" min="0" max="100" [ngModel]="renewalForm().onlineSalesCommissionPercent" (ngModelChange)="updateRenewalField('onlineSalesCommissionPercent', $event)" />
+            </label>
+            <label class="full">
+              <span>Note / remarque contrat</span>
+              <textarea rows="3" [ngModel]="renewalForm().notes" (ngModelChange)="updateRenewalField('notes', $event)"></textarea>
+            </label>
+          </div>
+        </article>
+
+        <article class="wizard-block">
+          <h4>Bloc 3 - Validation de la demande</h4>
+          <label>
+            <span>Message à l’admin</span>
+            <textarea rows="4" [ngModel]="renewalForm().requestNote" (ngModelChange)="updateRenewalField('requestNote', $event)"></textarea>
+          </label>
+          <p class="hint">La demande sera refusée automatiquement si un solde dû existe.</p>
+          <button class="btn-primary" (click)="submitRenewalRequest()" [disabled]="renewalSubmitting() || hasOutstandingDue()">
+            {{ renewalSubmitting() ? 'Envoi en cours...' : 'Envoyer la demande' }}
+          </button>
+        </article>
+      </div>
+    </section>
   }
 </section>

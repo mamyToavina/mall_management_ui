@@ -1,16 +1,35 @@
 <section class="contracts-page">
-  <div class="page-card">
+  <div class="page-card premium">
     <header class="head">
       <h2>Contrats locataires</h2>
-      <p>Suivi des contrats en cours, terminés et expirés.</p>
+      <p>Suivi des contrats et traitement des demandes de renouvellement.</p>
     </header>
 
-    <div class="status-tabs">
-      <button class="tab" [class.active]="statusFilter === 'ACTIVE'" (click)="setStatus('ACTIVE')">En cours</button>
-      <button class="tab" [class.active]="statusFilter === 'TERMINATED'" (click)="setStatus('TERMINATED')">Terminés</button>
-      <button class="tab" [class.active]="statusFilter === 'EXPIRED'" (click)="setStatus('EXPIRED')">Expirés</button>
-      <button class="reload" (click)="loadContracts()" [disabled]="loading">Rafraîchir</button>
+    <div class="top-tabs">
+      <button class="tab" [class.active]="activeView === 'contracts'" (click)="setView('contracts')">Contrats</button>
+      <button class="tab" [class.active]="activeView === 'renewals'" (click)="setView('renewals')">
+        Demandes de renouvellement
+      </button>
     </div>
+
+    @if (activeView === 'contracts') {
+      <div class="status-tabs">
+        <button class="tab" [class.active]="statusFilter === 'ACTIVE'" (click)="setStatus('ACTIVE')">En cours</button>
+        <button class="tab" [class.active]="statusFilter === 'TERMINATED'" (click)="setStatus('TERMINATED')">Terminés</button>
+        <button class="tab" [class.active]="statusFilter === 'EXPIRED'" (click)="setStatus('EXPIRED')">Expirés</button>
+        <button class="reload" (click)="loadContracts()" [disabled]="loading">Rafraîchir</button>
+      </div>
+    }
+
+    @if (activeView === 'renewals') {
+      <div class="status-tabs">
+        <button class="tab" [class.active]="renewalStatusFilter === 'PENDING'" (click)="setRenewalStatus('PENDING')">En attente</button>
+        <button class="tab" [class.active]="renewalStatusFilter === 'APPROVED'" (click)="setRenewalStatus('APPROVED')">Approuvées</button>
+        <button class="tab" [class.active]="renewalStatusFilter === 'REJECTED'" (click)="setRenewalStatus('REJECTED')">Rejetées</button>
+        <button class="tab" [class.active]="renewalStatusFilter === 'ALL'" (click)="setRenewalStatus('ALL')">Toutes</button>
+        <button class="reload" (click)="loadRenewals()" [disabled]="loading">Rafraîchir</button>
+      </div>
+    }
 
     <div class="banner error" *ngIf="error">{{ error }}</div>
     <div class="banner success" *ngIf="success">{{ success }}</div>
@@ -24,69 +43,218 @@
       <span class="sr-only">Chargement des contrats</span>
     </div>
 
-    <div class="empty" *ngIf="!loading && !error && contracts.length === 0">
-      Aucun contrat pour ce statut.
-    </div>
+    @if (activeView === 'contracts') {
+      <div class="empty" *ngIf="!loading && !error && contracts.length === 0">
+        Aucun contrat pour ce statut.
+      </div>
 
-    <div class="table-wrap" *ngIf="!loading && !error && contracts.length > 0">
-      <table>
-        <thead>
-          <tr>
-            <th>Locataire</th>
-            <th>Box</th>
-            <th>Début</th>
-            <th>Fin</th>
-            <th>Loyer</th>
-            <th>Pénalité</th>
-            <th>Coef.</th>
-            <th>Rupture</th>
-            <th>Commission</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let contract of contracts">
-            <td>
-              <div class="main">{{ fullTenantName(contract) }}</div>
-              <div class="sub">Boutique: {{ tenantBoutiqueName(contract) }}</div>
-              <div class="sub">{{ contract.tenant?.email || 'N/A' }}</div>
-            </td>
-            <td>{{ contract.box?.number || 'N/A' }}</td>
-            <td>{{ contract.startDate | date: 'dd-MM-yyyy' }}</td>
-            <td>{{ contract.endDate | date: 'dd-MM-yyyy' }}</td>
-            <td>{{ contract.monthlyRent | number: '1.0-0' }} Ar</td>
-            <td>{{ contract.penaltyFee | number: '1.0-0' }} Ar</td>
-            <td>{{ contract.penaltyGrowthFactor }}</td>
-            <td>{{ contract.terminationFee | number: '1.0-0' }} Ar</td>
-            <td>{{ contract.onlineSalesCommissionPercent }}%</td>
-            <td>
-              <button
-                class="action danger"
-                *ngIf="contract.status === 'ACTIVE'"
-                (click)="terminate(contract)"
-                [disabled]="actionLoadingId === contract._id"
-              >
-                Terminer
-              </button>
-              <button
-                class="action"
-                *ngIf="contract.status === 'TERMINATED'"
-                (click)="reactivate(contract)"
-                [disabled]="actionLoadingId === contract._id"
-              >
-                Réactiver
-              </button>
-              <span *ngIf="contract.status === 'EXPIRED'">-</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <div class="table-wrap" *ngIf="!loading && !error && contracts.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Locataire</th>
+              <th>Box</th>
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Loyer</th>
+              <th>Pénalité</th>
+              <th>Coef.</th>
+              <th>Rupture</th>
+              <th>Commission</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let contract of contracts">
+              <td>
+                <div class="main">{{ fullTenantName(contract) }}</div>
+                <div class="sub">Boutique: {{ tenantBoutiqueName(contract) }}</div>
+                <div class="sub">{{ contract.tenant?.email || 'N/A' }}</div>
+              </td>
+              <td>{{ contract.box?.number || 'N/A' }}</td>
+              <td>{{ contract.startDate | date: 'dd-MM-yyyy' }}</td>
+              <td>{{ contract.endDate | date: 'dd-MM-yyyy' }}</td>
+              <td>{{ contract.monthlyRent | number: '1.0-0' }} Ar</td>
+              <td>{{ contract.penaltyFee | number: '1.0-0' }} Ar</td>
+              <td>{{ contract.penaltyGrowthFactor }}</td>
+              <td>{{ contract.terminationFee | number: '1.0-0' }} Ar</td>
+              <td>{{ contract.onlineSalesCommissionPercent }}%</td>
+              <td>
+                <button
+                  class="action danger"
+                  *ngIf="contract.status === 'ACTIVE'"
+                  (click)="terminate(contract)"
+                  [disabled]="actionLoadingId === contract._id"
+                >
+                  Terminer
+                </button>
+                <button
+                  class="action"
+                  *ngIf="contract.status === 'TERMINATED'"
+                  (click)="reactivate(contract)"
+                  [disabled]="actionLoadingId === contract._id"
+                >
+                  Réactiver
+                </button>
+                <span *ngIf="contract.status === 'EXPIRED'">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <div class="pager" *ngIf="!loading && !error && totalPages > 1">
-      <button class="reload" (click)="goToPage(page - 1)" [disabled]="page <= 1">Precedent</button>
-      <span>Page {{ page }} / {{ totalPages }} ({{ totalItems }} contrats)</span>
-      <button class="reload" (click)="goToPage(page + 1)" [disabled]="page >= totalPages">Suivant</button>
-    </div>
+      <div class="pager" *ngIf="!loading && !error && totalPages > 1">
+        <button class="reload" (click)="goToPage(page - 1)" [disabled]="page <= 1">Précédent</button>
+        <span>Page {{ page }} / {{ totalPages }} ({{ totalItems }} contrats)</span>
+        <button class="reload" (click)="goToPage(page + 1)" [disabled]="page >= totalPages">Suivant</button>
+      </div>
+    }
+
+    @if (activeView === 'renewals') {
+      <div class="empty" *ngIf="!loading && !error && renewals.length === 0">
+        Aucune demande pour ce filtre.
+      </div>
+
+      <div class="table-wrap" *ngIf="!loading && !error && renewals.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Boutique</th>
+              <th>Demandeur</th>
+              <th>Date demande</th>
+              <th>Contrat actuel</th>
+              <th>Nouveau loyer</th>
+              <th>Durée</th>
+              <th>Solde au dépôt</th>
+              <th>Décision</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of renewals">
+              <td>{{ request.boutique?.name || '-' }}</td>
+              <td>
+                <div class="main">
+                  {{ request.requesterUser?.firstName }} {{ request.requesterUser?.lastName }}
+                </div>
+                <div class="sub">{{ request.requesterUser?.email || '-' }}</div>
+              </td>
+              <td>{{ request.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ request.currentContract?.startDate | date: 'dd/MM/yyyy' }} → {{ request.currentContract?.endDate | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ request.requestedTerms.monthlyRent | number: '1.0-0' }} Ar</td>
+              <td>{{ request.requestedTerms.durationMonths }} mois</td>
+              <td>{{ request.settlementSnapshot?.outstandingTotal || 0 | number: '1.0-0' }} Ar</td>
+              <td>
+                <span class="decision" [class.pending]="request.adminDecision === 'PENDING'" [class.approved]="request.adminDecision === 'APPROVED'" [class.rejected]="request.adminDecision === 'REJECTED'">
+                  {{ request.adminDecision }}
+                </span>
+              </td>
+              <td class="actions-col">
+                <button class="action" *ngIf="request.adminDecision === 'PENDING'" (click)="openApproveWizard(request)">Approuver</button>
+                <button class="action danger" *ngIf="request.adminDecision === 'PENDING'" (click)="openRejectModal(request)">Rejeter</button>
+                <span *ngIf="request.adminDecision !== 'PENDING'">Traité</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pager" *ngIf="!loading && !error && renewalTotalPages > 1">
+        <button class="reload" (click)="goToRenewalPage(renewalPage - 1)" [disabled]="renewalPage <= 1">Précédent</button>
+        <span>Page {{ renewalPage }} / {{ renewalTotalPages }} ({{ renewalTotalItems }} demandes)</span>
+        <button class="reload" (click)="goToRenewalPage(renewalPage + 1)" [disabled]="renewalPage >= renewalTotalPages">Suivant</button>
+      </div>
+    }
   </div>
+
+  <div class="modal-backdrop" *ngIf="showApproveWizard || showRejectModal" (click)="closeRenewalModals()"></div>
+
+  <section class="modal" *ngIf="showApproveWizard && selectedRenewal">
+    <header class="modal-header">
+      <h3>Wizard validation de renouvellement</h3>
+      <button class="reload" (click)="closeRenewalModals()">Fermer</button>
+    </header>
+
+    <div class="wizard-steps">
+      <span [class.active]="wizardStep === 1">Bloc 1: Vérification</span>
+      <span [class.active]="wizardStep === 2">Bloc 2: Conditions</span>
+      <span [class.active]="wizardStep === 3">Bloc 3: Validation</span>
+    </div>
+
+    <div *ngIf="wizardStep === 1" class="wizard-panel">
+      <p><strong>Boutique:</strong> {{ selectedRenewal.boutique?.name }}</p>
+      <p><strong>Contrat actuel:</strong> {{ selectedRenewal.currentContract?.startDate | date: 'dd/MM/yyyy' }} → {{ selectedRenewal.currentContract?.endDate | date: 'dd/MM/yyyy' }}</p>
+      <p><strong>Début nouveau contrat:</strong> {{ selectedRenewal.currentContract?.endDate | date: 'dd/MM/yyyy' }}</p>
+      <p><strong>Solde dû au moment de la demande:</strong> {{ selectedRenewal.settlementSnapshot?.outstandingTotal || 0 | number: '1.0-0' }} Ar</p>
+      <p><strong>Note boutique:</strong> {{ selectedRenewal.requestNote || '-' }}</p>
+    </div>
+
+    <div *ngIf="wizardStep === 2" class="wizard-panel">
+      <div class="form-grid">
+        <label>
+          <span>Durée (mois)</span>
+          <input type="number" min="1" [(ngModel)]="finalTerms.durationMonths" />
+        </label>
+        <label>
+          <span>Loyer mensuel (Ar)</span>
+          <input type="number" min="0" [(ngModel)]="finalTerms.monthlyRent" />
+        </label>
+        <label>
+          <span>Frais de pénalité (Ar)</span>
+          <input type="number" min="0" [(ngModel)]="finalTerms.penaltyFee" />
+        </label>
+        <label>
+          <span>Coefficient pénalité</span>
+          <input type="number" min="1" [(ngModel)]="finalTerms.penaltyGrowthFactor" />
+        </label>
+        <label>
+          <span>Frais de rupture (Ar)</span>
+          <input type="number" min="0" [(ngModel)]="finalTerms.terminationFee" />
+        </label>
+        <label>
+          <span>Commission en ligne (%)</span>
+          <input type="number" min="0" max="100" [(ngModel)]="finalTerms.onlineSalesCommissionPercent" />
+        </label>
+      </div>
+      <label>
+        <span>Note / remarque</span>
+        <textarea rows="3" [(ngModel)]="finalTerms.notes"></textarea>
+      </label>
+    </div>
+
+    <div *ngIf="wizardStep === 3" class="wizard-panel">
+      <p>Dernière étape: confirmer la validation.</p>
+      <label>
+        <span>Note admin (optionnel)</span>
+        <textarea rows="4" [(ngModel)]="reviewNote"></textarea>
+      </label>
+    </div>
+
+    <footer class="wizard-actions">
+      <button class="reload" (click)="previousWizardStep()" [disabled]="wizardStep === 1">Précédent</button>
+      <button class="reload" *ngIf="wizardStep < 3" (click)="nextWizardStep()">Suivant</button>
+      <button class="action" *ngIf="wizardStep === 3" (click)="approveSelectedRenewal()" [disabled]="actionLoadingId === selectedRenewal._id">
+        {{ actionLoadingId === selectedRenewal._id ? 'Validation...' : 'Approuver la demande' }}
+      </button>
+    </footer>
+  </section>
+
+  <section class="modal" *ngIf="showRejectModal && selectedRenewal">
+    <header class="modal-header">
+      <h3>Rejeter la demande</h3>
+      <button class="reload" (click)="closeRenewalModals()">Fermer</button>
+    </header>
+
+    <label>
+      <span>Motif de refus</span>
+      <textarea rows="4" [(ngModel)]="rejectReason" placeholder="Motif obligatoire..."></textarea>
+    </label>
+
+    <footer class="wizard-actions">
+      <button class="reload" (click)="closeRenewalModals()">Annuler</button>
+      <button class="action danger" (click)="rejectSelectedRenewal()" [disabled]="actionLoadingId === selectedRenewal._id">
+        {{ actionLoadingId === selectedRenewal._id ? 'Traitement...' : 'Confirmer le rejet' }}
+      </button>
+    </footer>
+  </section>
 </section>
