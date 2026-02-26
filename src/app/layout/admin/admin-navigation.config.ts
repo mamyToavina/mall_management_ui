@@ -32,8 +32,15 @@ export const ADMIN_NAVIGATION: AdminNavItem[] = [
   {
     label: 'Gestion Locataires',
     icon: '\u{1F3EC}',
-    route: '/admin/tenants/wizard/user',
-    exact: false
+    children: [
+      { label: 'Nouveau locataire', icon: '\u2795', route: '/admin/tenants/wizard/user' },
+      { label: 'Contrats', icon: '\u{1F4DC}', route: '/admin/tenants/contracts' }
+    ]
+  },
+  {
+    label: 'Paramétrage',
+    icon: '\u2699',
+    route: '/admin/tenants/settings'
   },
   {
     label: 'Gestion Boxes',

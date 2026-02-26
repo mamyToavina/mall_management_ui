@@ -1,0 +1,105 @@
+.settings-page {
+  display: grid;
+  place-items: start center;
+  padding: var(--container-pad);
+}
+
+.settings-card {
+  width: min(900px, 100%);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.settings-form {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+input {
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0 12px;
+}
+
+.banner {
+  margin-top: 12px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.banner.success {
+  border: 1px solid color-mix(in oklab, #16a34a 55%, var(--border));
+  background: color-mix(in oklab, #16a34a 12%, var(--surface));
+}
+
+.banner.error {
+  border: 1px solid color-mix(in oklab, #ef4444 55%, var(--border));
+  background: color-mix(in oklab, #ef4444 12%, var(--surface));
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  height: 42px;
+  padding: 0 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn.primary {
+  border-color: color-mix(in oklab, var(--primary) 60%, var(--border));
+  background: var(--primary);
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .settings-form {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,85 @@
+<section class="contracts-page">
+  <div class="page-card">
+    <header class="head">
+      <h2>Contrats locataires</h2>
+      <p>Suivi des contrats en cours, terminés et expirés.</p>
+    </header>
+
+    <div class="status-tabs">
+      <button class="tab" [class.active]="statusFilter === 'ACTIVE'" (click)="setStatus('ACTIVE')">En cours</button>
+      <button class="tab" [class.active]="statusFilter === 'TERMINATED'" (click)="setStatus('TERMINATED')">Terminés</button>
+      <button class="tab" [class.active]="statusFilter === 'EXPIRED'" (click)="setStatus('EXPIRED')">Expirés</button>
+      <button class="reload" (click)="loadContracts()" [disabled]="loading">Rafraîchir</button>
+    </div>
+
+    <div class="banner error" *ngIf="error">{{ error }}</div>
+    <div class="banner success" *ngIf="success">{{ success }}</div>
+
+    <div *ngIf="loading" class="loading-state" role="status" aria-live="polite" aria-label="Chargement des contrats">
+      <div class="dice-loader" aria-hidden="true">
+        <span class="die d1"></span>
+        <span class="die d2"></span>
+        <span class="die d3"></span>
+      </div>
+      <span class="sr-only">Chargement des contrats</span>
+    </div>
+
+    <div class="empty" *ngIf="!loading && !error && contracts.length === 0">
+      Aucun contrat pour ce statut.
+    </div>
+
+    <div class="table-wrap" *ngIf="!loading && !error && contracts.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Locataire</th>
+            <th>Box</th>
+            <th>Début</th>
+            <th>Fin</th>
+            <th>Loyer</th>
+            <th>Pénalité</th>
+            <th>Coef.</th>
+            <th>Rupture</th>
+            <th>Commission</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let contract of contracts">
+            <td>
+              <div class="main">{{ fullTenantName(contract) }}</div>
+              <div class="sub">{{ contract.tenant?.email || 'N/A' }}</div>
+            </td>
+            <td>{{ contract.box?.number || 'N/A' }}</td>
+            <td>{{ contract.startDate | date: 'dd-MM-yyyy' }}</td>
+            <td>{{ contract.endDate | date: 'dd-MM-yyyy' }}</td>
+            <td>{{ contract.monthlyRent | number: '1.0-0' }} Ar</td>
+            <td>{{ contract.penaltyFee | number: '1.0-0' }} Ar</td>
+            <td>{{ contract.penaltyGrowthFactor }}</td>
+            <td>{{ contract.terminationFee | number: '1.0-0' }} Ar</td>
+            <td>{{ contract.onlineSalesCommissionPercent }}%</td>
+            <td>
+              <button
+                class="action danger"
+                *ngIf="contract.status === 'ACTIVE'"
+                (click)="terminate(contract)"
+                [disabled]="actionLoadingId === contract._id"
+              >
+                Terminer
+              </button>
+              <button
+                class="action"
+                *ngIf="contract.status === 'TERMINATED'"
+                (click)="reactivate(contract)"
+                [disabled]="actionLoadingId === contract._id"
+              >
+                Réactiver
+              </button>
+              <span *ngIf="contract.status === 'EXPIRED'">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

@@ -36,8 +36,8 @@ export class BoxDetailsPageComponent {
       { label: 'Date fin', value: this.readContractValue(c, ['endDate', 'dateEnd', 'end']) },
       { label: 'Locataire', value: this.readContractValue(c, ['buyer.fullName', 'buyer.name', 'tenant.fullName', 'tenant.name', 'client.fullName']) },
       { label: 'Téléphone', value: this.readContractValue(c, ['buyer.phone', 'tenant.phone', 'client.phone']) },
-      { label: 'Loyer', value: this.readContractValue(c, ['monthlyRent', 'rent', 'amount']) },
-      { label: 'Caution', value: this.readContractValue(c, ['deposit', 'securityDeposit', 'caution']) },
+      { label: 'Loyer', value: this.readContractCurrency(c, ['monthlyRent', 'rent', 'amount']) },
+      { label: 'Caution', value: this.readContractCurrency(c, ['deposit', 'securityDeposit', 'caution']) },
     ].filter((field) => field.value !== '-');
   });
 
@@ -48,6 +48,8 @@ export class BoxDetailsPageComponent {
     const hiddenKeys = new Set([
       '_id',
       'id',
+      '__v',
+      'v',
       'number',
       'code',
       'status',
@@ -67,6 +69,7 @@ export class BoxDetailsPageComponent {
       'buyer',
       'tenant',
       'client',
+      'boutique',
       'box',
       'createdAt',
       'updatedAt',
@@ -77,7 +80,7 @@ export class BoxDetailsPageComponent {
       .slice(0, 8)
       .map(([key, value]) => ({
         label: this.labelFromKey(key),
-        value: this.formatValue(value),
+        value: this.isCurrencyKey(key) ? this.formatAr(value) : this.formatValue(value),
       }));
   });
 
@@ -106,10 +109,35 @@ export class BoxDetailsPageComponent {
       });
   }
 
+  boutiqueName(): string {
+    const b = this.box();
+    const value = b?.boutique;
+    if (!this.hasValue(value)) return '-';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+      return value?.name || value?.title || value?.fullName || value?.number || value?._id || '-';
+    }
+    return '-';
+  }
+
+  formatAr(value: unknown): string {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '-';
+    return `${n.toLocaleString('fr-FR')} Ar`;
+  }
+
   private readContractValue(contract: any, paths: string[]): string {
     for (const path of paths) {
       const value = this.readPath(contract, path);
       if (this.hasValue(value)) return this.formatValue(value);
+    }
+    return '-';
+  }
+
+  private readContractCurrency(contract: any, paths: string[]): string {
+    for (const path of paths) {
+      const value = this.readPath(contract, path);
+      if (this.hasValue(value)) return this.formatAr(value);
     }
     return '-';
   }
@@ -123,11 +151,31 @@ export class BoxDetailsPageComponent {
   }
 
   private labelFromKey(key: string): string {
+    const frLabels: Record<string, string> = {
+      penaltyFee: 'Frais de pénalité',
+      penaltyGrowthFactor: 'Coefficient de pénalité',
+      terminationFee: 'Frais de rupture',
+      onlineSalesCommissionPercent: 'Commission vente en ligne (%)',
+      durationMonths: 'Durée (mois)',
+      monthlyRent: 'Loyer mensuel',
+      startDate: 'Date début',
+      endDate: 'Date fin'
+    };
+    if (frLabels[key]) return frLabels[key];
+
+    if (key === 'details' || key === 'notes' || key === 'note' || key === 'remark' || key === 'remarque') {
+      return 'Note / Remarque';
+    }
     const withSpaces = key
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/[_-]+/g, ' ')
       .trim();
     return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
+  }
+
+  private isCurrencyKey(key: string): boolean {
+    const k = key.toLowerCase();
+    return k.includes('fee') || k.includes('rent') || k.includes('amount') || k.includes('caution');
   }
 
   private formatValue(value: any): string {
@@ -139,7 +187,7 @@ export class BoxDetailsPageComponent {
     if (typeof value === 'string') {
       const maybeDate = new Date(value);
       if (!Number.isNaN(maybeDate.getTime()) && /[T-]/.test(value)) {
-        return maybeDate.toLocaleString('fr-FR');
+        return maybeDate.toLocaleDateString('fr-FR');
       }
       return value;
     }

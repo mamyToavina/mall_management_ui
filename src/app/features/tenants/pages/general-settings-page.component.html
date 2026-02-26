@@ -1,0 +1,86 @@
+<section class="settings-page">
+  <div class="settings-card">
+    <header>
+      <h2>Paramétrage général</h2>
+      <p>Configuration globale appliquée aux nouveaux contrats.</p>
+    </header>
+
+    <div class="banner error" *ngIf="error">{{ error }}</div>
+    <div class="banner success" *ngIf="success">{{ success }}</div>
+
+    <div *ngIf="loading" class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
+      <div class="dice-loader" aria-hidden="true">
+        <span class="die d1"></span>
+        <span class="die d2"></span>
+        <span class="die d3"></span>
+      </div>
+      <span class="sr-only">Chargement en cours</span>
+    </div>
+
+    <form class="settings-form" [formGroup]="form" (ngSubmit)="submit()" *ngIf="!loading" novalidate>
+      <div class="field field-full">
+        <label for="mallAddress">Adresse du centre commercial</label>
+        <input id="mallAddress" formControlName="mallAddress" />
+      </div>
+
+      <div class="field">
+        <label for="mallLatitude">Latitude</label>
+        <input id="mallLatitude" type="number" formControlName="mallLatitude" />
+      </div>
+
+      <div class="field">
+        <label for="mallLongitude">Longitude</label>
+        <input id="mallLongitude" type="number" formControlName="mallLongitude" />
+      </div>
+
+      <div class="field">
+        <label for="defaultPenaltyFee">Frais de pénalité par défaut (Ar)</label>
+        <input
+          id="defaultPenaltyFee"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('defaultPenaltyFee')?.value)"
+          (input)="onIntegerInput('defaultPenaltyFee', $event)"
+        />
+      </div>
+
+      <div class="field">
+        <label for="penaltyGrowthFactor">Coefficient de pénalité</label>
+        <input
+          id="penaltyGrowthFactor"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('penaltyGrowthFactor')?.value)"
+          (input)="onIntegerInput('penaltyGrowthFactor', $event)"
+        />
+      </div>
+
+      <div class="field">
+        <label for="defaultTerminationFee">Frais de rupture par défaut (Ar)</label>
+        <input
+          id="defaultTerminationFee"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('defaultTerminationFee')?.value)"
+          (input)="onIntegerInput('defaultTerminationFee', $event)"
+        />
+      </div>
+
+      <div class="field">
+        <label for="defaultOnlineSalesCommissionPercent">Commission vente en ligne (%)</label>
+        <input
+          id="defaultOnlineSalesCommissionPercent"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('defaultOnlineSalesCommissionPercent')?.value)"
+          (input)="onIntegerInput('defaultOnlineSalesCommissionPercent', $event)"
+        />
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn ghost" (click)="load()" [disabled]="submitting">Rafraîchir</button>
+        <button type="submit" class="btn primary" [disabled]="submitting">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</section>

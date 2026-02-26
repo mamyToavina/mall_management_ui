@@ -143,6 +143,11 @@ small {
   background: color-mix(in oklab, #16a34a 12%, var(--surface));
 }
 
+.banner.info {
+  border: 1px solid color-mix(in oklab, #0ea5e9 55%, var(--border));
+  background: color-mix(in oklab, #0ea5e9 12%, var(--surface));
+}
+
 .banner.error {
   border: 1px solid color-mix(in oklab, #ef4444 55%, var(--border));
   background: color-mix(in oklab, #ef4444 12%, var(--surface));

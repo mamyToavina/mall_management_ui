@@ -3,7 +3,7 @@
     <header class="wizard-head">
       <div>
         <h2>Contrat de location</h2>
-        <p class="sub">Etape 2/2: informations du contrat et validation</p>
+        <p class="sub">Étape 2/2 : informations du contrat et validation</p>
       </div>
       <div class="progress" aria-hidden="true">
         <span class="dot done"></span>
@@ -13,33 +13,113 @@
     </header>
 
     <form [formGroup]="form" (ngSubmit)="submitAll()" class="wizard-form" novalidate>
+      <div *ngIf="loadingDefaults" class="loading-state" role="status" aria-live="polite" aria-label="Chargement des valeurs par défaut">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+        <span class="sr-only">Chargement des valeurs par défaut</span>
+      </div>
+
       <div class="field">
-        <label for="startDate">Date de debut</label>
+        <label for="startDate">Date de début</label>
         <input id="startDate" type="date" formControlName="startDate" />
         <small *ngIf="form.get('startDate')?.touched && form.get('startDate')?.invalid">
-          Date de debut obligatoire.
+          Date de début obligatoire.
         </small>
       </div>
 
       <div class="field">
-        <label for="durationMonths">Duree (mois)</label>
-        <input id="durationMonths" type="number" min="3" formControlName="durationMonths" />
+        <label for="durationMonths">Durée (mois)</label>
+        <input
+          id="durationMonths"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('durationMonths')?.value)"
+          (input)="onIntegerInput('durationMonths', $event)"
+        />
         <small *ngIf="form.get('durationMonths')?.touched && form.get('durationMonths')?.invalid">
-          Duree minimale: 3 mois.
+          Durée invalide (entre 1 et 240 mois).
         </small>
       </div>
 
-      <div class="field field-full">
+      <div class="field">
         <label for="monthlyRent">Loyer mensuel</label>
-        <input id="monthlyRent" type="number" min="0" formControlName="monthlyRent" />
+        <input
+          id="monthlyRent"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('monthlyRent')?.value)"
+          (input)="onIntegerInput('monthlyRent', $event)"
+        />
         <small *ngIf="form.get('monthlyRent')?.touched && form.get('monthlyRent')?.invalid">
-          Loyer obligatoire et superieur ou egal a 0.
+          Loyer invalide (entre 0 et 1 000 000 000).
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="penaltyFee">Frais de pénalité</label>
+        <input
+          id="penaltyFee"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('penaltyFee')?.value)"
+          (input)="onIntegerInput('penaltyFee', $event)"
+        />
+        <small *ngIf="form.get('penaltyFee')?.touched && form.get('penaltyFee')?.invalid">
+          Frais de pénalité invalide (entre 0 et 1 000 000 000).
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="penaltyGrowthFactor">Coefficient de pénalité</label>
+        <input
+          id="penaltyGrowthFactor"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('penaltyGrowthFactor')?.value)"
+          (input)="onIntegerInput('penaltyGrowthFactor', $event)"
+        />
+        <small *ngIf="form.get('penaltyGrowthFactor')?.touched && form.get('penaltyGrowthFactor')?.invalid">
+          Coefficient invalide (entre 0 et 1000).
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="terminationFee">Frais en cas de rupture</label>
+        <input
+          id="terminationFee"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('terminationFee')?.value)"
+          (input)="onIntegerInput('terminationFee', $event)"
+        />
+        <small *ngIf="form.get('terminationFee')?.touched && form.get('terminationFee')?.invalid">
+          Frais de rupture invalide (entre 0 et 1 000 000 000).
         </small>
       </div>
 
       <div class="field field-full">
-        <label for="details">Details</label>
-        <textarea id="details" formControlName="details" rows="4" placeholder="Informations complementaires"></textarea>
+        <label for="onlineSalesCommissionPercent">Commission vente en ligne (%)</label>
+        <input
+          id="onlineSalesCommissionPercent"
+          type="text"
+          inputmode="numeric"
+          [value]="formatInteger(form.get('onlineSalesCommissionPercent')?.value)"
+          (input)="onIntegerInput('onlineSalesCommissionPercent', $event)"
+        />
+        <small *ngIf="form.get('onlineSalesCommissionPercent')?.touched && form.get('onlineSalesCommissionPercent')?.invalid">
+          Commission invalide (entre 0 et 100).
+        </small>
+      </div>
+
+      <div class="field field-full">
+        <label for="notes">Note / remarque</label>
+        <textarea id="notes" formControlName="notes" rows="4" placeholder="Informations complémentaires"></textarea>
+        <small *ngIf="form.get('notes')?.touched && form.get('notes')?.invalid">
+          Note trop longue (maximum 1000 caractères).
+        </small>
       </div>
 
       <div class="banner error" *ngIf="submitError">{{ submitError }}</div>
@@ -47,20 +127,20 @@
       <div class="banner success" *ngIf="submitSuccess">
         <div>{{ submitSuccess }}</div>
         <div class="meta" *ngIf="apiResult?.activationLink">
-          Lien activation:
+          Lien d’activation:
           <a class="activation-link" [href]="apiResult?.activationLink" target="_blank" rel="noopener noreferrer">
             {{ apiResult?.activationLink }}
           </a>
         </div>
       </div>
 
-      <div *ngIf="submitting" class="loading-state" role="status" aria-live="polite" aria-label="Creation en cours">
+      <div *ngIf="submitting" class="loading-state" role="status" aria-live="polite" aria-label="Création en cours">
         <div class="dice-loader" aria-hidden="true">
           <span class="die d1"></span>
           <span class="die d2"></span>
           <span class="die d3"></span>
         </div>
-        <span class="sr-only">Creation en cours</span>
+        <span class="sr-only">Création en cours</span>
       </div>
 
       <div class="actions">
@@ -71,16 +151,16 @@
           *ngIf="submitSuccess"
           (click)="createAnother()"
         >
-          Creer un autre locataire
+          Créer un autre locataire
         </button>
         <button type="submit" class="btn primary" [disabled]="submitting">
-          <span *ngIf="!submitting">Creer le locataire</span>
+          <span *ngIf="!submitting">Créer le locataire</span>
           <span *ngIf="submitting" class="dice-loader dice-loader--sm" aria-hidden="true">
             <span class="die d1"></span>
             <span class="die d2"></span>
             <span class="die d3"></span>
           </span>
-          <span *ngIf="submitting" class="sr-only">Creation en cours</span>
+          <span *ngIf="submitting" class="sr-only">Création en cours</span>
         </button>
       </div>
     </form>
