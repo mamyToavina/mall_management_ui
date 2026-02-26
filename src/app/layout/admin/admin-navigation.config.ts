@@ -42,5 +42,12 @@ export const ADMIN_NAVIGATION: AdminNavItem[] = [
       { label: 'Liste', icon: '\u2261', route: '/admin/boxes' },
       { label: 'Creer', icon: '\u2795', route: '/admin/boxes/new' }
     ]
+  },
+  {
+    label: 'Facturation',
+    icon: '\u{1F4C4}',
+    children: [
+      { label: 'Upload factures', icon: '\u2B06', route: '/admin/billing/upload' }
+    ]
   }
 ];
