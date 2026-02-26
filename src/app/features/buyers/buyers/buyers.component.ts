@@ -1,210 +1,61 @@
-﻿import { Component, DestroyRef, Injector, inject, signal, computed, OnInit, afterNextRender } from '@angular/core';
+﻿import { Component, DestroyRef, Injector, computed, inject, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BuyerCardModalComponent } from './buyers-card-modal';
-import { BuyerDto, PaginationMeta, UserStatus } from './buyers.model';
+import {
+  BuyerDto,
+  BuyerHistoryEntry,
+  BuyerHistoryFilters,
+  BuyerHistorySummary,
+  PaginationMeta,
+  UserStatus
+} from './buyers.model';
 import { BuyersApiService } from './buyers.services';
-import { formatAriary, resolveAvatarUrl, timeAgo } from './buyers.utils';
+import { formatAriary, getDefaultAvatarUrl, resolveAvatarUrl, timeAgo } from './buyers.utils';
 
 @Component({
   selector: 'app-buyers-page',
   standalone: true,
   imports: [CommonModule, BuyerCardModalComponent],
-  template: `
-    <section class="page">
-      <header class="top">
-        <div>
-          <h1>Gestion acheteur</h1>
-          <p class="sub">Liste des comptes acheteurs</p>
-        </div>
-
-        @if (meta(); as m) {
-          <div class="stats">
-            <div class="pill">
-              <span>Total</span>
-              <strong>{{ m.total }}</strong>
-            </div>
-
-            <div class="pill">
-              <span>Page</span>
-              <strong>{{ m.page }}/{{ m.pages }}</strong>
-            </div>
-          </div>
-        }
-      </header>
-
-      <div class="card">
-        <div class="filters">
-          <div class="field">
-            <label>Recherche</label>
-            <input
-              type="search"
-              [value]="search()"
-              (input)="onSearch(($any($event.target)).value)"
-              placeholder="pseudo ou email..."
-            />
-          </div>
-
-          <div class="field">
-            <label>Status</label>
-            <select [value]="status()" (change)="onStatus(($any($event.target)).value)">
-              <option value="">Tous</option>
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="BLOCKED">BLOCKED</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Limit</label>
-            <select [value]="limit()" (change)="onLimit(($any($event.target)).value)">
-              <option [value]="5">5</option>
-              <option [value]="10">10</option>
-              <option [value]="20">20</option>
-            </select>
-          </div>
-
-          <div class="field actions">
-            <button class="btn" type="button" (click)="refresh()">Rafraichir</button>
-          </div>
-        </div>
-
-        <div class="table-wrap" *ngIf="!loading(); else loadingTpl">
-          <table class="table" *ngIf="buyers().length; else emptyTpl">
-            <thead>
-              <tr>
-                <th>Acheteur</th>
-                <th>Email</th>
-                <th>Solde</th>
-                <th>Status</th>
-                <th>Anciennete</th>
-                <th class="th-actions">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr
-                *ngFor="let b of buyers()"
-                class="row"
-                (click)="openBuyer(b._id)"
-                tabindex="0"
-              >
-                <td data-label="Acheteur">
-                  <div class="who">
-                    <img class="avatar" [src]="avatarUrl(b.avatar)" alt="avatar" />
-                    <div class="who-meta">
-                      <div class="pseudo">{{ b.pseudo }}</div>
-                      <div class="small muted">{{ b.firstName || 'â€”' }}</div>
-                    </div>
-                  </div>
-                </td>
-
-                <td class="mono" data-label="Email">{{ b.email }}</td>
-                <td class="strong" data-label="Solde">{{ money(b.credit) }}</td>
-
-                <td data-label="Status">
-                  <span class="badge" [class.blocked]="b.status==='BLOCKED'">{{ b.status }}</span>
-                </td>
-
-                <td class="muted" data-label="Anciennete">{{ ago(b.createdAt) }}</td>
-
-                <td class="td-actions" data-label="Actions" (click)="$event.stopPropagation()">
-                  <button
-                    class="btn danger"
-                    *ngIf="b.status==='ACTIVE'"
-                    type="button"
-                    (click)="confirmBlock(b)"
-                  >
-                    Bloquer
-                  </button>
-
-                  <button
-                    class="btn"
-                    *ngIf="b.status==='BLOCKED'"
-                    type="button"
-                    (click)="confirmUnblock(b)"
-                  >
-                    Débloquer
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="pagination" *ngIf="meta() as m">
-            <button class="btn" type="button" [disabled]="m.page<=1" (click)="goTo(m.page-1)">← Précédent</button>
-
-            <div class="pages">
-              <button
-                class="page-btn"
-                type="button"
-                *ngFor="let p of pageNumbers()"
-                [class.active]="p===m.page"
-                (click)="goTo(p)"
-              >
-                {{ p }}
-              </button>
-            </div>
-
-            <button class="btn" type="button" [disabled]="m.page>=m.pages" (click)="goTo(m.page+1)">Suivant →</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal fiche -->
-      <app-buyer-card-modal
-        *ngIf="selectedBuyer()"
-        [buyer]="selectedBuyer()"
-        (close)="closeModal()"
-      />
-
-      <ng-template #loadingTpl>
-        <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
-          <div class="dice-loader" aria-hidden="true">
-            <span class="die d1"></span>
-            <span class="die d2"></span>
-            <span class="die d3"></span>
-          </div>
-          <span class="sr-only">Chargement en cours</span>
-        </div>
-      </ng-template>
-
-      <ng-template #emptyTpl>
-        <div class="empty">
-          Aucun acheteur trouve.
-        </div>
-      </ng-template>
-    </section>
-  `,
+  templateUrl: './buyers.component.html',
   styleUrls: ['buyers.component.css']
 })
-
 export class BuyersPageComponent {
+  private readonly api = inject(BuyersApiService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
 
-  private api = inject(BuyersApiService);
-  private destroyRef = inject(DestroyRef);
-  private injector = inject(Injector);
-
-  // state
   readonly buyers = signal<BuyerDto[]>([]);
   readonly meta = signal<PaginationMeta | null>(null);
   readonly loading = signal<boolean>(false);
 
-  // query state
   readonly page = signal<number>(1);
   readonly limit = signal<number>(10);
   readonly search = signal<string>('');
   readonly status = signal<UserStatus | ''>('');
 
-  // for modal
   readonly selectedBuyer = signal<BuyerDto | null>(null);
+  readonly historyEntries = signal<BuyerHistoryEntry[]>([]);
+  readonly historyMeta = signal<PaginationMeta | null>(null);
+  readonly historySummary = signal<BuyerHistorySummary | null>(null);
+  readonly historyLoading = signal<boolean>(false);
+  readonly historyError = signal<string>('');
+  readonly historyFilters = signal<BuyerHistoryFilters>({
+    type: 'ALL',
+    page: 1,
+    limit: 10
+  });
 
-  // helper (UI)
-  money = formatAriary;
-  avatarUrl = resolveAvatarUrl;
-  ago = timeAgo;
+  readonly isBlockModalOpen = signal(false);
+  readonly blockingBuyer = signal<BuyerDto | null>(null);
+  readonly blockReason = signal('');
+  readonly blockSubmitting = signal(false);
+  readonly blockError = signal('');
 
-  // computed query object
+  private readonly refreshTick = signal(0);
+  private historySearchTimer: ReturnType<typeof setTimeout> | null = null;
+
   readonly query = computed(() => ({
     page: this.page(),
     limit: this.limit(),
@@ -212,131 +63,223 @@ export class BuyersPageComponent {
     status: this.status()
   }));
 
-  // pagination numbers (simple, pro, et pas trop long)
   readonly pageNumbers = computed(() => {
     const m = this.meta();
     if (!m) return [];
-    const totalPages = m.pages;
-    const current = m.page;
-
-    const start = Math.max(1, current - 2);
-    const end = Math.min(totalPages, current + 2);
-
-    const pages: number[] = [];
-    for (let i = start; i <= end; i++) pages.push(i);
-    return pages;
+    const start = Math.max(1, m.page - 2);
+    const end = Math.min(m.pages, m.page + 2);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   });
 
-  private readonly refreshTick = signal(0);
+  money = formatAriary;
+  avatarUrl = resolveAvatarUrl;
+  ago = timeAgo;
+  onAvatarError(event: Event) {
+    const img = event.target as HTMLImageElement | null;
+    if (!img) return;
+    const fallback = getDefaultAvatarUrl();
+    if (img.src.endsWith(fallback)) return;
+    img.src = fallback;
+  }
 
   constructor() {
-    console.log("mandeha an");
     afterNextRender(() => {
       const query$ = toObservable(
         computed(() => [this.query(), this.refreshTick()] as const),
-        { injector: this.injector } // âœ… important
+        { injector: this.injector }
       );
 
       query$
         .pipe(
-          debounceTime(100),
+          debounceTime(120),
           distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
           switchMap(([q]) => {
             this.loading.set(true);
             return this.api.getBuyers(q).pipe(
-              catchError((err) => {
-                console.error('GET BUYERS FAILED', err);
-                return of({ data: [], meta: { total: 0, page: q.page, limit: q.limit, pages: 1 } });
-              })
+              catchError(() =>
+                of({
+                  data: [],
+                  meta: { total: 0, page: q.page, limit: q.limit, pages: 1 }
+                })
+              )
             );
           }),
           takeUntilDestroyed(this.destroyRef)
         )
         .subscribe((res) => {
-          console.log("ito ny solution an");
           this.buyers.set(res.data ?? []);
           this.meta.set(res.meta ?? null);
           this.loading.set(false);
         });
     });
   }
-  
 
-  onSearch(v: string) {
-    this.search.set(v);
+  onSearch(value: string) {
+    this.search.set(value);
     this.page.set(1);
   }
 
-  onStatus(v: string) {
-    this.status.set((v as UserStatus) || '');
+  onStatus(value: string) {
+    this.status.set((value as UserStatus) || '');
     this.page.set(1);
   }
 
-  onLimit(v: string) {
-    const n = Number(v);
-    this.limit.set(Number.isFinite(n) ? n : 10);
+  onLimit(value: string) {
+    const parsed = Number(value);
+    this.limit.set(Number.isFinite(parsed) ? parsed : 10);
     this.page.set(1);
   }
 
-  goTo(p: number) {
+  goTo(page: number) {
     const m = this.meta();
     if (!m) return;
-    const safe = Math.min(Math.max(1, p), m.pages);
+    const safe = Math.min(Math.max(1, page), m.pages);
     this.page.set(safe);
   }
 
   refresh() {
-    this.refreshTick.update(x => x + 1);
+    this.refreshTick.update((value) => value + 1);
   }
 
   openBuyer(id: string) {
     this.loading.set(true);
-    this.api.getBuyerById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (buyer) => {
-        this.selectedBuyer.set(buyer);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-      }
-    });
+    this.historyError.set('');
+
+    this.api
+      .getBuyerById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (buyer) => {
+          this.selectedBuyer.set(buyer);
+          this.historyFilters.set({ type: 'ALL', page: 1, limit: 10, search: '' });
+          this.loadHistory();
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        }
+      });
   }
 
   closeModal() {
     this.selectedBuyer.set(null);
+    this.historyEntries.set([]);
+    this.historyMeta.set(null);
+    this.historySummary.set(null);
+    this.historyError.set('');
   }
 
-  confirmBlock(b: BuyerDto) {
-    const ok = window.confirm(`Bloquer "${b.pseudo}" ?`);
-    if (!ok) return;
-
-    this.api.blockBuyer(b._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (updated) => {
-        this.patchRow(updated);
-      }
-    });
+  confirmBlock(buyer: BuyerDto) {
+    this.blockingBuyer.set(buyer);
+    this.blockReason.set('');
+    this.blockError.set('');
+    this.blockSubmitting.set(false);
+    this.isBlockModalOpen.set(true);
   }
 
-  confirmUnblock(b: BuyerDto) {
-    const ok = window.confirm(`Debloquer "${b.pseudo}" ?`);
-    if (!ok) return;
+  closeBlockModal() {
+    this.isBlockModalOpen.set(false);
+    this.blockingBuyer.set(null);
+    this.blockReason.set('');
+    this.blockSubmitting.set(false);
+    this.blockError.set('');
+  }
 
-    this.api.unblockBuyer(b._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (updated) => {
-        this.patchRow(updated);
-      }
-    });
+  setBlockReason(value: string) {
+    this.blockReason.set(value);
+    if (this.blockError()) this.blockError.set('');
+  }
+
+  submitBlock() {
+    const buyer = this.blockingBuyer();
+    if (!buyer) return;
+
+    const reason = this.blockReason().trim();
+    if (reason.length < 3) {
+      this.blockError.set('Veuillez saisir un motif valide (minimum 3 caracteres).');
+      return;
+    }
+    if (reason.length > 500) {
+      this.blockError.set('Le motif est trop long (500 caracteres max).');
+      return;
+    }
+
+    this.blockSubmitting.set(true);
+    this.api
+      .blockBuyer(buyer._id, reason)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this.patchRow(updated);
+          this.blockSubmitting.set(false);
+          this.closeBlockModal();
+        },
+        error: (error) => {
+          this.blockSubmitting.set(false);
+          this.blockError.set(error?.error?.message || 'Blocage impossible.');
+        }
+      });
+  }
+
+  confirmUnblock(buyer: BuyerDto) {
+    this.api
+      .unblockBuyer(buyer._id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => this.patchRow(updated)
+      });
+  }
+
+  onHistoryFilterChange(patch: Partial<BuyerHistoryFilters>) {
+    if (patch.search !== undefined) {
+      if (this.historySearchTimer) clearTimeout(this.historySearchTimer);
+      this.historyFilters.update((prev) => ({ ...prev, ...patch, page: 1 }));
+      this.historySearchTimer = setTimeout(() => this.loadHistory(), 250);
+      return;
+    }
+
+    this.historyFilters.update((prev) => ({ ...prev, ...patch }));
+    this.loadHistory();
+  }
+
+  onHistoryPageChange(page: number) {
+    this.historyFilters.update((prev) => ({ ...prev, page }));
+    this.loadHistory();
+  }
+
+  private loadHistory() {
+    const buyer = this.selectedBuyer();
+    if (!buyer) return;
+
+    this.historyLoading.set(true);
+    this.historyError.set('');
+
+    this.api
+      .getBuyerHistory(buyer._id, this.historyFilters())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.historyEntries.set(res.data ?? []);
+          this.historyMeta.set(res.meta ?? null);
+          this.historySummary.set(res.summary ?? null);
+          this.historyLoading.set(false);
+        },
+        error: (error) => {
+          this.historyEntries.set([]);
+          this.historyMeta.set(null);
+          this.historySummary.set(null);
+          this.historyLoading.set(false);
+          this.historyError.set(error?.error?.message || 'Historique indisponible.');
+        }
+      });
   }
 
   private patchRow(updated: BuyerDto) {
-    this.buyers.update(list => list.map(x => x._id === updated._id ? { ...x, ...updated } : x));
-    // si modal ouvert sur le meme buyer
+    this.buyers.update((list) => list.map((item) => (item._id === updated._id ? { ...item, ...updated } : item)));
+
     if (this.selectedBuyer()?._id === updated._id) {
       this.selectedBuyer.set({ ...this.selectedBuyer()!, ...updated });
     }
   }
 }
-
-
-
 

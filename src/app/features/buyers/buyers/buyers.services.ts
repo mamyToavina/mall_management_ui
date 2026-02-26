@@ -1,9 +1,14 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, tap, throwError } from 'rxjs';
-import { UserStatus, PaginatedResponse, BuyerDto } from './buyers.model';
+import { catchError, throwError } from 'rxjs';
+import {
+  UserStatus,
+  PaginatedResponse,
+  BuyerDto,
+  BuyerHistoryFilters,
+  BuyerHistoryResponse
+} from './buyers.model';
 import { environment } from '../../../../environments/environment';
-
 
 export interface BuyersQuery {
   page: number;
@@ -26,16 +31,7 @@ export class BuyersApiService {
     if (query.status) params = params.set('status', query.status);
 
     return this.http.get<PaginatedResponse<BuyerDto>>(this.baseUrl, { params }).pipe(
-      tap((res) => {
-        console.log('✅ RESPONSE JSON:', res);
-        console.log('✅ RESPONSE JSON (pretty):', JSON.stringify(res, null, 2));
-      }),
-      catchError((err) => {
-        console.error('❌ HTTP ERROR:', err);
-        console.error('❌ status:', err?.status);
-        console.error('❌ body:', err?.error);
-        return throwError(() => err);
-      })
+      catchError((err) => throwError(() => err))
     );
   }
 
@@ -43,8 +39,24 @@ export class BuyersApiService {
     return this.http.get<BuyerDto>(`${this.baseUrl}/${id}`);
   }
 
-  blockBuyer(id: string) {
-    return this.http.patch<BuyerDto>(`${this.baseUrl}/${id}/block`, {});
+  getBuyerHistory(id: string, filters: BuyerHistoryFilters = {}) {
+    let params = new HttpParams()
+      .set('page', String(filters.page ?? 1))
+      .set('limit', String(filters.limit ?? 20));
+
+    if (filters.type && filters.type !== 'ALL') params = params.set('type', filters.type);
+    if (filters.from) params = params.set('from', filters.from);
+    if (filters.to) params = params.set('to', filters.to);
+    if (typeof filters.minAmount === 'number') params = params.set('minAmount', String(filters.minAmount));
+    if (typeof filters.maxAmount === 'number') params = params.set('maxAmount', String(filters.maxAmount));
+    if (typeof filters.rating === 'number') params = params.set('rating', String(filters.rating));
+    if (filters.search?.trim()) params = params.set('search', filters.search.trim());
+
+    return this.http.get<BuyerHistoryResponse>(`${this.baseUrl}/${id}/history`, { params });
+  }
+
+  blockBuyer(id: string, reason: string) {
+    return this.http.patch<BuyerDto>(`${this.baseUrl}/${id}/block`, { reason });
   }
 
   unblockBuyer(id: string) {

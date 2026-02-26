@@ -1,3 +1,191 @@
-<p>
-  buyers works!
-</p>
+﻿<section class="page">
+  <header class="top">
+    <div>
+      <h1>Gestion acheteur</h1>
+      <p class="sub">Suivi des comptes, blocage securise et historique complet</p>
+    </div>
+
+    @if (meta(); as m) {
+      <div class="stats">
+        <article class="pill"><span>Total</span><strong>{{ m.total }}</strong></article>
+        <article class="pill"><span>Page</span><strong>{{ m.page }}/{{ m.pages }}</strong></article>
+      </div>
+    }
+  </header>
+
+  <section class="card">
+    <div class="filters">
+      <div class="field">
+        <label>Recherche</label>
+        <input
+          type="search"
+          [value]="search()"
+          (input)="onSearch(($any($event.target)).value)"
+          placeholder="Pseudo ou email"
+        />
+      </div>
+
+      <div class="field">
+        <label>Statut</label>
+        <select [value]="status()" (change)="onStatus(($any($event.target)).value)">
+          <option value="">Tous</option>
+          <option value="ACTIVE">Actif</option>
+          <option value="BLOCKED">Bloque</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Lignes / page</label>
+        <select [value]="limit()" (change)="onLimit(($any($event.target)).value)">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+        </select>
+      </div>
+
+      <div class="field actions">
+        <button class="btn" type="button" (click)="refresh()">Rafraichir</button>
+      </div>
+    </div>
+
+    <div class="table-wrap" *ngIf="!loading(); else loadingTpl">
+      <table class="table" *ngIf="buyers().length; else emptyTpl">
+        <thead>
+          <tr>
+            <th>Acheteur</th>
+            <th>Email</th>
+            <th>Solde</th>
+            <th>Statut</th>
+            <th>Inscrit</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let b of buyers()" class="row" (click)="openBuyer(b._id)" tabindex="0">
+            <td data-label="Acheteur">
+              <div class="who">
+                <img class="avatar" [src]="avatarUrl(b.avatar)" (error)="onAvatarError($event)" alt="avatar" />
+                <div class="who-meta">
+                  <div class="pseudo">{{ b.pseudo }}</div>
+                  <div class="small muted">{{ b.firstName || '-' }}</div>
+                </div>
+              </div>
+            </td>
+
+            <td class="mono" data-label="Email">{{ b.email }}</td>
+            <td class="strong" data-label="Solde">{{ money(b.credit) }}</td>
+
+            <td data-label="Statut">
+              <span class="badge" [class.blocked]="b.status === 'BLOCKED'">{{ b.status }}</span>
+            </td>
+
+            <td class="muted" data-label="Inscrit">{{ ago(b.createdAt) }}</td>
+
+            <td class="td-actions" data-label="Actions" (click)="$event.stopPropagation()">
+              <button class="btn danger" *ngIf="b.status === 'ACTIVE'" type="button" (click)="confirmBlock(b)">
+                Bloquer
+              </button>
+
+              <button class="btn" *ngIf="b.status === 'BLOCKED'" type="button" (click)="confirmUnblock(b)">
+                Debloquer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination" *ngIf="meta() as m">
+        <button class="btn" type="button" [disabled]="m.page <= 1" (click)="goTo(m.page - 1)">Precedent</button>
+
+        <div class="pages">
+          <button
+            class="page-btn"
+            type="button"
+            *ngFor="let p of pageNumbers()"
+            [class.active]="p === m.page"
+            (click)="goTo(p)"
+          >
+            {{ p }}
+          </button>
+        </div>
+
+        <button class="btn" type="button" [disabled]="m.page >= m.pages" (click)="goTo(m.page + 1)">Suivant</button>
+      </div>
+    </div>
+  </section>
+
+  <app-buyer-card-modal
+    *ngIf="selectedBuyer()"
+    [buyer]="selectedBuyer()"
+    [historyEntries]="historyEntries()"
+    [historyMeta]="historyMeta()"
+    [historySummary]="historySummary()"
+    [historyLoading]="historyLoading()"
+    [historyError]="historyError()"
+    [historyFilters]="historyFilters()"
+    (historyFilterChange)="onHistoryFilterChange($event)"
+    (historyPageChange)="onHistoryPageChange($event)"
+    (close)="closeModal()"
+  />
+
+  @if (isBlockModalOpen()) {
+    <div class="modal-backdrop" (click)="closeBlockModal()"></div>
+    <section class="block-modal" role="dialog" aria-modal="true" aria-label="Confirmer blocage" (click)="$event.stopPropagation()">
+      <header>
+        <h3>Confirmer le blocage</h3>
+        <p>Ce motif sera enregistre et envoye par email a l'utilisateur.</p>
+      </header>
+
+      <div class="body">
+        <p class="target">Compte cible: <strong>{{ blockingBuyer()?.pseudo }}</strong></p>
+
+        <div class="reason-field">
+          <div class="reason-head">
+            <label for="blockReason">Motif de blocage</label>
+            <small class="reason-count" [class.near-limit]="blockReason().length >= 450">{{ blockReason().length }}/500</small>
+          </div>
+          <textarea
+            id="blockReason"
+            rows="5"
+            maxlength="500"
+            [value]="blockReason()"
+            (input)="setBlockReason(($any($event.target)).value)"
+            placeholder="Decrivez clairement la raison du blocage (minimum 3 caracteres)."
+          ></textarea>
+          <small class="reason-help">Le message sera enregistre et envoye par email a l'utilisateur.</small>
+          <div class="quick-reasons">
+            <button type="button" class="reason-chip" (click)="setBlockReason('Activite non conforme aux regles de la plateforme.')">Activite non conforme</button>
+            <button type="button" class="reason-chip" (click)="setBlockReason('Suspicion de fraude ou d utilisation abusive.')">Suspicion de fraude</button>
+            <button type="button" class="reason-chip" (click)="setBlockReason('Non-respect repete des conditions d utilisation.')">Non-respect des conditions</button>
+          </div>
+        </div>
+
+        <p class="error" *ngIf="blockError()">{{ blockError() }}</p>
+      </div>
+
+      <footer>
+        <button class="btn" type="button" [disabled]="blockSubmitting()" (click)="closeBlockModal()">Annuler</button>
+        <button class="btn danger" type="button" [disabled]="blockSubmitting()" (click)="submitBlock()">
+          {{ blockSubmitting() ? 'Blocage...' : 'Confirmer le blocage' }}
+        </button>
+      </footer>
+    </section>
+  }
+
+  <ng-template #loadingTpl>
+    <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
+      <div class="dice-loader" aria-hidden="true">
+        <span class="die d1"></span>
+        <span class="die d2"></span>
+        <span class="die d3"></span>
+      </div>
+      <span class="sr-only">Chargement en cours</span>
+    </div>
+  </ng-template>
+
+  <ng-template #emptyTpl>
+    <div class="empty">Aucun acheteur trouve.</div>
+  </ng-template>
+</section>
+
