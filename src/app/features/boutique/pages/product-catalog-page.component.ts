@@ -50,6 +50,7 @@ export class ProductCatalogPageComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
   readonly actionLoading = signal(false);
+  readonly publishLoadingId = signal<string | null>(null);
 
   readonly page = signal(1);
   readonly limit = signal(10);
@@ -120,7 +121,7 @@ export class ProductCatalogPageComponent {
               catchError((error) => {
                 const message =
                   error?.error?.message ||
-                  'Echec du chargement du catalogue produit. Veuillez reessayer.';
+                  'Échec du chargement du catalogue produit. Veuillez réessayer.';
                 this.errorMessage.set(message);
                 return of({
                   data: [],
@@ -185,6 +186,49 @@ export class ProductCatalogPageComponent {
     this.limit.set(10);
     this.page.set(1);
     this.successMessage.set(null);
+  }
+
+  publishedCount() {
+    return this.products().filter((item) => !!item.isPublished).length;
+  }
+
+  statusLabel(status: ProductStatus) {
+    if (status === 'ACTIVE') return 'Actif';
+    if (status === 'ARCHIVED') return 'Archivé';
+    return 'Brouillon';
+  }
+
+  togglePublished(product: ProductDto) {
+    const nextValue = !product.isPublished;
+    this.publishLoadingId.set(product._id);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+
+    this.api
+      .updateMine(product._id, { isPublished: nextValue })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this.products.update((items) =>
+            items.map((item) => (item._id === updated._id ? { ...item, ...updated } : item))
+          );
+
+          if (this.editingProductId() === updated._id) {
+            const current = this.editingProduct();
+            if (current) this.editingProduct.set({ ...current, ...updated });
+            this.editForm.patchValue({ isPublished: !!updated.isPublished }, { emitEvent: false });
+          }
+
+          this.publishLoadingId.set(null);
+          this.successMessage.set(
+            nextValue ? 'Produit publié avec succès.' : 'Produit retiré de la publication.'
+          );
+        },
+        error: (error) => {
+          this.publishLoadingId.set(null);
+          this.errorMessage.set(error?.error?.message || 'Mise a jour publication impossible.');
+        }
+      });
   }
 
   trackByProductId(_index: number, product: ProductDto) {
@@ -274,8 +318,8 @@ export class ProductCatalogPageComponent {
     const action = this.confirmAction();
     if (!action) return '';
 
-    if (action.type === 'save-product') return 'Confirmer la mise a jour du produit ?';
-    if (action.type === 'delete-product') return 'Confirmer la suppression definitive du produit ?';
+    if (action.type === 'save-product') return 'Confirmer la mise à jour du produit ?';
+    if (action.type === 'delete-product') return 'Confirmer la suppression définitive du produit ?';
     if (action.type === 'add-image') return "Confirmer l'ajout de cette image ?";
     if (action.type === 'replace-image') return 'Confirmer le remplacement de cette image ?';
     return 'Confirmer la suppression de cette image ?';
@@ -304,7 +348,7 @@ export class ProductCatalogPageComponent {
         .addImage(action.productId, action.file)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (updated) => this.onActionSuccess(updated, 'Image ajoutee avec succes.'),
+          next: (updated) => this.onActionSuccess(updated, 'Image ajoutée avec succès.'),
           error: (error) => this.onActionError(error?.error?.message || "Ajout d'image impossible.")
         });
       return;
@@ -315,7 +359,7 @@ export class ProductCatalogPageComponent {
         .replaceImage(action.productId, action.imagePath, action.file)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (updated) => this.onActionSuccess(updated, 'Image remplacee avec succes.'),
+          next: (updated) => this.onActionSuccess(updated, 'Image remplacée avec succès.'),
           error: (error) =>
             this.onActionError(error?.error?.message || "Remplacement d'image impossible.")
         });
@@ -327,7 +371,7 @@ export class ProductCatalogPageComponent {
         .removeImage(action.productId, action.imagePath)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (updated) => this.onActionSuccess(updated, 'Image supprimee avec succes.'),
+          next: (updated) => this.onActionSuccess(updated, 'Image supprimée avec succès.'),
           error: (error) =>
             this.onActionError(error?.error?.message || "Suppression d'image impossible.")
         });
@@ -344,12 +388,16 @@ export class ProductCatalogPageComponent {
     return `${this.assetBaseUrl}${imagePath}`;
   }
 
+  publicationLabel(product: ProductDto) {
+    return product.isPublished ? 'Publié' : 'Non publié';
+  }
+
   private executeSave(productId: string) {
     const value = this.editForm.getRawValue();
     const basePrice = Number(value.price ?? 0);
 
     if (value.salePrice !== null && value.salePrice > basePrice) {
-      this.onActionError('Le prix promo ne peut pas depasser le prix de base.');
+      this.onActionError('Le prix promo ne peut pas dépasser le prix de base.');
       return;
     }
 
@@ -380,9 +428,9 @@ export class ProductCatalogPageComponent {
       .updateMine(productId, payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (updated) => this.onActionSuccess(updated, 'Produit mis a jour avec succes.'),
+        next: (updated) => this.onActionSuccess(updated, 'Produit mis à jour avec succès.'),
         error: (error) =>
-          this.onActionError(error?.error?.message || 'Mise a jour produit impossible.')
+          this.onActionError(error?.error?.message || 'Mise à jour du produit impossible.')
       });
   }
 
@@ -393,7 +441,7 @@ export class ProductCatalogPageComponent {
       .subscribe({
         next: () => {
           this.products.update((items) => items.filter((item) => item._id !== productId));
-          this.successMessage.set('Produit supprime avec succes.');
+          this.successMessage.set('Produit supprimé avec succès.');
           this.actionLoading.set(false);
           this.confirmAction.set(null);
           this.closeEditModal();
