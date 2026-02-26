@@ -1,0 +1,350 @@
+.admin-dashboard {
+  display: grid;
+  gap: 14px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 900;
+  color: color-mix(in oklab, var(--primary) 60%, var(--muted));
+}
+
+h1 {
+  margin: 4px 0 0;
+  font-size: clamp(24px, 2.5vw, 32px);
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.period-switch {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px;
+  display: inline-flex;
+  gap: 8px;
+  background: color-mix(in oklab, var(--surface) 85%, var(--surface-soft) 15%);
+}
+
+.period-switch button {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 800;
+  padding: 7px 13px;
+  cursor: pointer;
+}
+
+.period-switch button.active {
+  border-color: color-mix(in oklab, var(--primary) 42%, var(--border));
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface));
+  color: var(--text);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.kpi {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: grid;
+  gap: 5px;
+}
+
+.kpi span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.kpi strong {
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.kpi small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.kpi.primary {
+  background:
+    radial-gradient(circle at 10% 90%, color-mix(in oklab, #22c55e 22%, transparent), transparent 42%),
+    radial-gradient(circle at 90% 15%, color-mix(in oklab, #06b6d4 20%, transparent), transparent 44%),
+    var(--surface);
+}
+
+.kpi.warning strong {
+  color: color-mix(in oklab, #b3261e 64%, var(--text));
+}
+
+.main-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.panel:nth-child(1),
+.panel:nth-child(2) {
+  grid-column: span 6;
+}
+
+.panel:nth-child(n + 3) {
+  grid-column: span 4;
+}
+
+.panel header h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.panel header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-list,
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.status-row {
+  display: grid;
+  gap: 6px;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.track {
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 70%, var(--surface-soft) 30%);
+  overflow: hidden;
+}
+
+.track span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 100%);
+}
+
+.row {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px;
+  display: grid;
+  gap: 7px;
+}
+
+.row > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.value {
+  font-weight: 900;
+}
+
+.row small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.row-inline {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.row-inline strong {
+  font-weight: 900;
+}
+
+.mini {
+  gap: 6px;
+}
+
+.alert-group {
+  display: grid;
+  gap: 6px;
+}
+
+.alert-group h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.review {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.review small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.chip {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.chip.scheduled {
+  background: color-mix(in oklab, #3b82f6 14%, var(--surface));
+}
+
+.chip.preparing {
+  background: color-mix(in oklab, #f59e0b 14%, var(--surface));
+}
+
+.chip.ready {
+  background: color-mix(in oklab, #14b8a6 14%, var(--surface));
+}
+
+.chip.out_for_delivery {
+  background: color-mix(in oklab, #8b5cf6 13%, var(--surface));
+}
+
+.chip.delivered {
+  background: color-mix(in oklab, #22c55e 15%, var(--surface));
+}
+
+.chip.rejected {
+  background: color-mix(in oklab, #ef4444 14%, var(--surface));
+}
+
+.feedback {
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.feedback.error {
+  border: 1px solid color-mix(in oklab, #b3261e 35%, var(--border));
+  background: color-mix(in oklab, #b3261e 8%, var(--surface));
+  color: color-mix(in oklab, #b3261e 72%, var(--text));
+}
+
+.loading {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.line {
+  height: 12px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface-soft) 80%, var(--border));
+}
+
+.line.short {
+  width: 45%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.grid span {
+  height: 70px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--surface-soft) 75%, var(--border));
+}
+
+.empty {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .panel:nth-child(1),
+  .panel:nth-child(2),
+  .panel:nth-child(n + 3) {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 760px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel:nth-child(1),
+  .panel:nth-child(2),
+  .panel:nth-child(n + 3) {
+    grid-column: span 1;
+  }
+
+  .period-switch {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

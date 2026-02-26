@@ -1,0 +1,184 @@
+<section class="admin-dashboard">
+  <header class="header">
+    <div>
+      <p class="eyebrow">Admin Control</p>
+      <h1>Dashboard Administrateur</h1>
+      <p class="sub">Pilotage global des ventes, finances, boutiques et qualité de service.</p>
+    </div>
+    <div class="period-switch">
+      @for (option of periodChoices; track option) {
+        <button type="button" [class.active]="periodDays() === option" (click)="changePeriod(option)">
+          {{ option }} jours
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <section class="loading">
+      <div class="line"></div>
+      <div class="line short"></div>
+      <div class="grid">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </section>
+  } @else if (dashboard(); as vm) {
+    <section class="kpi-grid">
+      <article class="kpi primary">
+        <span>CA plateforme</span>
+        <strong>{{ vm.kpis.revenueTotal | number: '1.0-0' }} MGA</strong>
+        <small>{{ vm.kpis.ordersTotal }} commandes</small>
+      </article>
+      <article class="kpi">
+        <span>Commissions</span>
+        <strong>{{ vm.kpis.commissionCollected | number: '1.0-0' }} MGA</strong>
+        <small>Sur la période</small>
+      </article>
+      <article class="kpi warning">
+        <span>Impayés totaux</span>
+        <strong>{{ vm.kpis.totalOutstanding | number: '1.0-0' }} MGA</strong>
+        <small>Loyer + électricité + pénalités</small>
+      </article>
+      <article class="kpi">
+        <span>Taux livraison</span>
+        <strong>{{ vm.kpis.deliverySuccessRate | number: '1.0-1' }}%</strong>
+        <small>Rejet: {{ vm.kpis.rejectionRate | number: '1.0-1' }}%</small>
+      </article>
+      <article class="kpi">
+        <span>Boutiques</span>
+        <strong>{{ vm.kpis.boutiquesActive }}/{{ vm.kpis.boutiquesTotal }}</strong>
+        <small>{{ vm.kpis.boutiquesSuspended }} suspendues</small>
+      </article>
+      <article class="kpi">
+        <span>Occupation boxes</span>
+        <strong>{{ vm.kpis.occupiedBoxes }}/{{ vm.kpis.occupiedBoxes + vm.kpis.availableBoxes }}</strong>
+        <small>{{ vm.kpis.availableBoxes }} disponibles</small>
+      </article>
+    </section>
+
+    <section class="main-grid">
+      <article class="panel">
+        <header>
+          <h2>Statuts des commandes</h2>
+          <p>Vue consolidée de la période</p>
+        </header>
+        <div class="status-list">
+          @for (item of vm.charts.statusBreakdown; track trackByStatus($index, item)) {
+            <div class="status-row">
+              <div class="meta">
+                <span class="chip" [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
+                <strong>{{ item.count }}</strong>
+              </div>
+              <div class="track"><span [style.width.%]="statusPercent(item)"></span></div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header>
+          <h2>Top boutiques par CA</h2>
+          <p>Classement des revenus</p>
+        </header>
+        <div class="list">
+          @for (row of vm.rankings.topRevenueBoutiques; track row.boutiqueId) {
+            <div class="row">
+              <div>
+                <strong>{{ row.boutiqueName }}</strong>
+                <small>{{ row.orders }} commandes</small>
+              </div>
+              <div class="value">{{ row.revenue | number: '1.0-0' }} MGA</div>
+              <div class="track"><span [style.width.%]="revenueWidth(row.revenue)"></span></div>
+            </div>
+          } @empty {
+            <p class="empty">Aucune donnée.</p>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header>
+          <h2>Top dettes boutiques</h2>
+          <p>Reste à payer</p>
+        </header>
+        <div class="list mini">
+          @for (row of vm.rankings.topDebtBoutiques; track row.boutiqueId) {
+            <div class="row-inline">
+              <span>{{ row.boutiqueName }}</span>
+              <strong>{{ row.debt | number: '1.0-0' }} MGA</strong>
+            </div>
+          } @empty {
+            <p class="empty">Aucune dette détectée.</p>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header>
+          <h2>Alertes opérationnelles</h2>
+          <p>Points à surveiller immédiatement</p>
+        </header>
+        <div class="alert-group">
+          <h3>Rejets élevés</h3>
+          @for (alert of vm.alerts.highRejectionBoutiques; track alert.boutiqueId) {
+            <div class="row-inline">
+              <span>{{ alert.boutiqueName }}</span>
+              <strong>{{ alert.rejectionRate | number: '1.0-1' }}%</strong>
+            </div>
+          } @empty {
+            <p class="empty">Aucune alerte de rejet.</p>
+          }
+        </div>
+        <div class="alert-group">
+          <h3>Stocks faibles</h3>
+          @for (alert of vm.alerts.lowStockBoutiques; track alert.boutiqueId) {
+            <div class="row-inline">
+              <span>{{ alert.boutiqueName }}</span>
+              <strong>{{ alert.lowStockCount }}</strong>
+            </div>
+          } @empty {
+            <p class="empty">Aucune alerte stock.</p>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header>
+          <h2>Satisfaction client</h2>
+          <p>Note globale: {{ vm.satisfaction.averageRating | number: '1.0-1' }}/5 ({{ vm.satisfaction.reviewsCount }} avis)</p>
+        </header>
+        <div class="list mini">
+          @for (review of vm.satisfaction.recentReviews; track review.id) {
+            <div class="review">
+              <strong>{{ review.boutiqueName }}</strong>
+              <small>{{ review.author }} • {{ review.rating }}/5</small>
+            </div>
+          } @empty {
+            <p class="empty">Aucun avis récent.</p>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header>
+          <h2>Occupation par étage</h2>
+          <p>Boxes occupés vs libres</p>
+        </header>
+        <div class="list mini">
+          @for (floor of vm.charts.floorOccupancy; track floor.floor) {
+            <div class="row-inline">
+              <span>{{ floor.floor === 0 ? 'Rez-de-chaussée' : ('Étage ' + floor.floor) }}</span>
+              <strong>{{ floor.occupied }}/{{ floor.total }}</strong>
+            </div>
+          } @empty {
+            <p class="empty">Aucun box enregistré.</p>
+          }
+        </div>
+      </article>
+    </section>
+  }
+</section>

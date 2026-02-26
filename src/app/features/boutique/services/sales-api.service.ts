@@ -9,6 +9,7 @@ import {
   DeliverySettingsResponseDto,
   PaginationMeta
 } from '../models/sales.models';
+import { BoutiqueDashboardDto } from '../models/dashboard.models';
 
 interface SuccessResponse<T> {
   success: boolean;
@@ -84,5 +85,12 @@ export class SalesApiService {
       `${this.baseUrl}/boutique/delivery-capacity`,
       { params: query }
     );
+  }
+
+  getBoutiqueDashboard(days = 30) {
+    const params = new HttpParams().set('days', String(days));
+    return this.http.get<SuccessResponse<BoutiqueDashboardDto>>(`${this.baseUrl}/boutique/dashboard`, {
+      params
+    });
   }
 }
