@@ -116,3 +116,60 @@ export interface BillingPaymentResponse {
   message: string;
   summary: BillingSummaryDto;
 }
+
+export type BillingRenewalDecision = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface BillingRenewalTerms {
+  durationMonths: number;
+  monthlyRent: number;
+  penaltyFee: number;
+  penaltyGrowthFactor: number;
+  terminationFee: number;
+  onlineSalesCommissionPercent: number;
+  notes?: string;
+}
+
+export interface BillingRenewalRequestDto {
+  _id: string;
+  requestedTerms: BillingRenewalTerms;
+  requestNote?: string;
+  adminDecision: BillingRenewalDecision;
+  reviewNote?: string;
+  reviewedAt?: string | null;
+  settlementSnapshot?: {
+    outstandingTotal: number;
+    rentOutstanding: number;
+    electricityOutstanding: number;
+    penaltyOutstanding: number;
+  } | null;
+  currentContract: {
+    _id: string;
+    startDate: string;
+    endDate: string;
+    durationMonths: number;
+    monthlyRent: number;
+    penaltyFee: number;
+    penaltyGrowthFactor: number;
+    terminationFee: number;
+    onlineSalesCommissionPercent: number;
+    notes?: string;
+    status: string;
+  } | null;
+  approvedContract?: {
+    _id: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+  } | null;
+  createdAt: string;
+}
+
+export interface BillingRenewalPaginatedResponse {
+  data: BillingRenewalRequestDto[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}

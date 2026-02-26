@@ -86,6 +86,25 @@ select {
   cursor: pointer;
 }
 
+input,
+textarea {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+input {
+  height: 40px;
+  padding: 0 12px;
+}
+
+textarea {
+  padding: 10px 12px;
+  resize: vertical;
+}
+
 .btn-secondary[disabled],
 .btn-primary[disabled] {
   opacity: 0.6;
@@ -285,6 +304,33 @@ select {
   grid-column: 1 / -1;
 }
 
+.renewal-panel {
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: color-mix(in oklab, var(--surface) 90%, var(--primary) 6%);
+}
+
+.renewal-head {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.renewal-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.renewal-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .table-wrap {
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -432,6 +478,63 @@ tbody tr:hover {
   margin-top: 14px;
 }
 
+.renewal-modal {
+  padding: 18px;
+}
+
+.wizard-grid {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wizard-block {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--surface) 92%, var(--surface-soft) 8%);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.wizard-block h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.wizard-block p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.wizard-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wizard-form .full {
+  grid-column: 1 / -1;
+}
+
+.wizard-block label {
+  display: grid;
+  gap: 6px;
+}
+
+.wizard-block label span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 @media (max-width: 1024px) {
   .dues-grid,
   .contract-grid {
@@ -451,7 +554,9 @@ tbody tr:hover {
 
   .dues-grid,
   .contract-grid,
-  .modal-grid {
+  .modal-grid,
+  .wizard-grid,
+  .wizard-form {
     grid-template-columns: 1fr;
   }
 

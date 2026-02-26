@@ -9,6 +9,7 @@ import { BillingApiService } from '../services/billing-api.service';
 import {
   BillingCommissionItem,
   BillingInvoiceDto,
+  BillingRenewalRequestDto,
   BillingSummaryDto,
   BillingTraceDto
 } from '../models/billing.models';
@@ -42,9 +43,23 @@ export class BoutiqueBillingPageComponent {
   readonly summary = signal<BillingSummaryDto | null>(null);
   readonly invoices = signal<BillingInvoiceDto[]>([]);
   readonly traces = signal<BillingTraceDto[]>([]);
+  readonly renewalRequests = signal<BillingRenewalRequestDto[]>([]);
   readonly selectedInvoice = signal<BillingInvoiceDto | null>(null);
   readonly selectedCommission = signal<BillingCommissionItem | null>(null);
   readonly showPenaltyDetails = signal(false);
+  readonly showRenewalWizard = signal(false);
+  readonly renewalSubmitting = signal(false);
+
+  readonly renewalForm = signal({
+    durationMonths: 12,
+    monthlyRent: 0,
+    penaltyFee: 0,
+    penaltyGrowthFactor: 1,
+    terminationFee: 0,
+    onlineSalesCommissionPercent: 0,
+    notes: '',
+    requestNote: ''
+  });
 
   readonly months = [
     { value: 1, label: 'Janvier' },
@@ -96,6 +111,8 @@ export class BoutiqueBillingPageComponent {
       this.unpaidOtherMonths()
     );
   });
+
+  readonly hasOutstandingDue = computed(() => this.totalToPayExtended() > 0);
 
   readonly contractTimeline = computed(() => {
     const contract = this.summary()?.contract;
@@ -180,6 +197,8 @@ export class BoutiqueBillingPageComponent {
           this.summary.set(summary);
           this.invoices.set(invoices ?? []);
           this.traces.set(traces ?? []);
+          this.seedRenewalFormFromContract(summary);
+          this.loadRenewals();
           this.loading.set(false);
         },
         error: (error) => {
@@ -253,6 +272,85 @@ export class BoutiqueBillingPageComponent {
     this.showPenaltyDetails.set(false);
   }
 
+  openRenewalWizard() {
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+    this.showRenewalWizard.set(true);
+  }
+
+  closeRenewalWizard() {
+    this.showRenewalWizard.set(false);
+    this.renewalSubmitting.set(false);
+  }
+
+  loadRenewals() {
+    this.api
+      .listMyRenewalRequests()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.renewalRequests.set(res.data ?? []);
+        },
+        error: () => {
+          this.renewalRequests.set([]);
+        }
+      });
+  }
+
+  updateRenewalField(
+    field:
+      | 'durationMonths'
+      | 'monthlyRent'
+      | 'penaltyFee'
+      | 'penaltyGrowthFactor'
+      | 'terminationFee'
+      | 'onlineSalesCommissionPercent'
+      | 'notes'
+      | 'requestNote',
+    value: number | string
+  ) {
+    this.renewalForm.update((prev) => ({ ...prev, [field]: value }));
+  }
+
+  submitRenewalRequest() {
+    if (this.hasOutstandingDue()) {
+      this.errorMessage.set('Demande impossible: le solde dû doit être à 0.');
+      return;
+    }
+
+    const form = this.renewalForm();
+    this.renewalSubmitting.set(true);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+
+    this.api
+      .createRenewalRequest({
+        requestedTerms: {
+          durationMonths: Number(form.durationMonths),
+          monthlyRent: Number(form.monthlyRent),
+          penaltyFee: Number(form.penaltyFee),
+          penaltyGrowthFactor: Number(form.penaltyGrowthFactor),
+          terminationFee: Number(form.terminationFee),
+          onlineSalesCommissionPercent: Number(form.onlineSalesCommissionPercent),
+          notes: form.notes || ''
+        },
+        requestNote: form.requestNote || ''
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.renewalSubmitting.set(false);
+          this.showRenewalWizard.set(false);
+          this.successMessage.set(res.message || 'Demande envoyée.');
+          this.loadRenewals();
+        },
+        error: (error) => {
+          this.renewalSubmitting.set(false);
+          this.errorMessage.set(error?.error?.message || 'Impossible d’envoyer la demande de renouvellement.');
+        }
+      });
+  }
+
   trackByInvoiceId(_index: number, invoice: BillingInvoiceDto) {
     return invoice._id;
   }
@@ -271,5 +369,21 @@ export class BoutiqueBillingPageComponent {
     const dayInMs = 24 * 60 * 60 * 1000;
     const delta = to.getTime() - from.getTime();
     return Math.max(0, Math.ceil(delta / dayInMs));
+  }
+
+  private seedRenewalFormFromContract(summary: BillingSummaryDto | null) {
+    const contract = summary?.contract;
+    if (!contract) return;
+
+    this.renewalForm.set({
+      durationMonths: Number(contract.durationMonths) || 12,
+      monthlyRent: Number(contract.monthlyRent) || 0,
+      penaltyFee: Number(contract.penaltyFee) || 0,
+      penaltyGrowthFactor: Math.max(1, Number(contract.penaltyGrowthFactor) || 1),
+      terminationFee: Number(contract.terminationFee) || 0,
+      onlineSalesCommissionPercent: Number(contract.onlineSalesCommissionPercent) || 0,
+      notes: contract.notes || '',
+      requestNote: ''
+    });
   }
 }
