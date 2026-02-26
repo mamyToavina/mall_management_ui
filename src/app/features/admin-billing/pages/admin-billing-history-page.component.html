@@ -1,0 +1,242 @@
+﻿<section class="billing-history-page">
+  <header class="page-header">
+    <h1>Historiques de facturation</h1>
+    <p>Sélectionnez d'abord une boutique pour afficher une analyse détaillée.</p>
+  </header>
+
+  <article class="panel">
+    <div class="filters">
+      <label>
+        <span>Mois</span>
+        <select [ngModel]="selectedMonth()" (ngModelChange)="selectedMonth.set($event)">
+          @for (month of months; track month.value) {
+            <option [ngValue]="month.value">{{ month.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        <span>Année</span>
+        <select [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)">
+          @for (year of years(); track year) {
+            <option [ngValue]="year">{{ year }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="actions">
+        <button type="button" class="btn" (click)="loadSummary()" [disabled]="loading()">
+          {{ loading() ? 'Chargement...' : 'Actualiser analyse' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab() === 'analysis'" (click)="setTab('analysis')">Analyse par boutique</button>
+      <button class="tab" [class.active]="activeTab() === 'globalTraces'" (click)="setTab('globalTraces')">Historique global</button>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="feedback error">{{ errorMessage() }}</p>
+    }
+  </article>
+
+  @if (activeTab() === 'analysis') {
+    @if (loading()) {
+      <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement en cours">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+        <span class="sr-only">Chargement en cours</span>
+      </div>
+    } @else {
+      <article class="panel selector-panel">
+        <h2>Boutiques</h2>
+        <label class="search-filter">
+          <span>Recherche boutique</span>
+          <input
+            class="search-filter-input"
+            type="text"
+            [ngModel]="boutiqueSearch()"
+            (ngModelChange)="boutiqueSearch.set($event)"
+            placeholder="Nom de la boutique..."
+          />
+        </label>
+
+        <div class="boutique-cards-row">
+          @for (row of filteredSummaries(); track trackBySummary($index, row)) {
+            <button
+              type="button"
+              class="boutique-item boutique-card"
+              [class.active]="isSelectedBoutique(row.boutique._id)"
+              (click)="pickBoutique(toId(row.boutique._id))"
+            >
+              <span class="boutique-name">{{ row.boutique.name }}</span>
+              <span class="boutique-due">Dû: {{ row.totals.due | number: '1.2-2' }} Ar</span>
+            </button>
+          } @empty {
+            <p class="empty">Aucune boutique pour cette période.</p>
+          }
+        </div>
+      </article>
+
+      <article class="panel detail-panel">
+        @if (selectedSummary(); as row) {
+          <header class="detail-head">
+            <h2>{{ row.boutique.name }}</h2>
+            <p>Période {{ row.filter.month }}/{{ row.filter.year }}</p>
+          </header>
+
+          <div class="kpis">
+            <div><span>Total du</span><strong>{{ row.totals.due | number: '1.2-2' }} Ar</strong></div>
+            <div><span>Déjà reçu</span><strong>{{ row.totals.received | number: '1.2-2' }} Ar</strong></div>
+            <div><span>Reste à payer</span><strong>{{ row.totals.remaining | number: '1.2-2' }} Ar</strong></div>
+          </div>
+
+          <h3>Détail principal</h3>
+          <div class="detail-grid">
+            <div>
+              <small>Reste loyer impayé (autres mois)</small>
+              <p>{{ row.details.arrearsOtherMonths.rent.remaining | number: '1.2-2' }} Ar</p>
+            </div>
+            <div>
+              <small>Reste JIRAMA impayé (autres mois)</small>
+              <p>{{ row.details.arrearsOtherMonths.electricity.remaining | number: '1.2-2' }} Ar</p>
+            </div>
+            <div>
+              <small>Loyer en cours (reste)</small>
+              <p>{{ row.details.currentMonth.rent.remaining | number: '1.2-2' }} Ar</p>
+            </div>
+            <div>
+              <small>JIRAMA en cours (reste)</small>
+              <p>{{ row.details.currentMonth.electricity.remaining | number: '1.2-2' }} Ar</p>
+            </div>
+            <div>
+              <small>Pénalités en cours (reste)</small>
+              <p>{{ row.details.currentMonth.penalty.remaining | number: '1.2-2' }} Ar</p>
+            </div>
+          </div>
+
+          <h3>Détail cycle par cycle</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mois/Année</th>
+                  <th>Loyer dû</th>
+                  <th>Loyer payé</th>
+                  <th>Loyer restant</th>
+                  <th>JIRAMA dû</th>
+                  <th>JIRAMA payé</th>
+                  <th>JIRAMA restant</th>
+                  <th>Pénalité due</th>
+                  <th>Pénalité payée</th>
+                  <th>Pénalité restante</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (cycle of row.details.cycles; track cycle.month + '-' + cycle.year) {
+                  <tr>
+                    <td>{{ cycle.month }}/{{ cycle.year }}</td>
+                    <td>{{ cycle.rent.due | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.rent.paid | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.rent.remaining | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.electricity.due | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.electricity.paid | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.electricity.remaining | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.penalty.due | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.penalty.paid | number: '1.2-2' }} Ar</td>
+                    <td>{{ cycle.penalty.remaining | number: '1.2-2' }} Ar</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="10">Aucune donnée de cycle.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="empty">Sélectionnez une boutique pour voir les détails.</p>
+        }
+      </article>
+    }
+  }
+
+  @if (activeTab() === 'globalTraces') {
+    <article class="panel">
+      <h2>Filtres historique global</h2>
+      <p class="filter-note">Période inclusive: date début incluse et date fin incluse.</p>
+      <div class="filters traces-filters">
+        <label>
+          <span>Date début</span>
+          <input type="date" [ngModel]="traceFromDate()" (ngModelChange)="traceFromDate.set($event)" />
+        </label>
+
+        <label>
+          <span>Date fin</span>
+          <input type="date" [ngModel]="traceToDate()" (ngModelChange)="traceToDate.set($event)" />
+        </label>
+
+        <label>
+          <span>Boutique</span>
+          <select [ngModel]="traceBoutiqueId()" (ngModelChange)="traceBoutiqueId.set($event)">
+            <option value="">Toutes les boutiques</option>
+            @for (row of summaries(); track trackBySummary($index, row)) {
+              <option [value]="toId(row.boutique._id)">{{ row.boutique.name }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="actions">
+          <button type="button" class="btn" (click)="loadGlobalTraces()" [disabled]="tracesLoading()">
+            {{ tracesLoading() ? 'Chargement...' : 'Filtrer traces' }}
+          </button>
+        </div>
+      </div>
+
+      @if (tracesErrorMessage()) {
+        <p class="feedback error">{{ tracesErrorMessage() }}</p>
+      }
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Boutique</th>
+              <th>Catégorie</th>
+              <th>Action</th>
+              <th>Auto</th>
+              <th>Montant</th>
+              <th>Prélevé</th>
+              <th>Reste</th>
+              <th>Raison</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (tracesLoading()) {
+              <tr><td colspan="9">Chargement des traces...</td></tr>
+            } @else {
+              @for (trace of traces(); track trackByTrace($index, trace)) {
+                <tr>
+                  <td>{{ trace.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ trace.boutique?.name || '-' }}</td>
+                  <td>{{ trace.category }}</td>
+                  <td>{{ trace.action }}</td>
+                  <td>{{ trace.automatic ? 'Oui' : 'Non' }}</td>
+                  <td>{{ trace.amount | number: '1.2-2' }} Ar</td>
+                  <td>{{ trace.paidAmount | number: '1.2-2' }} Ar</td>
+                  <td>{{ trace.remainingAmount | number: '1.2-2' }} Ar</td>
+                  <td>{{ trace.reason || '-' }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="9">Aucune trace pour ce filtre.</td></tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  }
+</section>
