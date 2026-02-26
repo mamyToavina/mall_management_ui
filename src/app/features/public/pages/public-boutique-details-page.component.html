@@ -32,9 +32,38 @@
         <p class="slogan">{{ shop.slogan }}</p>
         <p class="desc">{{ shop.description }}</p>
 
+        <div class="hero-insights">
+          <article class="insight-card">
+            <h3>Ou nous trouver</h3>
+            @if (shop.boxNumber && shop.boxFloor !== null) {
+              <p>Box {{ shop.boxNumber }} - {{ boxFloorLabel(shop.boxFloor) }}</p>
+            } @else {
+              <p>{{ shop.locationDescription }}</p>
+            }
+          </article>
+          <article class="insight-card">
+            <h3>Ce que nous proposons</h3>
+            <p>{{ shop.offerings }}</p>
+          </article>
+          <article class="insight-card">
+            <h3>Notre promesse</h3>
+            <p>{{ shop.marketingTagline }}</p>
+          </article>
+        </div>
+
         <div class="stats">
-          <span>{{ averageRating() }} ★</span>
-          <span>{{ shop.reviewsCount + reviews().length }} avis</span>
+          <span class="rating-inline">
+            <span class="display-stars" aria-hidden="true">
+              <span
+                class="display-star"
+                *ngFor="let star of starScale"
+                [class.filled]="isStarFilled(averageRating(), star)"
+              >
+                &#9733;
+              </span>
+            </span>
+          </span>
+          <span>{{ shop.reviewsCount }} avis</span>
         </div>
       </div>
     </article>
@@ -71,52 +100,83 @@
     <section class="reviews">
       <h2>Noter la boutique et laisser un avis</h2>
 
+      @if (!isAuthenticated()) {
+        <p>Connectez-vous pour noter et publier un avis.</p>
+      }
+      @if (reviewError()) {
+        <p>{{ reviewError() }}</p>
+      }
+      @if (reviewSuccess()) {
+        <p>{{ reviewSuccess() }}</p>
+      }
+
       <div class="stars" role="radiogroup" aria-label="Note boutique">
         <button
           type="button"
           *ngFor="let star of [1, 2, 3, 4, 5]"
           [class.active]="star <= selectedRating()"
           (click)="setRating(star)"
+          [disabled]="!isAuthenticated()"
           [attr.aria-label]="star + ' etoiles'"
         >
-          ★
+          &#9733;
         </button>
       </div>
 
       <form class="review-form" (ngSubmit)="submitReview()">
-        <input
-          type="text"
-          name="author"
-          placeholder="Votre nom"
-          [ngModel]="reviewAuthor()"
-          (ngModelChange)="reviewAuthor.set($event)"
-          required
-        />
-
         <textarea
           name="message"
           rows="3"
           placeholder="Partagez votre experience"
           [ngModel]="reviewMessage()"
           (ngModelChange)="reviewMessage.set($event)"
+          [disabled]="!isAuthenticated() || isSubmittingReview()"
           required
         ></textarea>
 
-        <button type="submit" [disabled]="!selectedRating() || !reviewAuthor().trim() || !reviewMessage().trim()">
-          Publier l avis
+        <button
+          type="submit"
+          [disabled]="!isAuthenticated() || !selectedRating() || !reviewMessage().trim() || isSubmittingReview()"
+        >
+          {{ isSubmittingReview() ? 'Publication...' : 'Publier l avis' }}
         </button>
       </form>
 
-      <div class="review-list">
-        <article class="review-item" *ngFor="let review of reviews()">
-          <div class="head">
-            <strong>{{ review.author }}</strong>
-            <span>{{ review.rating }} ★</span>
-          </div>
-          <p>{{ review.message }}</p>
-          <small>{{ review.createdAt | date: 'mediumDate' }}</small>
-        </article>
-      </div>
+      @if (reviewsLoading()) {
+        <p>Chargement des avis...</p>
+      } @else {
+        <div class="review-list">
+          <article class="review-item" *ngFor="let review of reviews()">
+            <div class="head">
+              <div class="review-author">
+                <img
+                  class="review-avatar"
+                  [src]="review.author.avatar || defaultReviewerAvatar"
+                  [alt]="review.author.pseudo"
+                  loading="lazy"
+                  (error)="onReviewerAvatarError($event)"
+                />
+                <strong>{{ review.author.pseudo }}</strong>
+              </div>
+              <span class="display-stars" [attr.aria-label]="review.rating + ' etoiles'">
+                <span
+                  class="display-star"
+                  *ngFor="let star of starScale"
+                  [class.filled]="isStarFilled(review.rating, star)"
+                >
+                  &#9733;
+                </span>
+              </span>
+            </div>
+            <p>{{ review.comment }}</p>
+            <small>{{ review.createdAt | date: 'mediumDate' }}</small>
+          </article>
+
+          @if (!reviews().length) {
+            <p>Aucun avis pour le moment.</p>
+          }
+        </div>
+      }
     </section>
   </section>
 } @else {

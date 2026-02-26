@@ -35,11 +35,10 @@ export class PublicLayoutComponent {
   private fallbackAvatarFailed = false;
   private lastAvatarKey = '';
 
-  creditHistory = [
-    { date: '2026-02-25 10:30', label: 'Recharge code mobile', amount: +20000 },
-    { date: '2026-02-21 15:12', label: 'Achat en boutique', amount: -12000 },
-    { date: '2026-02-18 09:40', label: 'Recharge code mobile', amount: +50000 }
-  ];
+  creditHistory: Array<{ date: string; label: string; amount: number }> = [];
+  creditHistoryLoading = false;
+  creditHistoryMeta = { total: 0, page: 1, limit: 5, pages: 1 };
+  creditHistoryError = '';
   profileLoading = false;
   profileFetching = false;
   profileMessage = '';
@@ -115,7 +114,9 @@ export class PublicLayoutComponent {
     this.creditLoading = false;
     this.creditMessage = '';
     this.creditError = '';
+    this.creditHistoryError = '';
     this.isCreditModalOpen = true;
+    this.loadCreditHistory(1);
   }
 
   openProfileModal(): void {
@@ -353,6 +354,7 @@ export class PublicLayoutComponent {
           res?.message ||
           `Credit ajoute avec succes: +${usedValue.toLocaleString('fr-FR')} Ar.`;
         this.creditCode = '';
+        this.loadCreditHistory(1);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -385,11 +387,67 @@ export class PublicLayoutComponent {
     });
   }
 
+  previousCreditHistoryPage(): void {
+    if (this.creditHistoryLoading || this.creditHistoryMeta.page <= 1) return;
+    this.loadCreditHistory(this.creditHistoryMeta.page - 1);
+  }
+
+  nextCreditHistoryPage(): void {
+    if (this.creditHistoryLoading || this.creditHistoryMeta.page >= this.creditHistoryMeta.pages) return;
+    this.loadCreditHistory(this.creditHistoryMeta.page + 1);
+  }
+
   private syncAvatarState(): void {
     const currentKey = `${this.store.user()?.id || ''}|${this.avatarUrl || ''}`;
     if (this.lastAvatarKey === currentKey) return;
     this.lastAvatarKey = currentKey;
     this.avatarLoadFailed = false;
     this.fallbackAvatarFailed = false;
+  }
+
+  private loadCreditHistory(page: number): void {
+    this.creditHistoryLoading = true;
+    this.creditHistoryError = '';
+
+    this.creditService.getMyHistory(page, 5).subscribe({
+      next: (res) => {
+        const rows = (res?.data || []).map((credit) => {
+          const when = credit.usedAt || credit.createdAt || new Date().toISOString();
+          const date = new Date(when);
+          return {
+            date: Number.isNaN(date.getTime())
+              ? ''
+              : date.toLocaleString('fr-FR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }),
+            label: `Recharge code ${credit.code}`,
+            amount: Number(credit.value || 0)
+          };
+        });
+
+        this.creditHistory = rows;
+        this.creditHistoryMeta = {
+          total: Number(res?.meta?.total || 0),
+          page: Number(res?.meta?.page || page || 1),
+          limit: Number(res?.meta?.limit || 5),
+          pages: Math.max(1, Number(res?.meta?.pages || 1))
+        };
+        this.creditHistoryLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.creditHistory = [];
+        this.creditHistoryMeta = { total: 0, page: 1, limit: 5, pages: 1 };
+        this.creditHistoryError =
+          err?.error?.message ||
+          'Impossible de charger l historique de credit.';
+        this.creditHistoryLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

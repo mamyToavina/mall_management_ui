@@ -25,6 +25,7 @@ export class PublicBoutiquesPageComponent {
   readonly loading = signal(false);
   readonly defaultBoutiqueLogo = this.api.defaultBoutiqueLogo;
   readonly defaultBoutiqueCover = this.api.defaultBoutiqueCover;
+  readonly starScale = [1, 2, 3, 4, 5] as const;
 
   constructor() {
     this.title.setTitle('TI Commercial | Boutiques');
@@ -60,6 +61,11 @@ export class PublicBoutiquesPageComponent {
       name: item.name,
       slogan: item.slogan,
       activity: item.activity,
+      boxNumber: null,
+      boxFloor: null,
+      offerings: item.description,
+      marketingTagline: item.slogan,
+      locationDescription: `Retrouvez-nous dans TI Commercial, espace ${item.name}.`,
       description: item.description,
       rating: item.rating,
       reviewsCount: item.reviewsCount,
@@ -79,5 +85,17 @@ export class PublicBoutiquesPageComponent {
     const img = event.target as HTMLImageElement | null;
     if (!img || img.src.endsWith(this.defaultBoutiqueLogo)) return;
     img.src = this.defaultBoutiqueLogo;
+  }
+
+  boxFloorLabel(floor: number | null): string {
+    if (floor === null || floor === undefined) return '';
+    if (floor === 0) return 'rez-de-chaussee';
+    if (floor === 1) return '1er etage';
+    return `${floor}e etage`;
+  }
+
+  isStarFilled(value: number, star: number): boolean {
+    const normalized = Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+    return star <= normalized;
   }
 }

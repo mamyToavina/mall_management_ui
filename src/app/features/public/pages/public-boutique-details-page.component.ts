@@ -1,21 +1,20 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Meta, Title } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { Meta, Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { PublicBoutiqueDto, PublicBoutiqueProductDto } from '../models/public-catalog.models';
+import { AuthStore } from '../../../core/auth/auth.store';
+import { BOUTIQUES, BOUTIQUE_PRODUCTS, PROMO_PRODUCTS } from '../data/public-content.data';
+import {
+  PublicBoutiqueDto,
+  PublicBoutiqueProductDto,
+  PublicBoutiqueReviewDto
+} from '../models/public-catalog.models';
 import { PublicCatalogApiService } from '../services/public-catalog-api.service';
 import { PublicCartStore } from '../services/public-cart.store';
-import { BOUTIQUES, BOUTIQUE_PRODUCTS, PROMO_PRODUCTS } from '../data/public-content.data';
-
-type BoutiqueReview = {
-  author: string;
-  rating: number;
-  message: string;
-  createdAt: string;
-};
 
 @Component({
   selector: 'app-public-boutique-details-page',
@@ -26,49 +25,34 @@ type BoutiqueReview = {
 })
 export class PublicBoutiqueDetailsPageComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly api = inject(PublicCatalogApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authStore = inject(AuthStore);
 
   readonly cart = inject(PublicCartStore);
 
   readonly boutiqueId = signal(this.route.snapshot.paramMap.get('id') ?? '');
   readonly boutique = signal<PublicBoutiqueDto | null>(null);
   readonly products = signal<PublicBoutiqueProductDto[]>([]);
+  readonly reviews = signal<PublicBoutiqueReviewDto[]>([]);
   readonly loading = signal(true);
+  readonly reviewsLoading = signal(false);
   readonly defaultPromotionImage = this.api.defaultPromotionImage;
   readonly defaultBoutiqueLogo = this.api.defaultBoutiqueLogo;
   readonly defaultBoutiqueCover = this.api.defaultBoutiqueCover;
-
-  readonly reviews = signal<BoutiqueReview[]>([
-    {
-      author: 'Sonia R.',
-      rating: 5,
-      message: 'Equipe tres pro, tres bon accueil et produits conformes.',
-      createdAt: '2026-02-10'
-    },
-    {
-      author: 'Mickael T.',
-      rating: 4,
-      message: 'Belle qualite de service, je recommande pour les promos du week-end.',
-      createdAt: '2026-02-05'
-    }
-  ]);
+  readonly defaultReviewerAvatar = '/assets/avatar-default-other.svg';
+  readonly starScale = [1, 2, 3, 4, 5] as const;
 
   readonly selectedRating = signal(0);
-  readonly reviewAuthor = signal('');
   readonly reviewMessage = signal('');
-
-  readonly averageRating = computed(() => {
-    const current = this.boutique()?.rating ?? 0;
-    const local = this.reviews();
-
-    if (!local.length) return current;
-
-    const total = local.reduce((acc, review) => acc + review.rating, current);
-    return Number((total / (local.length + 1)).toFixed(1));
-  });
+  readonly reviewError = signal('');
+  readonly reviewSuccess = signal('');
+  readonly isSubmittingReview = signal(false);
+  readonly isAuthenticated = computed(() => this.authStore.isAuthenticated());
+  readonly averageRating = computed(() => Number((this.boutique()?.rating ?? 0).toFixed(1)));
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
@@ -79,29 +63,47 @@ export class PublicBoutiqueDetailsPageComponent {
   }
 
   setRating(rating: number): void {
+    if (!this.isAuthenticated()) return;
     this.selectedRating.set(rating);
   }
 
+  isStarFilled(value: number, star: number): boolean {
+    const normalized = Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+    return star <= normalized;
+  }
+
   submitReview(): void {
+    if (!this.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const id = this.boutiqueId();
     const rating = this.selectedRating();
-    const author = this.reviewAuthor().trim();
     const message = this.reviewMessage().trim();
+    if (!id || !rating || !message || this.isSubmittingReview()) return;
 
-    if (!rating || !author || !message) return;
+    this.reviewError.set('');
+    this.reviewSuccess.set('');
+    this.isSubmittingReview.set(true);
 
-    this.reviews.update((current) => [
-      {
-        author,
-        rating,
-        message,
-        createdAt: new Date().toISOString().slice(0, 10)
-      },
-      ...current
-    ]);
-
-    this.selectedRating.set(0);
-    this.reviewAuthor.set('');
-    this.reviewMessage.set('');
+    this.api
+      .upsertMyBoutiqueReview(id, { rating, comment: message })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.selectedRating.set(0);
+          this.reviewMessage.set('');
+          this.reviewSuccess.set('Votre avis a ete publie.');
+          this.loadReviews(id);
+          this.refreshBoutiqueSummary(id);
+          this.isSubmittingReview.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.reviewError.set(err.error?.message || 'Impossible de publier votre avis.');
+          this.isSubmittingReview.set(false);
+        }
+      });
   }
 
   addToCart(productId: string): void {
@@ -123,10 +125,13 @@ export class PublicBoutiqueDetailsPageComponent {
     if (!id) {
       this.boutique.set(null);
       this.products.set([]);
+      this.reviews.set([]);
       return;
     }
 
     this.loading.set(true);
+    this.reviewError.set('');
+    this.reviewSuccess.set('');
 
     this.api
       .getPublicBoutiqueById(id)
@@ -141,12 +146,14 @@ export class PublicBoutiqueDetailsPageComponent {
             content: `${shop.name} - ${shop.activity}. ${shop.description}`
           });
           this.loadProducts(id);
+          this.loadReviews(id);
         },
         error: () => {
           const fallbackShop = this.toFallbackBoutique(id) || this.toSyntheticBoutiqueFromQuery(id);
           if (!fallbackShop) {
             this.boutique.set(null);
             this.products.set([]);
+            this.reviews.set([]);
             this.loading.set(false);
             this.title.setTitle('TI Commercial | Boutique');
             this.meta.updateTag({
@@ -163,12 +170,24 @@ export class PublicBoutiqueDetailsPageComponent {
               ? fallbackProducts
               : this.toFallbackProductsByBoutiqueName(fallbackShop.name)
           );
+          this.reviews.set([]);
           this.loading.set(false);
           this.title.setTitle(`TI Commercial | ${fallbackShop.name}`);
           this.meta.updateTag({
             name: 'description',
             content: `${fallbackShop.name} - ${fallbackShop.activity}. ${fallbackShop.description}`
           });
+        }
+      });
+  }
+
+  private refreshBoutiqueSummary(id: string): void {
+    this.api
+      .getPublicBoutiqueById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.boutique.set(res.data);
         }
       });
   }
@@ -189,6 +208,23 @@ export class PublicBoutiqueDetailsPageComponent {
       });
   }
 
+  private loadReviews(id: string): void {
+    this.reviewsLoading.set(true);
+    this.api
+      .getPublicBoutiqueReviews(id, 1, 20)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.reviews.set(res.data || []);
+          this.reviewsLoading.set(false);
+        },
+        error: () => {
+          this.reviews.set([]);
+          this.reviewsLoading.set(false);
+        }
+      });
+  }
+
   private toFallbackBoutique(id: string): PublicBoutiqueDto | null {
     const item = BOUTIQUES.find((shop) => shop.id === id);
     if (!item) return null;
@@ -197,6 +233,11 @@ export class PublicBoutiqueDetailsPageComponent {
       name: item.name,
       slogan: item.slogan,
       activity: item.activity,
+      boxNumber: null,
+      boxFloor: null,
+      offerings: item.description,
+      marketingTagline: item.slogan,
+      locationDescription: `Retrouvez-nous dans TI Commercial, espace ${item.name}.`,
       description: item.description,
       rating: item.rating,
       reviewsCount: item.reviewsCount,
@@ -232,6 +273,11 @@ export class PublicBoutiqueDetailsPageComponent {
       name,
       slogan: `Bienvenue chez ${name}`,
       activity: activity || 'Boutique partenaire',
+      boxNumber: null,
+      boxFloor: null,
+      offerings: `Nous proposons une selection de produits ${activity || 'pour votre quotidien'}.`,
+      marketingTagline: 'Profitez de nos meilleures offres en boutique et en ligne.',
+      locationDescription: `Bienvenue chez ${name}, retrouvez-nous dans TI Commercial.`,
       description: 'Decouvrez les offres disponibles dans cette boutique.',
       rating: 0,
       reviewsCount: 0,
@@ -295,5 +341,18 @@ export class PublicBoutiqueDetailsPageComponent {
     const img = event.target as HTMLImageElement | null;
     if (!img || img.src.endsWith(this.defaultPromotionImage)) return;
     img.src = this.defaultPromotionImage;
+  }
+
+  onReviewerAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (!img || img.src.endsWith(this.defaultReviewerAvatar)) return;
+    img.src = this.defaultReviewerAvatar;
+  }
+
+  boxFloorLabel(floor: number | null): string {
+    if (floor === null || floor === undefined) return '';
+    if (floor === 0) return 'rez-de-chaussee';
+    if (floor === 1) return '1er etage';
+    return `${floor}e etage`;
   }
 }

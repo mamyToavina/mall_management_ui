@@ -9,8 +9,13 @@ import {
   PublicBoutiqueListResponseDto,
   PublicBoutiqueProductDto,
   PublicBoutiqueProductsResponseDto,
+  PublicGeneralSettingsDto,
+  PublicBoutiqueReviewDto,
+  PublicBoutiqueReviewListResponseDto,
   PublicPromotionDto,
-  PublicPromotionListResponseDto
+  PublicPromotionListResponseDto,
+  UpsertMyBoutiqueReviewPayload,
+  UpsertMyBoutiqueReviewResponseDto
 } from '../models/public-catalog.models';
 
 @Injectable({ providedIn: 'root' })
@@ -18,6 +23,8 @@ export class PublicCatalogApiService {
   private readonly http = inject(HttpClient);
   private readonly productsBaseUrl = `${environment.apiBaseUrl}/products/public`;
   private readonly boutiquesBaseUrl = `${environment.apiBaseUrl}/boutiques/public`;
+  private readonly reviewsBaseUrl = `${environment.apiBaseUrl}/reviews`;
+  private readonly settingsBaseUrl = `${environment.apiBaseUrl}/settings`;
   private readonly assetBaseUrl = environment.apiBaseUrl.replace(/\/api\/?$/, '');
   readonly defaultPromotionImage = '/assets/public-product-placeholder.svg';
   readonly defaultBoutiqueLogo = '/assets/public-boutique-logo-placeholder.svg';
@@ -70,6 +77,29 @@ export class PublicCatalogApiService {
       );
   }
 
+  getPublicGeneralSettings() {
+    return this.http.get<PublicGeneralSettingsDto>(`${this.settingsBaseUrl}/public`);
+  }
+
+  getPublicBoutiqueReviews(id: string, page = 1, limit = 20) {
+    const params = new HttpParams().set('page', String(page)).set('limit', String(limit));
+    return this.http
+      .get<PublicBoutiqueReviewListResponseDto>(`${this.reviewsBaseUrl}/boutiques/${id}`, { params })
+      .pipe(
+        map((res) => ({
+          ...res,
+          data: (res.data || []).map((item) => this.normalizeBoutiqueReview(item))
+        }))
+      );
+  }
+
+  upsertMyBoutiqueReview(id: string, payload: UpsertMyBoutiqueReviewPayload) {
+    return this.http.post<UpsertMyBoutiqueReviewResponseDto>(
+      `${this.reviewsBaseUrl}/boutiques/${id}`,
+      payload
+    );
+  }
+
   private normalizePromotion(item: PublicPromotionDto): PublicPromotionDto {
     return {
       ...item,
@@ -83,6 +113,13 @@ export class PublicCatalogApiService {
   private normalizeBoutique(item: PublicBoutiqueDto): PublicBoutiqueDto {
     return {
       ...item,
+      activity: item.activity || 'Boutique partenaire',
+      boxNumber: item.boxNumber || null,
+      boxFloor: Number.isFinite(Number(item.boxFloor)) ? Number(item.boxFloor) : null,
+      offerings: item.offerings || '',
+      marketingTagline: item.marketingTagline || '',
+      locationDescription: item.locationDescription || '',
+      description: item.description || '',
       logoUrl: this.toAbsoluteImageUrl(item.logoUrl, this.defaultBoutiqueLogo),
       coverUrl: this.toAbsoluteImageUrl(item.coverUrl, this.defaultBoutiqueCover),
       highlights: Array.isArray(item.highlights) ? item.highlights : []
@@ -96,6 +133,19 @@ export class PublicCatalogApiService {
       price: Number(item.price) || 0,
       promoPrice: item.promoPrice === null || item.promoPrice === undefined ? null : Number(item.promoPrice),
       stock: Number(item.stock) || 0
+    };
+  }
+
+  private normalizeBoutiqueReview(item: PublicBoutiqueReviewDto): PublicBoutiqueReviewDto {
+    return {
+      ...item,
+      rating: Number(item.rating) || 0,
+      comment: item.comment || '',
+      author: {
+        id: item.author?.id ?? null,
+        pseudo: item.author?.pseudo || 'Utilisateur',
+        avatar: this.toAbsoluteImageUrl(item.author?.avatar || null, '/assets/avatar-default-other.svg')
+      }
     };
   }
 

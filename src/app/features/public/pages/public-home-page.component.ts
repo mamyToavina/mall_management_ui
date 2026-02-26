@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   OnDestroy,
@@ -48,12 +49,17 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
   readonly loadingEvents = signal(false);
   readonly defaultPromotionImage = this.catalogApi.defaultPromotionImage;
   readonly defaultActivityImage = '/assets/public-activity-placeholder.svg';
-  readonly mapLabel = 'TI Commercial';
-  readonly mapLat = -18.9157;
-  readonly mapLng = 47.5361;
-  readonly mapExternalUrl = `https://www.google.com/maps?q=${this.mapLat},${this.mapLng}`;
+  readonly mapLabel = signal('TI Commercial');
+  readonly mapLat = signal(-18.9157);
+  readonly mapLng = signal(47.5361);
+  readonly mapExternalUrl = computed(
+    () => `https://www.google.com/maps?q=${this.mapLat()},${this.mapLng()}`
+  );
   readonly mapZoom = signal(15);
   readonly mapType = signal<'m' | 'k'>('m');
+  readonly activeBoutiquesCount = signal(0);
+  readonly flashOffersCount = signal(0);
+  readonly upcomingActivitiesCount = signal(0);
 
   private rafId: number | null = null;
   private lastFrame = 0;
@@ -70,6 +76,8 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
 
   constructor() {
     this.applySeo();
+    this.loadPublicSettings();
+    this.loadPublicExperienceMetrics();
     this.loadFeaturedPromotions();
     this.loadUpcomingEvents();
   }
@@ -170,10 +178,13 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
         next: (res) => {
           const items = res.data || [];
           this.promoProducts.set(items.length ? items : this.toFallbackPromotions());
+          this.flashOffersCount.set(Number(res?.meta?.total || items.length || 0));
           this.loadingPromotions.set(false);
         },
         error: () => {
-          this.promoProducts.set(this.toFallbackPromotions());
+          const fallback = this.toFallbackPromotions();
+          this.promoProducts.set(fallback);
+          this.flashOffersCount.set(fallback.length);
           this.loadingPromotions.set(false);
         }
       });
@@ -199,8 +210,8 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
   }
 
   mapSrc(): SafeResourceUrl {
-    const q = encodeURIComponent(`${this.mapLat},${this.mapLng} (${this.mapLabel})`);
-    const ll = `${this.mapLat},${this.mapLng}`;
+    const q = encodeURIComponent(`${this.mapLat()},${this.mapLng()} (${this.mapLabel()})`);
+    const ll = `${this.mapLat()},${this.mapLng()}`;
     const z = this.mapZoom();
     const t = this.mapType();
     const url = `https://maps.google.com/maps?ll=${ll}&q=${q}&t=${t}&z=${z}&output=embed`;
@@ -261,12 +272,46 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.events.set(res.data || []);
+          const items = res.data || [];
+          this.events.set(items);
+          this.upcomingActivitiesCount.set(Number(res?.meta?.total || items.length || 0));
           this.loadingEvents.set(false);
         },
         error: () => {
           this.events.set([]);
+          this.upcomingActivitiesCount.set(0);
           this.loadingEvents.set(false);
+        }
+      });
+  }
+
+  private loadPublicExperienceMetrics(): void {
+    this.catalogApi
+      .getPublicBoutiques(1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const total = Number(res?.meta?.total || 0);
+          this.activeBoutiquesCount.set(total);
+        },
+        error: () => {
+          this.activeBoutiquesCount.set(0);
+        }
+      });
+  }
+
+  private loadPublicSettings(): void {
+    this.catalogApi
+      .getPublicGeneralSettings()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (settings) => {
+          const lat = Number(settings?.mallLatitude);
+          const lng = Number(settings?.mallLongitude);
+          const address = String(settings?.mallAddress || '').trim();
+          if (Number.isFinite(lat) && lat >= -90 && lat <= 90) this.mapLat.set(lat);
+          if (Number.isFinite(lng) && lng >= -180 && lng <= 180) this.mapLng.set(lng);
+          if (address) this.mapLabel.set(address);
         }
       });
   }

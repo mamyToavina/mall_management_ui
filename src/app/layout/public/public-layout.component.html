@@ -79,80 +79,95 @@
   </main>
 
   <footer class="public-footer">
-    <div>TI Commercial © {{ year }}</div>
+    <div>TI Commercial (c) {{ year }} - Toavina & Irchad</div>
     <div>Promotions exclusives, activites et experiences shopping modernes.</div>
   </footer>
 </div>
 
 <div class="credit-modal-backdrop" *ngIf="isProfileModalOpen" (click)="closeProfileModal()">
   <section class="credit-modal profile-modal" (click)="$event.stopPropagation()">
-    <h2>Modifier mon profil</h2>
-    <p class="credit-help">Mettez a jour vos informations personnelles, votre mot de passe et votre photo.</p>
+    <header class="profile-modal-header">
+      <div>
+        <h2>Modifier mon profil</h2>
+        <p class="credit-help">Mettez a jour vos informations personnelles, votre mot de passe et votre photo.</p>
+      </div>
+      <span class="profile-badge">Espace personnel</span>
+    </header>
     <p class="credit-help" *ngIf="profileFetching">Chargement du profil...</p>
 
-    <div class="profile-avatar-row">
-      <div class="avatar large">
-        <img [src]="profileAvatarPreview || resolvedAvatarUrl" alt="Photo profil" />
+    <section class="profile-panel">
+      <h3>Photo de profil</h3>
+      <div class="profile-avatar-row">
+        <div class="avatar large">
+          <img [src]="profileAvatarPreview || resolvedAvatarUrl" alt="Photo profil" />
+        </div>
+        <label class="avatar-upload">
+          <span class="upload-btn">Choisir un fichier</span>
+          <input type="file" accept="image/*" (change)="onProfileAvatarChange($event)" />
+          <small>Formats image, 5 Mo max</small>
+        </label>
       </div>
-      <label class="avatar-upload">
-        Changer la photo
-        <input type="file" accept="image/*" (change)="onProfileAvatarChange($event)" />
-      </label>
-    </div>
-    <small class="field-error" *ngIf="profileFieldErrors['avatar']">{{ profileFieldErrors['avatar'] }}</small>
+      <small class="field-error" *ngIf="profileFieldErrors['avatar']">{{ profileFieldErrors['avatar'] }}</small>
+    </section>
 
-    <label>
-      Pseudo
-      <input type="text" [(ngModel)]="profilePseudo" />
-    </label>
-    <small class="field-error" *ngIf="profileFieldErrors['pseudo']">{{ profileFieldErrors['pseudo'] }}</small>
+    <section class="profile-panel">
+      <h3>Informations personnelles</h3>
+      <div class="profile-grid profile-grid-main">
+        <label>
+          Pseudo
+          <input type="text" [(ngModel)]="profilePseudo" />
+          <small class="field-error" *ngIf="profileFieldErrors['pseudo']">{{ profileFieldErrors['pseudo'] }}</small>
+        </label>
 
-    <label>
-      Email
-      <input type="email" [(ngModel)]="profileEmail" />
-    </label>
-    <small class="field-error" *ngIf="profileFieldErrors['email']">{{ profileFieldErrors['email'] }}</small>
+        <label>
+          Email
+          <input type="email" [(ngModel)]="profileEmail" />
+          <small class="field-error" *ngIf="profileFieldErrors['email']">{{ profileFieldErrors['email'] }}</small>
+        </label>
 
-    <div class="profile-grid">
-      <label>
-        Prenom
-        <input type="text" [(ngModel)]="profileFirstName" />
-      </label>
-      <label>
-        Nom
-        <input type="text" [(ngModel)]="profileLastName" />
-      </label>
-    </div>
+        <label>
+          Prenom
+          <input type="text" [(ngModel)]="profileFirstName" />
+        </label>
+        <label>
+          Nom
+          <input type="text" [(ngModel)]="profileLastName" />
+        </label>
 
-    <label>
-      Genre
-      <select [(ngModel)]="profileGender">
-        <option value="">Non precise</option>
-        <option value="Male">Homme</option>
-        <option value="Female">Femme</option>
-        <option value="Other">Autre</option>
-      </select>
-    </label>
-    <small class="field-error" *ngIf="profileFieldErrors['gender']">{{ profileFieldErrors['gender'] }}</small>
+        <label class="field-full">
+          Genre
+          <select [(ngModel)]="profileGender">
+            <option value="">Non precise</option>
+            <option value="Male">Homme</option>
+            <option value="Female">Femme</option>
+            <option value="Other">Autre</option>
+          </select>
+          <small class="field-error" *ngIf="profileFieldErrors['gender']">{{ profileFieldErrors['gender'] }}</small>
+        </label>
+      </div>
+    </section>
 
-    <h3>Changer le mot de passe</h3>
-    <label>
-      Mot de passe actuel
-      <input type="password" [(ngModel)]="profileCurrentPassword" />
-    </label>
-    <small class="field-error" *ngIf="profileFieldErrors['currentPassword']">{{ profileFieldErrors['currentPassword'] }}</small>
-
-    <label>
-      Nouveau mot de passe
-      <input type="password" [(ngModel)]="profileNewPassword" />
-    </label>
-    <small class="field-error" *ngIf="profileFieldErrors['newPassword']">{{ profileFieldErrors['newPassword'] }}</small>
-
-    <label>
-      Confirmer nouveau mot de passe
-      <input type="password" [(ngModel)]="profileConfirmPassword" />
-    </label>
-    <small class="field-error" *ngIf="profileFieldErrors['confirmPassword']">{{ profileFieldErrors['confirmPassword'] }}</small>
+    <section class="profile-panel">
+      <h3>Securite</h3>
+      <div class="profile-grid profile-grid-main">
+        <label>
+          Mot de passe actuel
+          <input type="password" [(ngModel)]="profileCurrentPassword" />
+          <small class="field-error" *ngIf="profileFieldErrors['currentPassword']">{{ profileFieldErrors['currentPassword'] }}</small>
+        </label>
+        <label>
+          Nouveau mot de passe
+          <input type="password" [(ngModel)]="profileNewPassword" />
+          <small class="field-error" *ngIf="profileFieldErrors['newPassword']">{{ profileFieldErrors['newPassword'] }}</small>
+        </label>
+        <label class="field-full">
+          Confirmer nouveau mot de passe
+          <input type="password" [(ngModel)]="profileConfirmPassword" />
+          <small class="field-error" *ngIf="profileFieldErrors['confirmPassword']">{{ profileFieldErrors['confirmPassword'] }}</small>
+        </label>
+      </div>
+      <p class="credit-help">Laissez vide si vous ne souhaitez pas changer le mot de passe.</p>
+    </section>
 
     <div class="credit-actions">
       <button type="button" class="btn ghost compact" [disabled]="profileLoading || profileFetching" (click)="closeProfileModal()">Fermer</button>
@@ -199,7 +214,9 @@
     </p>
     <p class="credit-error" *ngIf="creditError">{{ creditError }}</p>
 
-    <h3>Historique (demo)</h3>
+    <h3>Historique des recharges</h3>
+    <p class="credit-help" *ngIf="creditHistoryLoading">Chargement de l historique...</p>
+    <p class="credit-error" *ngIf="creditHistoryError">{{ creditHistoryError }}</p>
     <ul class="history-list">
       <li *ngFor="let item of creditHistory">
         <div>
@@ -211,5 +228,17 @@
         </span>
       </li>
     </ul>
+    <p class="credit-help" *ngIf="!creditHistoryLoading && !creditHistory.length && !creditHistoryError">
+      Aucun historique de recharge pour le moment.
+    </p>
+    <div class="history-pagination" *ngIf="creditHistoryMeta.pages > 1">
+      <button type="button" class="btn ghost compact" (click)="previousCreditHistoryPage()" [disabled]="creditHistoryLoading || creditHistoryMeta.page <= 1">
+        Precedent
+      </button>
+      <span>Page {{ creditHistoryMeta.page }} / {{ creditHistoryMeta.pages }}</span>
+      <button type="button" class="btn ghost compact" (click)="nextCreditHistoryPage()" [disabled]="creditHistoryLoading || creditHistoryMeta.page >= creditHistoryMeta.pages">
+        Suivant
+      </button>
+    </div>
   </section>
 </div>
