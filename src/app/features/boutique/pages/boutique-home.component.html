@@ -1,0 +1,203 @@
+<section class="dashboard-page">
+  <header class="dashboard-header">
+    <div class="title-block">
+      <p class="eyebrow">Boutique Analytics</p>
+      <h1>Dashboard Boutique</h1>
+      @if (store.user(); as user) {
+        <p class="subtitle">
+          Bonjour {{ user.pseudo }}, suivi en temps réel de
+          <strong>{{ dashboard()?.boutique?.name || 'votre boutique' }}</strong>.
+        </p>
+      } @else {
+        <p class="subtitle">Suivi global des performances boutique.</p>
+      }
+    </div>
+
+    <div class="period-switch" role="group" aria-label="Période dashboard">
+      @for (option of periodChoices; track option) {
+        <button type="button" class="period-btn" [class.active]="periodDays() === option" (click)="changePeriod(option)">
+          {{ option }} jours
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <section class="loading-state" role="status" aria-live="polite">
+      <div class="loader-line"></div>
+      <div class="loader-line short"></div>
+      <div class="loader-grid">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </section>
+  } @else if (dashboard(); as vm) {
+    <section class="kpi-grid">
+      <article class="kpi-card kpi-primary">
+        <span class="label">CA période</span>
+        <strong>{{ vm.kpis.revenueTotal | number: '1.0-0' }} {{ vm.kpis.currency }}</strong>
+        <small>{{ vm.kpis.ordersTotal }} commandes</small>
+      </article>
+      <article class="kpi-card">
+        <span class="label">Panier moyen</span>
+        <strong>{{ vm.kpis.averageOrderValue | number: '1.0-0' }} {{ vm.kpis.currency }}</strong>
+        <small>Sur {{ vm.period.days }} jours</small>
+      </article>
+      <article class="kpi-card">
+        <span class="label">Livrées</span>
+        <strong>{{ vm.kpis.deliverySuccessRate | number: '1.0-1' }}%</strong>
+        <small>{{ vm.kpis.deliveredOrders }} commandes</small>
+      </article>
+      <article class="kpi-card kpi-warning">
+        <span class="label">À régler</span>
+        <strong>{{ vm.finance.totalOutstanding | number: '1.0-0' }} {{ vm.finance.currency }}</strong>
+        <small>Facturation en attente</small>
+      </article>
+    </section>
+
+    <section class="quick-strip">
+      <div class="quick-item"><span>En cours</span><strong>{{ vm.kpis.pendingOrders }}</strong></div>
+      <div class="quick-item"><span>Rejets</span><strong>{{ vm.kpis.rejectedOrders }}</strong></div>
+      <div class="quick-item"><span>Stock faible</span><strong>{{ vm.inventory.lowStockProducts }}</strong></div>
+      <div class="quick-item"><span>Avis</span><strong>{{ vm.reputation.reviewsCount }}</strong></div>
+    </section>
+
+    <section class="content-grid">
+      <div class="left-column">
+        <article class="panel chart-panel">
+          <header>
+            <h2>Évolution du chiffre d'affaires</h2>
+            <p>{{ vm.period.from | date: 'dd/MM/yyyy' }} - {{ vm.period.to | date: 'dd/MM/yyyy' }}</p>
+          </header>
+
+          <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+            <polyline [attr.points]="revenueSeries()" />
+          </svg>
+
+          <div class="chart-stats">
+                <div><span>Début</span><strong>{{ revenueSummary().start | number: '1.0-0' }} {{ vm.kpis.currency }}</strong></div>
+                <div><span>Pic</span><strong>{{ revenueSummary().peak | number: '1.0-0' }} {{ vm.kpis.currency }}</strong></div>
+                <div><span>Jour pic</span><strong>{{ revenueSummary().peakDate }}</strong></div>
+                <div><span>Fin</span><strong>{{ revenueSummary().end | number: '1.0-0' }} {{ vm.kpis.currency }}</strong></div>
+          </div>
+        </article>
+
+        <article class="panel recent-orders">
+          <header>
+            <h2>Commandes récentes</h2>
+            <p>Les 5 dernières commandes reçues</p>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Client</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Montant</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of vm.recentOrders; track order.id) {
+                  <tr>
+                    <td>{{ order.reference }}</td>
+                    <td>{{ order.customerName }}</td>
+                    <td>{{ order.placedAt | date: 'dd/MM HH:mm' }}</td>
+                    <td><span class="chip" [class]="statusClass(order.fulfillmentStatus)">{{ order.fulfillmentStatus }}</span></td>
+                    <td>{{ order.subtotal | number: '1.0-0' }} {{ order.currency }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="empty">Aucune commande récente.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="right-column">
+        <article class="panel">
+          <header>
+            <h2>Statuts commandes</h2>
+            <p>Répartition sur la période</p>
+          </header>
+          <div class="status-list">
+            @for (status of vm.charts.statusBreakdown; track trackByStatus($index, status)) {
+              <div class="status-row">
+                <div class="status-meta">
+                  <span class="chip" [class]="statusClass(status.status)">{{ status.label }}</span>
+                  <strong>{{ status.count }}</strong>
+                </div>
+                <div class="track"><span [style.width.%]="statusPercent(status)"></span></div>
+              </div>
+            }
+          </div>
+        </article>
+
+        <article class="panel">
+          <header>
+            <h2>Top produits</h2>
+            <p>Classement par revenu</p>
+          </header>
+          <div class="product-list">
+            @for (item of vm.charts.topProducts; track item.productId) {
+              <div class="product-row">
+                <div class="product-meta">
+                  <strong>{{ item.name }}</strong>
+                  <small>{{ item.quantity }} unite(s)</small>
+                </div>
+                <div class="product-value">{{ item.revenue | number: '1.0-0' }} {{ item.currency }}</div>
+                <div class="track"><span [style.width.%]="productRevenueWidth(item.revenue)"></span></div>
+              </div>
+            } @empty {
+              <p class="empty">Pas encore de ventes sur cette période.</p>
+            }
+          </div>
+        </article>
+
+        <article class="panel">
+          <header>
+            <h2>Santé business</h2>
+            @if (vm.finance.warning) {
+              <p class="warning">{{ vm.finance.warning }}</p>
+            } @else {
+              <p>Finance, stock et réputation</p>
+            }
+          </header>
+
+          <div class="health-grid">
+            <div class="health-card">
+              <span>Commission</span>
+              <strong>{{ vm.finance.commissionTotal | number: '1.0-0' }} {{ vm.finance.currency }}</strong>
+            </div>
+            <div class="health-card">
+              <span>Produits actifs</span>
+              <strong>{{ vm.inventory.activeProducts }}</strong>
+            </div>
+            <div class="health-card">
+              <span>Produits publiés</span>
+              <strong>{{ vm.inventory.publishedProducts }}</strong>
+            </div>
+            <div class="health-card">
+              <span>Note moyenne</span>
+              <div class="rating-line">
+                <div class="stars">
+                  @for (filled of stars(vm.reputation.averageRating); track $index) {
+                    <span [class.filled]="filled">&#9733;</span>
+                  }
+                </div>
+                <strong>{{ vm.reputation.averageRating | number: '1.0-1' }}/5</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  }
+</section>

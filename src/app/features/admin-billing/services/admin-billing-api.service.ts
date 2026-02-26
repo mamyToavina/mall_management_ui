@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { environment } from '../../../../environments/environment';
 import {
+  AdminDashboardDto,
   AdminBillingTrace,
   AdminBillingUploadResult,
   AdminBoutiqueBillingSummary
@@ -50,5 +51,10 @@ export class AdminBillingApiService {
   listBoutiquesSummary(month: number, year: number) {
     const params = new HttpParams().set('month', String(month)).set('year', String(year));
     return this.http.get<AdminBoutiqueBillingSummary[]>(`${this.baseUrl}/boutiques-summary`, { params });
+  }
+
+  getDashboard(days = 30) {
+    const params = new HttpParams().set('days', String(days));
+    return this.http.get<AdminDashboardDto>(`${this.baseUrl}/dashboard`, { params });
   }
 }

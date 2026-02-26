@@ -1,0 +1,471 @@
+.dashboard-page {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.title-block h1 {
+  margin: 4px 0 0;
+  font-size: clamp(26px, 2.6vw, 34px);
+  letter-spacing: -0.03em;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 900;
+  color: color-mix(in oklab, var(--primary) 58%, var(--muted));
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.period-switch {
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface) 82%, var(--surface-soft) 18%);
+}
+
+.period-btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 800;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.period-btn.active {
+  border-color: color-mix(in oklab, var(--primary) 42%, var(--border));
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface));
+  color: var(--text);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpi-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: grid;
+  gap: 7px;
+}
+
+.kpi-card .label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.kpi-card strong {
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.1;
+}
+
+.kpi-card small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.kpi-primary {
+  background:
+    radial-gradient(circle at 90% 10%, color-mix(in oklab, #0ea5e9 20%, transparent), transparent 42%),
+    radial-gradient(circle at 10% 90%, color-mix(in oklab, #22c55e 15%, transparent), transparent 40%),
+    var(--surface);
+}
+
+.kpi-warning strong {
+  color: color-mix(in oklab, #b3261e 66%, var(--text));
+}
+
+.quick-strip {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--surface) 90%, var(--surface-soft) 10%);
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quick-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--surface);
+  display: grid;
+  gap: 4px;
+}
+
+.quick-item span {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.quick-item strong {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.content-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+}
+
+.left-column,
+.right-column {
+  display: grid;
+  gap: 12px;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.panel header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.panel header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chart-panel svg {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, color-mix(in oklab, #0ea5e9 16%, var(--surface)) 0%, var(--surface) 100%),
+    linear-gradient(90deg, color-mix(in oklab, var(--border) 70%, transparent) 1px, transparent 1px);
+}
+
+polyline {
+  fill: none;
+  stroke: color-mix(in oklab, #0ea5e9 70%, var(--primary));
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.chart-stats div {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px;
+  display: grid;
+  gap: 3px;
+}
+
+.chart-stats span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 660px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.status-list,
+.product-list {
+  display: grid;
+  gap: 10px;
+}
+
+.status-row {
+  display: grid;
+  gap: 6px;
+}
+
+.status-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.track {
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 75%, var(--surface-soft) 25%);
+  overflow: hidden;
+}
+
+.track span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #06b6d4 0%, #22c55e 100%);
+}
+
+.product-row {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--surface) 90%, var(--surface-soft) 10%);
+  padding: 10px;
+  display: grid;
+  gap: 7px;
+}
+
+.product-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.product-meta strong {
+  font-size: 14px;
+}
+
+.product-meta small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.product-value {
+  font-weight: 900;
+}
+
+.health-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.health-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 5px;
+}
+
+.health-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.health-card strong {
+  font-size: 16px;
+}
+
+.rating-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 3px;
+  font-size: 16px;
+  color: color-mix(in oklab, var(--muted) 55%, var(--border));
+}
+
+.stars span.filled {
+  color: #f59e0b;
+}
+
+.chip {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.chip.scheduled {
+  background: color-mix(in oklab, #3b82f6 14%, var(--surface));
+}
+
+.chip.preparing {
+  background: color-mix(in oklab, #f59e0b 14%, var(--surface));
+}
+
+.chip.ready {
+  background: color-mix(in oklab, #14b8a6 14%, var(--surface));
+}
+
+.chip.out_for_delivery {
+  background: color-mix(in oklab, #8b5cf6 13%, var(--surface));
+}
+
+.chip.delivered {
+  background: color-mix(in oklab, #22c55e 15%, var(--surface));
+}
+
+.chip.rejected {
+  background: color-mix(in oklab, #ef4444 14%, var(--surface));
+}
+
+.feedback {
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.feedback.error {
+  border: 1px solid color-mix(in oklab, #b3261e 35%, var(--border));
+  background: color-mix(in oklab, #b3261e 8%, var(--surface));
+  color: color-mix(in oklab, #b3261e 72%, var(--text));
+}
+
+.warning {
+  color: color-mix(in oklab, #f59e0b 70%, var(--text));
+  font-weight: 700;
+}
+
+.empty {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.loading-state {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.loader-line {
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--border) 70%, transparent),
+    color-mix(in oklab, var(--primary) 24%, var(--border)),
+    color-mix(in oklab, var(--border) 70%, transparent)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+.loader-line.short {
+  width: 50%;
+}
+
+.loader-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.loader-grid span {
+  display: block;
+  height: 90px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--surface-soft) 80%, var(--border));
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1120px) {
+  .kpi-grid,
+  .quick-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .kpi-grid,
+  .quick-strip,
+  .chart-stats,
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .period-switch {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

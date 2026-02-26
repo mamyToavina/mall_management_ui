@@ -8,6 +8,11 @@
 
 export const ADMIN_NAVIGATION: AdminNavItem[] = [
   {
+    label: 'Dashboard',
+    icon: '\u{1F4C8}',
+    route: '/admin/dashboard'
+  },
+  {
     label: 'Gestion Acheteurs',
     icon: '\u{1F465}',
     route: '/admin/buyers'

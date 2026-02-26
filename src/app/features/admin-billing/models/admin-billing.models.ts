@@ -86,3 +86,100 @@ export interface AdminBoutiqueBillingSummary {
     }>;
   };
 }
+
+export interface AdminDashboardStatusPoint {
+  status: 'SCHEDULED' | 'PREPARING' | 'READY' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'REJECTED';
+  count: number;
+}
+
+export interface AdminDashboardDto {
+  period: {
+    from: string;
+    to: string;
+    days: number;
+  };
+  kpis: {
+    revenueTotal: number;
+    ordersTotal: number;
+    averageOrderValue: number;
+    deliverySuccessRate: number;
+    rejectionRate: number;
+    boutiquesTotal: number;
+    boutiquesActive: number;
+    boutiquesSuspended: number;
+    occupiedBoxes: number;
+    availableBoxes: number;
+    totalOutstanding: number;
+    commissionCollected: number;
+    upcomingActivities: number;
+  };
+  charts: {
+    dailyRevenue: Array<{
+      date: string;
+      revenue: number;
+      orders: number;
+    }>;
+    statusBreakdown: AdminDashboardStatusPoint[];
+    monthlyCollections: Array<{
+      year: number;
+      month: number;
+      collected: number;
+    }>;
+    floorOccupancy: Array<{
+      floor: number;
+      total: number;
+      occupied: number;
+      free: number;
+    }>;
+  };
+  rankings: {
+    topRevenueBoutiques: Array<{
+      boutiqueId: string;
+      boutiqueName: string;
+      revenue: number;
+      orders: number;
+    }>;
+    topDebtBoutiques: Array<{
+      boutiqueId: string;
+      boutiqueName: string;
+      debt: number;
+    }>;
+    lowStockByBoutique: Array<{
+      boutiqueId: string;
+      boutiqueName: string;
+      lowStockCount: number;
+    }>;
+  };
+  satisfaction: {
+    averageRating: number;
+    reviewsCount: number;
+    lowRatedBoutiques: Array<{
+      boutiqueId: string;
+      boutiqueName: string;
+      averageRating: number;
+      reviewsCount: number;
+    }>;
+    recentReviews: Array<{
+      id: string;
+      boutiqueName: string;
+      author: string;
+      rating: number;
+      comment: string;
+      createdAt: string;
+    }>;
+  };
+  alerts: {
+    highRejectionBoutiques: Array<{
+      boutiqueId: string;
+      boutiqueName: string;
+      rejectionRate: number;
+      rejectedOrders: number;
+      orders: number;
+    }>;
+    lowStockBoutiques: Array<{
+      boutiqueId: string;
+      boutiqueName: string;
+      lowStockCount: number;
+    }>;
+  };
+}

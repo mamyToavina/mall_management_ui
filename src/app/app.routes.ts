@@ -71,6 +71,13 @@ export const routes: Routes = [
         .then(m => m.AdminLayoutComponent),
 
     children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/admin-dashboard/pages/admin-dashboard-page.component').then(
+            (m) => m.AdminDashboardPageComponent
+          )
+      },
 
       {
         path: 'buyers',
@@ -114,7 +121,7 @@ export const routes: Routes = [
             .then(m => m.ADMIN_BILLING_ROUTES),
       },
 
-      { path: '', redirectTo: 'buyers', pathMatch: 'full' }
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
 
