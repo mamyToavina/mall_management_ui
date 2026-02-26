@@ -1,9 +1,9 @@
-﻿<div class="details-page">
+<div class="details-page">
   <div class="details-hero">
     <div>
       <div class="eyebrow">Gestion des boxes</div>
-      <h1>Details box</h1>
-      <p>Vue complete de la box et du contrat actif.</p>
+      <h1>Détails box</h1>
+      <p>Détails complets de la box et du contrat actif.</p>
     </div>
 
     <div class="hero-actions">
@@ -15,13 +15,13 @@
   </div>
 
   @if (loading()) {
-    <div class="state-card loading-state" role="status" aria-live="polite" aria-label="Chargement des details">
+    <div class="state-card loading-state" role="status" aria-live="polite" aria-label="Chargement des détails">
       <div class="dice-loader" aria-hidden="true">
         <span class="die d1"></span>
         <span class="die d2"></span>
         <span class="die d3"></span>
       </div>
-      <span class="sr-only">Chargement des details</span>
+      <span class="sr-only">Chargement des détails</span>
     </div>
   }
 
@@ -38,11 +38,11 @@
 
       <div class="fields-grid">
         <div class="field">
-          <span class="label">Numero</span>
+          <span class="label">Numéro</span>
           <strong>{{ b.number ?? '-' }}</strong>
         </div>
         <div class="field">
-          <span class="label">Etage</span>
+          <span class="label">Étage</span>
           <strong>{{ b.floor ?? '-' }}</strong>
         </div>
         <div class="field">
@@ -51,15 +51,15 @@
         </div>
         <div class="field">
           <span class="label">Loyer mensuel</span>
-          <strong>{{ b.monthlyRent ?? '-' }}</strong>
+          <strong>{{ formatAr(b.monthlyRent) }}</strong>
         </div>
         <div class="field">
-          <span class="label">Compteur electricite</span>
+          <span class="label">Compteur électricité</span>
           <strong>{{ b.electricityMeterNumber || '-' }}</strong>
         </div>
         <div class="field">
-          <span class="label">Boutique liee</span>
-          <strong>{{ b.boutique || '-' }}</strong>
+          <span class="label">Boutique liée</span>
+          <strong>{{ boutiqueName() }}</strong>
         </div>
       </div>
     </section>
@@ -80,7 +80,7 @@
         </div>
 
         @if (contractExtraFields().length) {
-          <div class="sub-title">Informations complementaires</div>
+          <div class="sub-title">Informations complémentaires</div>
           <div class="fields-grid compact">
             @for (field of contractExtraFields(); track field.label) {
               <div class="field">

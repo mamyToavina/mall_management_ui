@@ -3,7 +3,7 @@
     <header class="wizard-head">
       <div>
         <h2>Nouveau locataire</h2>
-        <p class="sub">Etape 1/2: informations du locataire et box</p>
+        <p class="sub">Étape 1/2 : informations du locataire et box</p>
       </div>
       <div class="progress" aria-hidden="true">
         <span class="dot active"></span>
@@ -18,10 +18,10 @@
 
     <form [formGroup]="form" (ngSubmit)="next()" class="wizard-form" novalidate>
       <div class="field">
-        <label for="firstName">Prenom</label>
+        <label for="firstName">Prénom</label>
         <input id="firstName" formControlName="firstName" autocomplete="given-name" />
         <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">
-          Prenom requis (minimum 2 caracteres).
+          Prénom requis (minimum 2 caractères).
         </small>
       </div>
 
@@ -29,7 +29,7 @@
         <label for="lastName">Nom</label>
         <input id="lastName" formControlName="lastName" autocomplete="family-name" />
         <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">
-          Nom requis (minimum 2 caracteres).
+          Nom requis (minimum 2 caractères).
         </small>
       </div>
 
@@ -45,23 +45,34 @@
         <div class="label-row">
           <label for="boxId">Box disponible</label>
           <button type="button" class="mini-btn" (click)="reloadBoxes()" [disabled]="boxesLoading">
-            Rafraichir
+            Rafraîchir
           </button>
         </div>
 
+        <input
+          type="text"
+          [value]="boxFilter"
+          (input)="onBoxFilterChange($any($event.target).value)"
+          [disabled]="boxesLoading"
+          placeholder="Filtrer par numéro, étage, surface ou loyer"
+        />
+
         <select id="boxId" formControlName="boxId" [disabled]="boxesLoading">
-          <option value="">Selectionner une box</option>
-          <option *ngFor="let b of availableBoxes" [value]="b._id">
-            {{ b.number }} - Etage {{ b.floor }} - {{ b.surface }} m2
+          <option value="">Sélectionner une box</option>
+          <option *ngFor="let b of filteredBoxes" [value]="b._id">
+            {{ b.number }} - Étage {{ b.floor }} - {{ b.surface }} m2
           </option>
         </select>
 
         <small *ngIf="form.get('boxId')?.touched && form.get('boxId')?.invalid">
-          Selection de box obligatoire.
+          Sélection de box obligatoire.
         </small>
 
         <small class="info" *ngIf="!boxesLoading && !boxesError && availableBoxes.length === 0">
           Aucune box libre pour le moment.
+        </small>
+        <small class="info" *ngIf="!boxesLoading && !boxesError && availableBoxes.length > 0 && filteredBoxes.length === 0">
+          Aucune box ne correspond au filtre.
         </small>
 
         <div *ngIf="boxesLoading" class="loading-state" role="status" aria-live="polite" aria-label="Chargement des boxes">

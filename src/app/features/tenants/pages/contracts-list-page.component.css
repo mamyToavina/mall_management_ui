@@ -1,0 +1,124 @@
+.contracts-page {
+  display: grid;
+  place-items: start center;
+  padding: var(--container-pad);
+}
+
+.page-card {
+  width: min(1200px, 100%);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.head h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.head p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.status-tabs {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tab,
+.reload,
+.action {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 10px;
+  height: 36px;
+  padding: 0 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: color-mix(in oklab, var(--primary) 60%, var(--border));
+}
+
+.reload {
+  margin-left: auto;
+}
+
+.banner {
+  margin-top: 12px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.banner.success {
+  border: 1px solid color-mix(in oklab, #16a34a 55%, var(--border));
+  background: color-mix(in oklab, #16a34a 12%, var(--surface));
+}
+
+.banner.error {
+  border: 1px solid color-mix(in oklab, #ef4444 55%, var(--border));
+  background: color-mix(in oklab, #ef4444 12%, var(--surface));
+}
+
+.loading,
+.empty {
+  margin-top: 14px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.table-wrap {
+  margin-top: 14px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.main {
+  font-weight: 700;
+}
+
+.sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.action.danger {
+  border-color: color-mix(in oklab, #ef4444 55%, var(--border));
+  color: #ef4444;
+}
+
+@media (max-width: 760px) {
+  .reload {
+    margin-left: 0;
+  }
+}

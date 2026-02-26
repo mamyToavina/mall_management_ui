@@ -178,7 +178,12 @@ import { RouterModule } from '@angular/router';
     // =======================
   
     badgeStatus(b: BoxDto) {
-      return b.boutique ? 'OccupÃ©' : 'Libre';
+      return b.boutique ? 'Occupé' : 'Libre';
+    }
+
+    formatAr(value: number | null | undefined): string {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return '-';
+      return `${Number(value).toLocaleString('fr-FR')} Ar`;
     }
   
     private loadStats() {
