@@ -1,15 +1,22 @@
-<section class="wizard-page step-one-enter">
+﻿<section class="wizard-page step-one-enter">
   <div class="step-card">
     <header class="wizard-head">
-      <div>
-        <h2>Nouveau locataire</h2>
-        <p class="sub">Étape 1/2 : informations du locataire et box</p>
+      <div class="hero">
+        <p class="eyebrow">Nouveau locataire</p>
+        <h2>Identite et box</h2>
+        <p class="sub">Etape 1 sur 2: renseigner le locataire puis choisir la box a associer.</p>
       </div>
-      <div class="progress" aria-hidden="true">
-        <span class="dot active"></span>
-        <span class="line"></span>
-        <span class="dot"></span>
-      </div>
+
+      <ol class="stepper" aria-label="Progression du formulaire">
+        <li class="step current">
+          <span class="index">1</span>
+          <span class="label">Locataire</span>
+        </li>
+        <li class="step">
+          <span class="index">2</span>
+          <span class="label">Contrat</span>
+        </li>
+      </ol>
     </header>
 
     <div class="banner success" *ngIf="createdMessage">
@@ -17,63 +24,77 @@
     </div>
 
     <form [formGroup]="form" (ngSubmit)="next()" class="wizard-form" novalidate>
-      <div class="field">
-        <label for="firstName">Prénom</label>
-        <input id="firstName" formControlName="firstName" autocomplete="given-name" />
-        <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">
-          Prénom requis (minimum 2 caractères).
-        </small>
-      </div>
+      <section class="panel">
+        <h3>Identite du locataire</h3>
+        <div class="grid">
+          <div class="field">
+            <label for="firstName">Prenom</label>
+            <input id="firstName" formControlName="firstName" autocomplete="given-name" />
+            <small *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">
+              Prenom requis (minimum 2 caracteres).
+            </small>
+          </div>
 
-      <div class="field">
-        <label for="lastName">Nom</label>
-        <input id="lastName" formControlName="lastName" autocomplete="family-name" />
-        <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">
-          Nom requis (minimum 2 caractères).
-        </small>
-      </div>
+          <div class="field">
+            <label for="lastName">Nom</label>
+            <input id="lastName" formControlName="lastName" autocomplete="family-name" />
+            <small *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">
+              Nom requis (minimum 2 caracteres).
+            </small>
+          </div>
 
-      <div class="field field-full">
-        <label for="email">Email</label>
-        <input id="email" type="email" formControlName="email" autocomplete="email" />
-        <small *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
-          Email invalide.
-        </small>
-      </div>
+          <div class="field field-full">
+            <label for="email">Email</label>
+            <input id="email" type="email" formControlName="email" autocomplete="email" />
+            <small *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+              Email invalide.
+            </small>
+          </div>
+        </div>
+      </section>
 
-      <div class="field field-full">
-        <div class="label-row">
-          <label for="boxId">Box disponible</label>
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Selection de box</h3>
           <button type="button" class="mini-btn" (click)="reloadBoxes()" [disabled]="boxesLoading">
-            Rafraîchir
+            Rafraichir
           </button>
         </div>
 
-        <input
-          type="text"
-          [value]="boxFilter"
-          (input)="onBoxFilterChange($any($event.target).value)"
-          [disabled]="boxesLoading"
-          placeholder="Filtrer par numéro, étage, surface ou loyer"
-        />
+        <div class="grid">
+          <div class="field field-full">
+            <label for="boxFilter">Filtre rapide</label>
+            <input
+              id="boxFilter"
+              type="text"
+              [value]="boxFilter"
+              (input)="onBoxFilterChange($any($event.target).value)"
+              [disabled]="boxesLoading"
+              placeholder="Numero, etage, surface, loyer"
+            />
+          </div>
 
-        <select id="boxId" formControlName="boxId" [disabled]="boxesLoading">
-          <option value="">Sélectionner une box</option>
-          <option *ngFor="let b of filteredBoxes" [value]="b._id">
-            {{ b.number }} - Étage {{ b.floor }} - {{ b.surface }} m2
-          </option>
-        </select>
+          <div class="field field-full">
+            <label for="boxId">Box disponible</label>
+            <select id="boxId" formControlName="boxId" [disabled]="boxesLoading">
+              <option value="">Selectionner une box</option>
+              <option *ngFor="let b of filteredBoxes" [value]="b._id">
+                {{ b.number }} - Etage {{ b.floor }} - {{ b.surface }} m2
+              </option>
+            </select>
 
-        <small *ngIf="form.get('boxId')?.touched && form.get('boxId')?.invalid">
-          Sélection de box obligatoire.
-        </small>
+            <small *ngIf="form.get('boxId')?.touched && form.get('boxId')?.invalid">
+              Selection de box obligatoire.
+            </small>
 
-        <small class="info" *ngIf="!boxesLoading && !boxesError && availableBoxes.length === 0">
-          Aucune box libre pour le moment.
-        </small>
-        <small class="info" *ngIf="!boxesLoading && !boxesError && availableBoxes.length > 0 && filteredBoxes.length === 0">
-          Aucune box ne correspond au filtre.
-        </small>
+            <small class="info" *ngIf="!boxesLoading && !boxesError && availableBoxes.length === 0">
+              Aucune box libre pour le moment.
+            </small>
+            <small class="info" *ngIf="!boxesLoading && !boxesError && availableBoxes.length > 0 && filteredBoxes.length === 0">
+              Aucune box ne correspond au filtre.
+            </small>
+          </div>
+        </div>
 
         <div *ngIf="boxesLoading" class="loading-state" role="status" aria-live="polite" aria-label="Chargement des boxes">
           <div class="dice-loader" aria-hidden="true">
@@ -87,7 +108,7 @@
         <div class="banner error" *ngIf="boxesError">
           {{ boxesError }}
         </div>
-      </div>
+      </section>
 
       <div class="actions">
         <button type="submit" class="btn primary">Continuer vers le contrat</button>
