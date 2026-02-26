@@ -48,6 +48,7 @@
           <tr *ngFor="let contract of contracts">
             <td>
               <div class="main">{{ fullTenantName(contract) }}</div>
+              <div class="sub">Boutique: {{ tenantBoutiqueName(contract) }}</div>
               <div class="sub">{{ contract.tenant?.email || 'N/A' }}</div>
             </td>
             <td>{{ contract.box?.number || 'N/A' }}</td>
@@ -80,6 +81,12 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="pager" *ngIf="!loading && !error && totalPages > 1">
+      <button class="reload" (click)="goToPage(page - 1)" [disabled]="page <= 1">Precedent</button>
+      <span>Page {{ page }} / {{ totalPages }} ({{ totalItems }} contrats)</span>
+      <button class="reload" (click)="goToPage(page + 1)" [disabled]="page >= totalPages">Suivant</button>
     </div>
   </div>
 </section>

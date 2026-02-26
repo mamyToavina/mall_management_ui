@@ -25,15 +25,67 @@ export interface BillingContractSummary {
   id: string;
   startDate: string;
   endDate: string;
+  durationMonths: number;
   monthlyRent: number;
+  penaltyFee: number;
+  penaltyGrowthFactor: number;
+  terminationFee: number;
+  onlineSalesCommissionPercent: number;
+  notes?: string;
+  status?: 'ACTIVE' | 'TERMINATED' | 'EXPIRED';
   remaining: BillingRemainingDuration;
 }
 
-export interface BillingDuesSummary {
-  rentAmount: number;
-  electricityAmount: number;
-  commissionsAmount: number;
-  totalDue: number;
+export interface BillingLineSummary {
+  due: number;
+  paid: number;
+  autoPaid: number;
+  manualPaid: number;
+  remaining: number;
+  status: 'PAID' | 'PARTIAL' | 'UNPAID';
+  autoDeducted: boolean;
+  dueDate?: string | null;
+}
+
+export interface BillingPenaltyItem {
+  source: 'RENT' | 'ELECTRICITY';
+  reason: string;
+  baseFee: number;
+  monthsLate: number;
+  growthFactor: number;
+  amountDue: number;
+}
+
+export interface BillingCommissionItem {
+  traceId: string;
+  saleReference: string;
+  saleDate: string;
+  clientName: string;
+  clientEmail: string;
+  saleAmount: number;
+  commissionRate: number;
+  commissionAmount: number;
+  autoDeducted: boolean;
+  status: string;
+}
+
+export interface BillingTraceDto {
+  _id: string;
+  month: number;
+  year: number;
+  category: 'COMMISSION' | 'RENT' | 'ELECTRICITY' | 'PENALTY';
+  action: 'AUTO_DEBIT' | 'MANUAL_PAYMENT' | 'SALE_COMMISSION';
+  automatic: boolean;
+  amount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  status: 'APPLIED' | 'PARTIAL' | 'PENDING';
+  reason: string;
+  referenceType: string;
+  referenceId?: string;
+  referenceLabel?: string;
+  details?: any;
+  createdAt: string;
 }
 
 export interface BillingSummaryDto {
@@ -42,6 +94,25 @@ export interface BillingSummaryDto {
     year: number;
   };
   contract: BillingContractSummary | null;
-  dues: BillingDuesSummary;
+  dues: {
+    rent: BillingLineSummary;
+    electricity: BillingLineSummary;
+    totalToPay: number;
+  };
+  penalties: BillingLineSummary & {
+    items: BillingPenaltyItem[];
+  };
+  commission: {
+    totalSalesAmount: number;
+    totalCommissionAmount: number;
+    autoDeductedAmount: number;
+    remainingAmount: number;
+    items: BillingCommissionItem[];
+  };
   invoices: BillingInvoiceDto[];
+}
+
+export interface BillingPaymentResponse {
+  message: string;
+  summary: BillingSummaryDto;
 }

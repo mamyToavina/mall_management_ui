@@ -117,8 +117,26 @@ th {
   color: #ef4444;
 }
 
+.pager {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pager span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
 @media (max-width: 760px) {
   .reload {
     margin-left: 0;
+  }
+
+  .pager {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

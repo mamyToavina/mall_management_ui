@@ -26,6 +26,33 @@
   background: color-mix(in oklab, var(--surface) 95%, var(--bg) 5%);
 }
 
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--surface) 94%, var(--bg) 6%);
+}
+
+.tab {
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.tab.active {
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface));
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -59,6 +86,12 @@ select {
   cursor: pointer;
 }
 
+.btn-secondary[disabled],
+.btn-primary[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
   background: color-mix(in oklab, var(--primary) 14%, var(--surface));
@@ -73,6 +106,15 @@ select {
   border: 1px solid color-mix(in oklab, #b3261e 30%, var(--border));
   background: color-mix(in oklab, #b3261e 8%, var(--surface));
   color: color-mix(in oklab, #b3261e 72%, var(--text));
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.success-banner {
+  border: 1px solid color-mix(in oklab, #1f8f4c 30%, var(--border));
+  background: color-mix(in oklab, #1f8f4c 8%, var(--surface));
+  color: color-mix(in oklab, #1f8f4c 72%, var(--text));
   padding: 12px;
   border-radius: 12px;
   font-weight: 700;
@@ -100,6 +142,26 @@ select {
 
 .dues-card strong {
   font-size: 22px;
+}
+
+.dues-card .meta {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.paid-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, #1f8f4c 35%, var(--border));
+  background: color-mix(in oklab, #1f8f4c 10%, var(--surface));
+  color: color-mix(in oklab, #1f8f4c 70%, var(--text));
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .dues-card.total {
@@ -219,11 +281,24 @@ select {
   font-weight: 700;
 }
 
+.contract-note {
+  grid-column: 1 / -1;
+}
+
 .table-wrap {
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
   overflow: auto;
+}
+
+.table-wrap.compact {
+  margin-top: 12px;
+}
+
+.trace-title {
+  margin: 12px;
+  font-size: 16px;
 }
 
 table {
@@ -307,6 +382,20 @@ tbody tr:hover {
   border-radius: 14px;
   box-shadow: var(--shadow);
   padding: 14px;
+}
+
+.modal--wide {
+  width: min(1120px, calc(100vw - 24px));
+}
+
+.modal--wide .table-wrap {
+  overflow-x: hidden;
+}
+
+.modal--wide table {
+  min-width: 0;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .modal-header {
