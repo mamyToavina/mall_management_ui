@@ -40,7 +40,6 @@ export class ProductCreatePageComponent implements OnDestroy {
     description: ['', [Validators.maxLength(1200)]],
     tagsText: [''],
     price: [0, [Validators.required, Validators.min(0)]],
-    salePrice: [null as number | null, [Validators.min(0)]],
     costPrice: [null as number | null, [Validators.min(0)]],
     taxRate: [0, [Validators.min(0)]],
     unit: ['piece', [Validators.maxLength(30)]],
@@ -105,7 +104,6 @@ export class ProductCreatePageComponent implements OnDestroy {
       description: '',
       tagsText: '',
       price: 0,
-      salePrice: null,
       costPrice: null,
       taxRate: 0,
       unit: 'piece',
@@ -140,11 +138,6 @@ export class ProductCreatePageComponent implements OnDestroy {
     const value = this.form.getRawValue();
     const basePrice = Number(value.price ?? 0);
 
-    if (value.salePrice !== null && value.salePrice > basePrice) {
-      this.errorMessage.set('Le prix promo ne peut pas depasser le prix de base.');
-      return;
-    }
-
     const formData = new FormData();
     formData.append('image', this.selectedImageFile);
 
@@ -165,7 +158,6 @@ export class ProductCreatePageComponent implements OnDestroy {
     formData.append('stockQuantity', String(value.stockQuantity ?? 0));
     formData.append('lowStockThreshold', String(value.lowStockThreshold ?? 0));
 
-    if (value.salePrice !== null) formData.append('salePrice', String(value.salePrice));
     if (value.costPrice !== null) formData.append('costPrice', String(value.costPrice));
 
     const tags = (value.tagsText || '')
@@ -184,13 +176,13 @@ export class ProductCreatePageComponent implements OnDestroy {
         next: () => {
           this.isSubmitting.set(false);
           this.resetForm();
-          this.successMessage.set('Produit cree avec succes.');
+          this.successMessage.set('Produit créé avec succès.');
           this.errorMessage.set(null);
         },
         error: (error) => {
           this.isSubmitting.set(false);
           const message =
-            error?.error?.message || 'Creation du produit impossible. Veuillez reessayer.';
+            error?.error?.message || 'Création du produit impossible. Veuillez réessayer.';
           this.errorMessage.set(message);
         }
       });

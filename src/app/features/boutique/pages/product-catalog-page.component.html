@@ -3,6 +3,11 @@
     <div>
       <h1>Catalogue Produits</h1>
       <p>Liste et filtrage des produits de votre boutique.</p>
+      <div class="quick-stats" *ngIf="meta() as m">
+        <span class="stat-chip">Total: <strong>{{ m.total }}</strong></span>
+        <span class="stat-chip">Publiés (page): <strong>{{ publishedCount() }}</strong></span>
+        <span class="stat-chip">Page: <strong>{{ m.page }}/{{ m.pages }}</strong></span>
+      </div>
     </div>
   </header>
 
@@ -33,10 +38,10 @@
       </label>
 
       <label class="field">
-        <span>Categorie</span>
+        <span>Catégorie</span>
         <input
           type="text"
-          placeholder="ex: Electronique"
+          placeholder="ex: Électronique"
           [value]="category()"
           (input)="onCategoryChange(($any($event.target).value))"
         />
@@ -63,7 +68,7 @@
         <span>Stock faible uniquement</span>
       </label>
 
-      <button type="button" class="btn-secondary" (click)="resetFilters()">Reset</button>
+      <button type="button" class="btn-secondary" (click)="resetFilters()">Réinitialiser</button>
     </div>
   </section>
 
@@ -88,11 +93,12 @@
             <th>Image</th>
             <th>Produit</th>
             <th>SKU</th>
-            <th>Categorie</th>
+            <th>Catégorie</th>
             <th>Prix</th>
-            <th>Prix Actuel</th>
+            <th>Prix actuel</th>
             <th>Stock</th>
             <th>Statut</th>
+            <th>Publication</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -113,7 +119,7 @@
                 </div>
               </td>
               <td data-label="SKU">{{ product.sku }}</td>
-              <td data-label="Categorie">{{ product.category || '-' }}</td>
+              <td data-label="Catégorie">{{ product.category || '-' }}</td>
               <td data-label="Prix">{{ product.price | number: '1.2-2' }}</td>
               <td data-label="Prix Actuel">{{ (product.currentSellingPrice ?? product.price) | number: '1.2-2' }}</td>
               <td data-label="Stock">
@@ -125,17 +131,38 @@
                 </span>
               </td>
               <td data-label="Statut">
-                <span class="status-badge">{{ product.status }}</span>
+                <span class="status-badge" [class.active]="product.status === 'ACTIVE'" [class.archived]="product.status === 'ARCHIVED'">
+                  {{ statusLabel(product.status) }}
+                </span>
+              </td>
+              <td data-label="Publication">
+                <span class="publish-badge" [class.published]="product.isPublished">
+                  {{ publicationLabel(product) }}
+                </span>
               </td>
               <td data-label="Action">
-                <button type="button" class="btn-secondary" (click)="openEditModal(product)">
-                  Gerer
-                </button>
+                <div class="row-actions">
+                  <button
+                    type="button"
+                    class="btn-secondary btn-publish"
+                    (click)="togglePublished(product)"
+                    [disabled]="publishLoadingId() === product._id"
+                  >
+                    @if (publishLoadingId() === product._id) {
+                      ... 
+                    } @else {
+                      {{ product.isPublished ? 'Retirer' : 'Publier' }}
+                    }
+                  </button>
+                  <button type="button" class="btn-secondary" (click)="openEditModal(product)">
+                   Gérer
+                  </button>
+                </div>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="9" class="empty">Aucun produit trouve pour ces filtres.</td>
+              <td colspan="10" class="empty">Aucun produit trouvé pour ces filtres.</td>
             </tr>
           }
         </tbody>
@@ -151,7 +178,7 @@
         (click)="goToPage(meta()!.page - 1)"
         [disabled]="meta()!.page <= 1"
       >
-        Precedent
+        Précédent
       </button>
 
       <div class="pagination-info">
@@ -197,7 +224,7 @@
             <input type="text" formControlName="brand" />
           </label>
           <label class="field">
-            <span>Categorie</span>
+            <span>Catégorie</span>
             <input type="text" formControlName="category" />
           </label>
           <label class="field">
@@ -207,6 +234,18 @@
           <label class="field">
             <span>Prix promo</span>
             <input type="number" formControlName="salePrice" min="0" step="0.01" />
+          </label>
+          <label class="field">
+            <span>Statut</span>
+            <select formControlName="status">
+              @for (item of statusOptions; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </label>
+          <label class="field checkbox-field">
+            <input type="checkbox" formControlName="isPublished" />
+            <span>Produit publié</span>
           </label>
           <label class="field full">
             <span>Tags (comma separated)</span>
@@ -249,8 +288,8 @@
       </section>
 
       <footer class="modal-actions">
-        <button type="button" class="btn-secondary danger" (click)="askDeleteProduct()">Supprimer produit</button>
-        <button type="button" class="btn-secondary" (click)="askSaveProduct()">Mettre a jour</button>
+        <button type="button" class="btn-secondary danger" (click)="askDeleteProduct()">Supprimer le produit</button>
+        <button type="button" class="btn-secondary" (click)="askSaveProduct()">Mettre à jour</button>
       </footer>
     </section>
   }

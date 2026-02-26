@@ -2,7 +2,7 @@
   <header class="page-header">
     <div>
       <h1>Ajouter Produit</h1>
-      <p>Renseignez les informations essentielles, puis ajoutez une photo via glisser-deposer.</p>
+      <p>Renseignez les informations essentielles, puis ajoutez une photo via glisser-déposer.</p>
     </div>
     <button type="button" class="btn-secondary" (click)="goToCatalog()">Retour catalogue</button>
   </header>
@@ -11,7 +11,8 @@
     <h2>Conseils</h2>
     <ul>
       <li>Les champs Nom, SKU, Prix et Photo sont obligatoires.</li>
-      <li>Le SKU doit etre unique dans la boutique.</li>
+      <li>Le SKU doit être unique dans la boutique.</li>
+      <li>Le prix promo se gère depuis le catalogue (édition/promotion).</li>
       <li>Format tags: `boisson, promo, import`.</li>
     </ul>
   </section>
@@ -46,12 +47,12 @@
         </label>
 
         <label class="field">
-          <span>Categorie</span>
+          <span>Catégorie</span>
           <input type="text" formControlName="category" placeholder="Ex: Boissons" />
         </label>
 
         <label class="field">
-          <span>Sous-categorie</span>
+          <span>Sous-catégorie</span>
           <input type="text" formControlName="subCategory" placeholder="Ex: Jus de fruits" />
         </label>
 
@@ -69,7 +70,7 @@
 
     <section class="form-section">
       <h3>Prix et vente</h3>
-      <div class="grid three-cols">
+      <div class="grid two-cols">
         <label class="field">
           <span>Prix de base *</span>
           <input type="number" min="0" step="0.01" formControlName="price" />
@@ -77,12 +78,7 @@
         </label>
 
         <label class="field">
-          <span>Prix promo</span>
-          <input type="number" min="0" step="0.01" formControlName="salePrice" />
-        </label>
-
-        <label class="field">
-          <span>Prix coutant</span>
+          <span>Prix coûtant</span>
           <input type="number" min="0" step="0.01" formControlName="costPrice" />
         </label>
 
@@ -92,7 +88,7 @@
         </label>
 
         <label class="field">
-          <span>Unite</span>
+          <span>Unité</span>
           <input type="text" formControlName="unit" placeholder="piece, kg, litre..." />
         </label>
 
@@ -132,7 +128,7 @@
 
         <label class="field checkbox-field">
           <input type="checkbox" formControlName="isPublished" />
-          <span>Publier immediatement</span>
+          <span>Publier immédiatement</span>
         </label>
       </div>
     </section>
@@ -161,7 +157,7 @@
       </div>
 
       @if (imageRequiredError) {
-        <small class="error-text">Photo obligatoire pour creer le produit.</small>
+        <small class="error-text">Photo obligatoire pour créer le produit.</small>
       }
 
       @if (selectedFileName()) {
@@ -179,9 +175,9 @@
     </section>
 
     <footer class="actions">
-      <button type="button" class="btn-secondary" (click)="resetForm()">Reinitialiser</button>
+      <button type="button" class="btn-secondary" (click)="resetForm()">Réinitialiser</button>
       <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Creation en cours...' : 'Creer le produit' }}
+        {{ isSubmitting() ? 'Création en cours...' : 'Créer le produit' }}
       </button>
     </footer>
   </form>

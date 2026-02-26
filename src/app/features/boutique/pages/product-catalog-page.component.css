@@ -14,6 +14,26 @@
   color: var(--muted);
   font-weight: 600;
 }
+.quick-stats {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  background: color-mix(in oklab, var(--surface) 94%, var(--bg));
+}
+.stat-chip strong {
+  color: var(--text);
+}
 
 .filters-panel {
   display: grid;
@@ -152,6 +172,9 @@ th {
   font-weight: 900;
   white-space: nowrap;
   background: color-mix(in oklab, var(--surface) 88%, var(--primary) 6%);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 tbody tr:hover {
@@ -198,6 +221,46 @@ tbody tr:hover {
 
 .status-badge {
   background: color-mix(in oklab, var(--surface) 84%, var(--primary) 8%);
+}
+.status-badge.active {
+  border-color: color-mix(in oklab, #1f8f4c 35%, var(--border));
+  background: color-mix(in oklab, #1f8f4c 10%, var(--surface));
+  color: color-mix(in oklab, #1f8f4c 70%, var(--text));
+}
+.status-badge.archived {
+  border-color: color-mix(in oklab, #b3261e 35%, var(--border));
+  background: color-mix(in oklab, #b3261e 10%, var(--surface));
+  color: color-mix(in oklab, #b3261e 70%, var(--text));
+}
+.publish-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 800;
+  background: color-mix(in oklab, var(--surface) 92%, var(--bg));
+  color: var(--muted);
+}
+.publish-badge.published {
+  border-color: color-mix(in oklab, #1f8f4c 35%, var(--border));
+  background: color-mix(in oklab, #1f8f4c 12%, var(--surface));
+  color: color-mix(in oklab, #1f8f4c 72%, var(--text));
+}
+.row-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  min-width: 110px;
+}
+.btn-publish {
+  min-width: 96px;
+}
+.row-actions .btn-secondary {
+  width: 100%;
 }
 
 .empty {
@@ -298,6 +361,20 @@ tbody tr:hover {
 .field.full {
   grid-column: 1 / -1;
 }
+.checkbox-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.checkbox-field input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+.checkbox-field span {
+  font-weight: 700;
+  color: var(--text);
+}
 
 .images-section {
   margin-top: 12px;
@@ -385,6 +462,15 @@ tbody tr:hover {
 
   .btn-secondary {
     width: 100%;
+  }
+
+  .quick-stats {
+    width: 100%;
+  }
+
+  .stat-chip {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .modal-grid,
