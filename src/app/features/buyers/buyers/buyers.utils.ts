@@ -1,3 +1,7 @@
+﻿import { environment } from '../../../../environments/environment';
+
+const DEFAULT_AVATAR_URL = '/assets/avatar-default-other.svg';
+
 export function timeAgo(isoDate: string, now = new Date()): string {
   const d = new Date(isoDate);
   const diffMs = now.getTime() - d.getTime();
@@ -24,7 +28,22 @@ export function formatAriary(amount: number): string {
   return `${new Intl.NumberFormat('fr-FR').format(n)} Ar`;
 }
 
+export function getDefaultAvatarUrl(): string {
+  return DEFAULT_AVATAR_URL;
+}
+
 export function resolveAvatarUrl(avatarPath?: string | null): string {
-  if (!avatarPath) return 'https://i.pravatar.cc/96?img=12';
-  return avatarPath.startsWith('http') ? avatarPath : avatarPath;
+  const raw = String(avatarPath || '').trim();
+  if (!raw) return DEFAULT_AVATAR_URL;
+
+  if (/^https?:\/\//i.test(raw)) return raw;
+
+  const normalized = raw.startsWith('/') ? raw : `/${raw}`;
+
+  if (normalized.startsWith('/uploads/')) {
+    const base = String(environment.apiBaseUrl || '').replace(/\/$/, '');
+    if (base) return `${base}${normalized}`;
+  }
+
+  return normalized;
 }
