@@ -25,11 +25,22 @@ export interface PublicPromotionListResponseDto {
   };
 }
 
+export interface PublicGeneralSettingsDto {
+  mallAddress: string;
+  mallLatitude: number;
+  mallLongitude: number;
+}
+
 export interface PublicBoutiqueDto {
   id: string;
   name: string;
   slogan: string;
   activity: string;
+  boxNumber: string | null;
+  boxFloor: number | null;
+  offerings: string;
+  marketingTagline: string;
+  locationDescription: string;
   description: string;
   rating: number;
   reviewsCount: number;
@@ -69,4 +80,38 @@ export interface PublicBoutiqueProductsResponseDto {
     total: number;
     limit: number;
   };
+}
+
+export interface PublicReviewAuthorDto {
+  id: string | null;
+  pseudo: string;
+  avatar: string | null;
+}
+
+export interface PublicBoutiqueReviewDto {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+  author: PublicReviewAuthorDto;
+}
+
+export interface PublicBoutiqueReviewListResponseDto {
+  data: PublicBoutiqueReviewDto[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}
+
+export interface UpsertMyBoutiqueReviewPayload {
+  rating: number;
+  comment: string;
+}
+
+export interface UpsertMyBoutiqueReviewResponseDto {
+  message: string;
 }

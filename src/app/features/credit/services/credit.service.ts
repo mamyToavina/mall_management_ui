@@ -6,6 +6,7 @@ import {
   ApiResponse,
   Credit,
   CreditListQuery,
+  CreditMyHistoryResponse,
   CreditListResponse,
   CreditStats,
   UseCreditResult
@@ -61,5 +62,10 @@ export class CreditService {
       { code },
       { headers }
     );
+  }
+
+  getMyHistory(page = 1, limit = 5): Observable<CreditMyHistoryResponse> {
+    const params = new HttpParams().set('page', String(page)).set('limit', String(limit));
+    return this.http.get<CreditMyHistoryResponse>(`${this.baseUrl}/my-history`, { params });
   }
 }

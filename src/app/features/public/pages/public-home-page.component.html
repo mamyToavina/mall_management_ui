@@ -15,15 +15,15 @@
 
   <div class="hero-card reveal-up delay-1">
     <div class="metric">
-      <strong>120+</strong>
+      <strong>{{ activeBoutiquesCount() }}</strong>
       <span>Boutiques actives</span>
     </div>
     <div class="metric">
-      <strong>35</strong>
+      <strong>{{ flashOffersCount() }}</strong>
       <span>Offres flash cette semaine</span>
     </div>
     <div class="metric">
-      <strong>8</strong>
+      <strong>{{ upcomingActivitiesCount() }}</strong>
       <span>Activites a venir</span>
     </div>
   </div>
@@ -173,7 +173,7 @@
       <h2>Ou se trouve TI Commercial ?</h2>
       <p>Carte Google interactive pour reperer le centre commercial.</p>
     </div>
-    <a class="link" [href]="mapExternalUrl" target="_blank" rel="noopener noreferrer">
+    <a class="link" [href]="mapExternalUrl()" target="_blank" rel="noopener noreferrer">
       Ouvrir dans Google Maps
     </a>
   </div>
@@ -207,6 +207,6 @@
       <div class="map-marker" aria-hidden="true"></div>
     </div>
 
-    <p class="map-coords">Coordonnees (demo): {{ mapLat }}, {{ mapLng }}</p>
+    <p class="map-coords">Coordonnees: {{ mapLat() }}, {{ mapLng() }}</p>
   </div>
 </section>

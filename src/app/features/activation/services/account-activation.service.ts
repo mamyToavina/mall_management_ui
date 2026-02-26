@@ -10,6 +10,10 @@ export interface CompleteBoutiqueProfilePayload {
   password: string;
   pseudo: string;
   boutiqueName: string;
+  activity?: string;
+  offerings?: string;
+  marketingTagline?: string;
+  publicDescription?: string;
   firstName?: string;
   lastName?: string;
   gender?: string;
@@ -33,6 +37,10 @@ export interface CompleteBoutiqueProfileResponse {
     id: string;
     name: string;
     logo?: string;
+    activity?: string;
+    offerings?: string;
+    marketingTagline?: string;
+    publicDescription?: string;
     onlineSalesEnabled?: boolean;
     status: string;
   };

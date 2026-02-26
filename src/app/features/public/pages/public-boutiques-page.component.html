@@ -31,13 +31,29 @@
 
         <p class="slogan">{{ shop.slogan }}</p>
         <p class="desc">{{ shop.description }}</p>
+        @if (shop.boxNumber && shop.boxFloor !== null) {
+          <p class="location">Box {{ shop.boxNumber }} - {{ boxFloorLabel(shop.boxFloor) }}</p>
+        } @else {
+          <p class="location">{{ shop.locationDescription }}</p>
+        }
 
         <div class="highlights">
           <span *ngFor="let point of shop.highlights">{{ point }}</span>
         </div>
 
         <div class="bottom-row">
-          <div class="rating">{{ shop.rating }} ★ ({{ shop.reviewsCount }} avis)</div>
+          <div class="rating">
+            <span class="display-stars" [attr.aria-label]="shop.rating + ' etoiles'">
+              <span
+                class="display-star"
+                *ngFor="let star of starScale"
+                [class.filled]="isStarFilled(shop.rating, star)"
+              >
+                &#9733;
+              </span>
+            </span>
+            <span class="reviews-count">{{ shop.reviewsCount }} avis</span>
+          </div>
           <a class="btn" [routerLink]="['/boutiques', shop.id]" [queryParams]="{ bn: shop.name, ac: shop.activity }">
             Voir la boutique
           </a>

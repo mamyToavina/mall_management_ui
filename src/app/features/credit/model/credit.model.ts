@@ -65,6 +65,17 @@ export interface CreditListResponse {
   };
 }
 
+export interface CreditMyHistoryResponse {
+  success: boolean;
+  data: Credit[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}
+
 export interface CreditStats {
   totals: {
     totalCredits: number;
