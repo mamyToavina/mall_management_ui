@@ -1,14 +1,14 @@
-﻿<section class="hero">
+<section class="hero">
   <div class="hero-copy reveal-up">
-    <p class="kicker">EXPERIENCE PUBLIQUE</p>
-    <h1>Decouvrez ce qui se passe en ce moment a TI Commercial</h1>
+    <p class="kicker">EXPÉRIENCE PUBLIQUE</p>
+    <h1>Découvrez ce qui se passe en ce moment à TI Commercial</h1>
     <p class="lede">
-      Promotions exclusives, boutiques inspirantes et activites impactantes pour attirer les visiteurs.
+      Promotions exclusives, boutiques inspirantes et activités impactantes pour attirer les visiteurs.
     </p>
 
     <div class="hero-actions">
       <a class="btn hero-login" routerLink="/login">Se connecter</a>
-      <a class="btn hero-register" routerLink="/register">Creer un compte</a>
+      <a class="btn hero-register" routerLink="/register">Créer un compte</a>
       <a class="btn hero-map" href="#map-ti">Voir la carte</a>
     </div>
   </div>
@@ -24,7 +24,7 @@
     </div>
     <div class="metric">
       <strong>{{ upcomingActivitiesCount() }}</strong>
-      <span>Activites a venir</span>
+      <span>Activités à venir</span>
     </div>
   </div>
 </section>
@@ -44,7 +44,7 @@
       (click)="scrollPromo('left')"
       (mouseenter)="pauseAutoScroll()"
       (mouseleave)="resumeAutoScroll()"
-      aria-label="Defiler vers la gauche"
+      aria-label="Défiler vers la gauche"
     >
       &#10094;
     </button>
@@ -74,7 +74,7 @@
             <span>{{ item.originalPrice | number: '1.0-0' }} {{ item.currency }}</span>
           </div>
 
-          <small>{{ item.category }} • Economie {{ discountRate(item.originalPrice, item.promoPrice) }}%</small>
+          <small>{{ item.category }} • Économie {{ discountRate(item.originalPrice, item.promoPrice) }}%</small>
 
           <div class="promo-actions">
             <a
@@ -98,7 +98,7 @@
       (click)="scrollPromo('right')"
       (mouseenter)="pauseAutoScroll()"
       (mouseleave)="resumeAutoScroll()"
-      aria-label="Defiler vers la droite"
+      aria-label="Défiler vers la droite"
     >
       &#10095;
     </button>
@@ -111,10 +111,10 @@
 <section class="section reveal-up delay-3">
   <div class="section-head">
     <div>
-      <h2>Activites a venir chez TI Commercial</h2>
-      <p>Planifiez votre prochaine visite grace a des evenements pour toute la famille.</p>
+      <h2>Activités à venir chez TI Commercial</h2>
+      <p>Planifiez votre prochaine visite grâce à des événements pour toute la famille.</p>
     </div>
-    <a class="link" routerLink="/events">Voir toutes les activites</a>
+    <a class="link" routerLink="/events">Voir toutes les activités</a>
   </div>
 
   <div class="event-wrap">
@@ -122,7 +122,7 @@
       type="button"
       class="arrow left"
       (click)="scrollEvents('left')"
-      aria-label="Defiler les activites vers la gauche"
+      aria-label="Défiler les activités vers la gauche"
     >
       &#10094;
     </button>
@@ -140,13 +140,13 @@
           <h3>{{ event.title }}</h3>
           <p>{{ event.description }}</p>
           <div class="event-meta">
-            <div class="period-badge" aria-label="Periode de l activite">
+            <div class="period-badge" aria-label="Période de l'activité">
               <span class="period-icon" aria-hidden="true">&#128197;</span>
               <span class="period-text">{{ activityPeriodLabel(event) }}</span>
             </div>
-            <div class="location-chip" aria-label="Lieu de l activite">
+            <div class="location-chip" aria-label="Lieu de l'activité">
               <span class="location-icon" aria-hidden="true">&#128205;</span>
-              <span class="location-text">{{ event.location || 'Lieu a confirmer' }}</span>
+              <span class="location-text">{{ event.location || 'Lieu à confirmer' }}</span>
             </div>
           </div>
         </div>
@@ -157,21 +157,21 @@
       type="button"
       class="arrow right"
       (click)="scrollEvents('right')"
-      aria-label="Defiler les activites vers la droite"
+      aria-label="Défiler les activités vers la droite"
     >
       &#10095;
     </button>
   </div>
   <p class="empty" *ngIf="!loadingEvents() && !events().length">
-    Aucune activite publique disponible pour le moment.
+    Aucune activité publique disponible pour le moment.
   </p>
 </section>
 
 <section id="map-ti" class="section reveal-up delay-3">
   <div class="section-head">
     <div>
-      <h2>Ou se trouve TI Commercial ?</h2>
-      <p>Carte Google interactive pour reperer le centre commercial.</p>
+      <h2>Où se trouve TI Commercial ?</h2>
+      <p>Carte Google interactive pour repérer le centre commercial.</p>
     </div>
     <a class="link" [href]="mapExternalUrl()" target="_blank" rel="noopener noreferrer">
       Ouvrir dans Google Maps
@@ -207,6 +207,6 @@
       <div class="map-marker" aria-hidden="true"></div>
     </div>
 
-    <p class="map-coords">Coordonnees: {{ mapLat() }}, {{ mapLng() }}</p>
+    <p class="map-coords">Coordonnées: {{ mapLat() }}, {{ mapLng() }}</p>
   </div>
 </section>

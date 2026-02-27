@@ -18,26 +18,26 @@ import { BoxDto } from '../models/box.models';
           <p class="sub">{{ subtitle() }}</p>
         </div>
 
-        <a class="btn" routerLink="/boxes">← Retour liste</a>
+        <a class="btn" routerLink="/boxes">Retour liste</a>
       </div>
 
       <div class="card">
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="grid">
             <label class="field">
-              <span>Numéro</span>
+              <span>Numero</span>
               <input type="text" formControlName="number" placeholder="ex: B12" />
-              <small class="err" *ngIf="isInvalid('number')">Numéro requis</small>
+              <small class="err" *ngIf="isInvalid('number')">Numero requis</small>
             </label>
 
             <label class="field">
-              <span>Étage</span>
+              <span>Etage</span>
               <input type="number" formControlName="floor" placeholder="ex: 1" />
-              <small class="err" *ngIf="isInvalid('floor')">Étage requis (>=0)</small>
+              <small class="err" *ngIf="isInvalid('floor')">Etage requis (>=0)</small>
             </label>
 
             <label class="field">
-              <span>Surface (m²)</span>
+              <span>Surface (m2)</span>
               <input type="number" formControlName="surface" placeholder="ex: 20" />
               <small class="err" *ngIf="isInvalid('surface')">Surface requise (>0)</small>
             </label>
@@ -49,13 +49,8 @@ import { BoxDto } from '../models/box.models';
             </label>
 
             <label class="field">
-              <span>Compteur électricité</span>
+              <span>Numero compteur</span>
               <input type="text" formControlName="electricityMeterNumber" placeholder="optionnel" />
-            </label>
-
-            <label class="field">
-              <span>Boutique</span>
-              <input type="text" formControlName="boutique" placeholder="optionnel" />
             </label>
           </div>
 
@@ -63,7 +58,7 @@ import { BoxDto } from '../models/box.models';
             <button class="btn" type="button" (click)="reset()">Reset</button>
 
             <button class="btn primary" type="submit" [disabled]="saving() || form.invalid">
-              {{ saving() ? 'Enregistrement...' : (isEdit() ? 'Mettre à jour' : 'Créer') }}
+              {{ saving() ? 'Enregistrement...' : (isEdit() ? 'Mettre a jour' : 'Creer') }}
             </button>
           </div>
         </form>
@@ -85,9 +80,9 @@ export class BoxFormPageComponent {
   readonly id = computed(() => this.route.snapshot.paramMap.get('id'));
   readonly isEdit = computed(() => !!this.id());
 
-  readonly title = computed(() => this.isEdit() ? 'Modifier une box' : 'Créer une nouvelle box');
+  readonly title = computed(() => this.isEdit() ? 'Modifier une box' : 'Creer une nouvelle box');
   readonly subtitle = computed(() =>
-    this.isEdit() ? 'Met à jour les informations de la box.' : 'Crée une box et l’ajoute à la liste.'
+    this.isEdit() ? 'Met a jour les informations de la box.' : 'Cree une box et l ajoute a la liste.'
   );
 
   readonly form = this.fb.nonNullable.group({
@@ -96,11 +91,9 @@ export class BoxFormPageComponent {
     surface: [1, [Validators.required, Validators.min(1)]],
     monthlyRent: [0, [Validators.required, Validators.min(0)]],
     electricityMeterNumber: [''],
-    boutique: [''],
   });
 
   constructor() {
-    // Si edit -> charger data et patcher
     if (this.isEdit()) {
       const boxId = this.id()!;
       this.saving.set(true);
@@ -116,7 +109,6 @@ export class BoxFormPageComponent {
               surface: Number(b.surface ?? 1),
               monthlyRent: Number(b.monthlyRent ?? 0),
               electricityMeterNumber: (b.electricityMeterNumber ?? '') as any,
-              boutique: (b.boutique ?? '') as any,
             });
             this.saving.set(false);
           },
@@ -145,7 +137,6 @@ export class BoxFormPageComponent {
               surface: Number(b.surface ?? 1),
               monthlyRent: Number(b.monthlyRent ?? 0),
               electricityMeterNumber: (b.electricityMeterNumber ?? '') as any,
-              boutique: (b.boutique ?? '') as any,
             });
             this.saving.set(false);
           },
@@ -158,7 +149,6 @@ export class BoxFormPageComponent {
         surface: 1,
         monthlyRent: 0,
         electricityMeterNumber: '',
-        boutique: '',
       });
     }
   }
@@ -172,7 +162,6 @@ export class BoxFormPageComponent {
       surface: Number(this.form.value.surface),
       monthlyRent: Number(this.form.value.monthlyRent),
       electricityMeterNumber: this.form.value.electricityMeterNumber?.trim() || null,
-      boutique: this.form.value.boutique?.trim() || null,
     };
 
     this.saving.set(true);
@@ -182,14 +171,9 @@ export class BoxFormPageComponent {
       : this.api.createBox(payload);
 
     req$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (box) => {
+      next: () => {
         this.saving.set(false);
-
-        if (this.isEdit()) {
-          this.router.navigate(['/admin/boxes']).catch(() => {});
-        } else {
-          this.router.navigate(['/admin/boxes']).catch(() => {});
-        }
+        this.router.navigate(['/admin/boxes']).catch(() => {});
       },
       error: () => this.saving.set(false),
     });

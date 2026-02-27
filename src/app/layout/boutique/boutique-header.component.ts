@@ -1,5 +1,5 @@
 ﻿import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { Component, PLATFORM_ID, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { AuthStore } from '../../core/auth/auth.store';
@@ -39,11 +39,6 @@ import { ThemeService } from '../../core/services/theme.service';
       </div>
 
       <div class="right" *ngIf="store.user() as user">
-        <button class="icon-btn notify" type="button" aria-label="Notifications">
-          <span aria-hidden="true">&#128276;</span>
-          <span class="badge" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
-        </button>
-
         <button
           class="icon-btn"
           type="button"
@@ -75,8 +70,6 @@ export class BoutiqueHeaderComponent {
   layout = inject(LayoutService);
   theme = inject(ThemeService);
   private platformId = inject(PLATFORM_ID);
-
-  readonly unreadCount = signal(5);
 
   readonly boutiqueLogo = computed(() => {
     const userLogo = this.store.user()?.avatar;

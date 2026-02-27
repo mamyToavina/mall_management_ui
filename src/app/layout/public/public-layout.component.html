@@ -22,7 +22,7 @@
 
               <div class="user-meta">
                 <strong>{{ userPseudo }}</strong>
-                <span class="online-badge">Connecte</span>
+                <span class="online-badge">Connecté</span>
               </div>
             </button>
 
@@ -32,10 +32,10 @@
             </div>
 
             <button type="button" class="btn ghost compact" (click)="openCreditModal()">
-              Entrer du credit
+              Entrer du crédit
             </button>
             <button type="button" class="btn solid compact" (click)="logout()">
-              Deconnexion
+              Déconnexion
             </button>
           </section>
         </ng-container>
@@ -54,12 +54,12 @@
           <a
             class="btn solid auth-btn"
             routerLink="/register"
-            aria-label="Creer un compte"
-            title="Creer un compte"
-            data-tip="Creer un compte"
+            aria-label="Créer un compte"
+            title="Créer un compte"
+            data-tip="Créer un compte"
           >
             <span class="btn-icon" aria-hidden="true">&#10010;</span>
-            <span class="btn-label">Creer un compte</span>
+            <span class="btn-label">Créer un compte</span>
           </a>
         </ng-template>
       </div>
@@ -69,7 +69,7 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
       <a routerLink="/promotions" routerLinkActive="active">Promotions</a>
       <a routerLink="/boutiques" routerLinkActive="active">Boutiques</a>
-      <a routerLink="/events" routerLinkActive="active">Activites</a>
+      <a routerLink="/events" routerLinkActive="active">Activités</a>
       <a *ngIf="isUserConnected" routerLink="/mes-commandes" routerLinkActive="active">Mes commandes</a>
     </nav>
   </header>
@@ -80,7 +80,7 @@
 
   <footer class="public-footer">
     <div>TI Commercial (c) {{ year }} - Toavina & Irchad</div>
-    <div>Promotions exclusives, activites et experiences shopping modernes.</div>
+    <div>Promotions exclusives, activités et expériences shopping modernes.</div>
   </footer>
 </div>
 
@@ -89,7 +89,7 @@
     <header class="profile-modal-header">
       <div>
         <h2>Modifier mon profil</h2>
-        <p class="credit-help">Mettez a jour vos informations personnelles, votre mot de passe et votre photo.</p>
+        <p class="credit-help">Mettez à jour vos informations personnelles, votre mot de passe et votre photo.</p>
       </div>
       <span class="profile-badge">Espace personnel</span>
     </header>
@@ -126,7 +126,7 @@
         </label>
 
         <label>
-          Prenom
+          Prénom
           <input type="text" [(ngModel)]="profileFirstName" />
         </label>
         <label>
@@ -137,7 +137,7 @@
         <label class="field-full">
           Genre
           <select [(ngModel)]="profileGender">
-            <option value="">Non precise</option>
+            <option value="">Non précisé</option>
             <option value="Male">Homme</option>
             <option value="Female">Femme</option>
             <option value="Other">Autre</option>
@@ -148,7 +148,7 @@
     </section>
 
     <section class="profile-panel">
-      <h3>Securite</h3>
+      <h3>Sécurité</h3>
       <div class="profile-grid profile-grid-main">
         <label>
           Mot de passe actuel
@@ -187,11 +187,11 @@
 
 <div class="credit-modal-backdrop" *ngIf="isCreditModalOpen" (click)="closeCreditModal()">
   <section class="credit-modal" (click)="$event.stopPropagation()">
-    <h2>Entrer du credit</h2>
-    <p class="credit-help">Entrez le numero de la carte prepayee pour augmenter votre solde.</p>
+    <h2>Entrer du crédit</h2>
+    <p class="credit-help">Entrez le numéro de la carte prépayée pour augmenter votre solde.</p>
 
     <label>
-      Numero de la carte prepayee
+      Numéro de la carte prépayée
       <input
         type="text"
         [(ngModel)]="creditCode"
@@ -215,7 +215,7 @@
     <p class="credit-error" *ngIf="creditError">{{ creditError }}</p>
 
     <h3>Historique des recharges</h3>
-    <p class="credit-help" *ngIf="creditHistoryLoading">Chargement de l historique...</p>
+    <p class="credit-help" *ngIf="creditHistoryLoading">Chargement de l'historique...</p>
     <p class="credit-error" *ngIf="creditHistoryError">{{ creditHistoryError }}</p>
     <ul class="history-list">
       <li *ngFor="let item of creditHistory">
@@ -233,7 +233,7 @@
     </p>
     <div class="history-pagination" *ngIf="creditHistoryMeta.pages > 1">
       <button type="button" class="btn ghost compact" (click)="previousCreditHistoryPage()" [disabled]="creditHistoryLoading || creditHistoryMeta.page <= 1">
-        Precedent
+        Précédent
       </button>
       <span>Page {{ creditHistoryMeta.page }} / {{ creditHistoryMeta.pages }}</span>
       <button type="button" class="btn ghost compact" (click)="nextCreditHistoryPage()" [disabled]="creditHistoryLoading || creditHistoryMeta.page >= creditHistoryMeta.pages">
