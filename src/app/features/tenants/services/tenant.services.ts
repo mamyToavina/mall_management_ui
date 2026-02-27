@@ -12,7 +12,7 @@ import {
 import { environment } from '../../../../environments/environment';
 import { catchError, throwError, timeout } from 'rxjs';
 
-const API_TIMEOUT_MS = 12000;
+const API_TIMEOUT_MS = 30000;
 
 const extractApiErrorMessage = (err: any, fallback: string, endpointLabel: string) => {
   if (err?.name === 'TimeoutError') {

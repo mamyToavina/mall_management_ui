@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PLATFORM_ID } from '@angular/core';
+import { finalize } from 'rxjs';
 
 import {
   AccountActivationService,
@@ -28,6 +29,7 @@ export class ActivateAccountComponent {
   success = '';
   dragActive = false;
   logoPreview = '';
+  private logoFile: File | null = null;
   private activationUserId = '';
   private activationToken = '';
 
@@ -97,12 +99,18 @@ export class ActivateAccountComponent {
       lastName: raw.lastName || undefined,
       gender: raw.gender || undefined,
       onlineSalesEnabled: !!raw.onlineSalesEnabled,
-      logo: raw.logo || undefined,
+      logo: undefined,
+      logoFile: this.logoFile ?? undefined
     };
 
-    this.api.completeBoutiqueProfile(payload).subscribe({
+    this.api.completeBoutiqueProfile(payload)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
       next: (res) => {
-        this.loading = false;
         this.success = res.message || 'Compte active avec succes.';
 
         if (isPlatformBrowser(this.platformId) && res?.boutique?.logo) {
@@ -114,7 +122,6 @@ export class ActivateAccountComponent {
         }, 1300);
       },
       error: (err: Error) => {
-        this.loading = false;
         this.error = err.message;
       }
     });
@@ -163,8 +170,8 @@ export class ActivateAccountComponent {
     const reader = new FileReader();
     reader.onload = () => {
       const result = String(reader.result ?? '');
-      this.form.patchValue({ logo: result });
       this.logoPreview = result;
+      this.logoFile = file;
       this.error = '';
     };
     reader.readAsDataURL(file);
