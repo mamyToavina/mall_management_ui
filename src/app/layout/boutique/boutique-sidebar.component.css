@@ -18,6 +18,7 @@
   z-index: 20;
   overflow-y: auto;
   overflow-x: visible;
+  flex: 0 0 auto;
   transition: width .28s cubic-bezier(.22, 1, .36, 1);
 }
 

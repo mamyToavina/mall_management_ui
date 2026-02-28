@@ -5,6 +5,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/auth/auth.service';
+import { AuthStore } from '../../../core/auth/auth.store';
 import { BillingApiService } from '../services/billing-api.service';
 import {
   BillingCommissionItem,
@@ -15,6 +17,7 @@ import {
 } from '../models/billing.models';
 
 type BillingTab = 'resume' | 'contrat' | 'commissions' | 'factures' | 'traces';
+type TraceCategoryFilter = 'ALL' | 'COMMISSION' | 'RENT' | 'ELECTRICITY' | 'PENALTY';
 
 @Component({
   selector: 'app-boutique-billing-page',
@@ -25,6 +28,8 @@ type BillingTab = 'resume' | 'contrat' | 'commissions' | 'factures' | 'traces';
 })
 export class BoutiqueBillingPageComponent {
   private readonly api = inject(BillingApiService);
+  private readonly auth = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly assetBaseUrl = environment.apiBaseUrl.replace(/\/api\/?$/, '');
 
@@ -49,6 +54,10 @@ export class BoutiqueBillingPageComponent {
   readonly showPenaltyDetails = signal(false);
   readonly showRenewalWizard = signal(false);
   readonly renewalSubmitting = signal(false);
+  readonly commissionPage = signal(1);
+  readonly tracePage = signal(1);
+  readonly traceCategory = signal<TraceCategoryFilter>('ALL');
+  readonly pageSize = 5;
 
   readonly renewalForm = signal({
     durationMonths: 12,
@@ -79,6 +88,37 @@ export class BoutiqueBillingPageComponent {
   readonly years = computed(() => {
     const currentYear = this.now.getFullYear();
     return [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
+  });
+
+  readonly commissionItemsPaged = computed(() => {
+    const items = this.summary()?.commission.items ?? [];
+    const page = this.commissionPage();
+    const start = (page - 1) * this.pageSize;
+    return items.slice(start, start + this.pageSize);
+  });
+
+  readonly commissionPages = computed(() => {
+    const total = this.summary()?.commission.items?.length ?? 0;
+    return Math.max(1, Math.ceil(total / this.pageSize));
+  });
+
+  readonly filteredTraces = computed(() => {
+    const selected = this.traceCategory();
+    const rows = this.traces();
+    if (selected === 'ALL') return rows;
+    return rows.filter((trace) => trace.category === selected);
+  });
+
+  readonly traceItemsPaged = computed(() => {
+    const items = this.filteredTraces();
+    const page = this.tracePage();
+    const start = (page - 1) * this.pageSize;
+    return items.slice(start, start + this.pageSize);
+  });
+
+  readonly tracePages = computed(() => {
+    const total = this.filteredTraces().length;
+    return Math.max(1, Math.ceil(total / this.pageSize));
   });
 
   readonly unpaidOtherMonths = computed(() => {
@@ -178,6 +218,27 @@ export class BoutiqueBillingPageComponent {
     this.activeTab.set(tab);
   }
 
+  setTraceCategory(value: TraceCategoryFilter) {
+    this.traceCategory.set(value);
+    this.tracePage.set(1);
+  }
+
+  previousCommissionPage() {
+    this.commissionPage.update((page) => Math.max(1, page - 1));
+  }
+
+  nextCommissionPage() {
+    this.commissionPage.update((page) => Math.min(this.commissionPages(), page + 1));
+  }
+
+  previousTracePage() {
+    this.tracePage.update((page) => Math.max(1, page - 1));
+  }
+
+  nextTracePage() {
+    this.tracePage.update((page) => Math.min(this.tracePages(), page + 1));
+  }
+
   loadData() {
     this.loading.set(true);
     this.errorMessage.set(null);
@@ -197,6 +258,8 @@ export class BoutiqueBillingPageComponent {
           this.summary.set(summary);
           this.invoices.set(invoices ?? []);
           this.traces.set(traces ?? []);
+          this.commissionPage.set(1);
+          this.tracePage.set(1);
           this.seedRenewalFormFromContract(summary);
           this.loadRenewals();
           this.loading.set(false);
@@ -229,6 +292,7 @@ export class BoutiqueBillingPageComponent {
           this.summary.set(res.summary);
           this.paying.set(null);
           this.loadData();
+          this.refreshMyCredit();
         },
         error: (error) => {
           this.errorMessage.set(error?.error?.message || 'Paiement impossible.');
@@ -385,5 +449,16 @@ export class BoutiqueBillingPageComponent {
       notes: contract.notes || '',
       requestNote: ''
     });
+  }
+
+  private refreshMyCredit() {
+    this.auth
+      .getMyProfile()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res?.user) this.authStore.updateUser(res.user);
+        }
+      });
   }
 }

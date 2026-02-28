@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
@@ -21,6 +22,7 @@ export class BoutiqueOrdersPageComponent {
   private readonly api = inject(SalesApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -63,6 +65,12 @@ export class BoutiqueOrdersPageComponent {
 
   constructor() {
     this.load();
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const orderId = String(params['orderId'] || '').trim();
+      if (orderId) {
+        this.openDetailsById(orderId);
+      }
+    });
   }
 
   load() {
@@ -125,6 +133,34 @@ export class BoutiqueOrdersPageComponent {
 
     this.api
       .getBoutiqueOrderById(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.selectedOrder.set(res.data);
+          this.detailsLoading.set(false);
+          this.updateForm.reset({
+            fulfillmentStatus: res.data.boutiqueOrder.fulfillmentStatus,
+            deliveryDate: res.data.boutiqueOrder.deliveryDate
+              ? this.toDateInputValue(res.data.boutiqueOrder.deliveryDate)
+              : '',
+            fulfillmentNote: res.data.boutiqueOrder.fulfillmentNote || ''
+          });
+        },
+        error: (error) => {
+          this.detailsLoading.set(false);
+          this.modalError.set(error?.error?.message || 'Chargement detail impossible.');
+        }
+      });
+  }
+
+  openDetailsById(orderId: string) {
+    this.selectedOrderId.set(orderId);
+    this.selectedOrder.set(null);
+    this.detailsLoading.set(true);
+    this.modalError.set(null);
+
+    this.api
+      .getBoutiqueOrderById(orderId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -216,4 +252,3 @@ export class BoutiqueOrdersPageComponent {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   }
 }
-

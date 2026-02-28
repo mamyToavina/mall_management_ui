@@ -12,7 +12,8 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser';
 
 import { ActivityPublicDto } from '../../activities/models/activity.models';
@@ -25,7 +26,7 @@ import { PROMO_PRODUCTS } from '../data/public-content.data';
 @Component({
   selector: 'app-public-home-page',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './public-home-page.component.html',
   styleUrls: ['./public-home-page.component.css']
 })
@@ -60,6 +61,9 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
   readonly activeBoutiquesCount = signal(0);
   readonly flashOffersCount = signal(0);
   readonly upcomingActivitiesCount = signal(0);
+  readonly searchQuery = signal('');
+  private readonly router = inject(Router);
+
 
   private rafId: number | null = null;
   private lastFrame = 0;
@@ -119,6 +123,12 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
       unitPrice: product.promoPrice,
       currency: product.currency
     });
+  }
+
+  submitSearch(): void {
+    const q = this.searchQuery().trim();
+    if (!q) return;
+    this.router.navigate(['/search'], { queryParams: { q } });
   }
 
   pauseAutoScroll(): void {
@@ -190,6 +200,7 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
       });
   }
 
+
   private toFallbackPromotions(): PublicPromotionDto[] {
     return PROMO_PRODUCTS.map((item) => ({
       id: item.id,
@@ -208,6 +219,11 @@ export class PublicHomePageComponent implements AfterViewInit, OnDestroy {
       }
     }));
   }
+
+  resetSearch(): void {
+    this.searchQuery.set('');
+  }
+
 
   mapSrc(): SafeResourceUrl {
     const q = encodeURIComponent(`${this.mapLat()},${this.mapLng()} (${this.mapLabel()})`);

@@ -35,7 +35,7 @@ export class ActivateAccountComponent {
 
   readonly form = this.fb.group({
     pseudo: ['', [Validators.required, Validators.minLength(3)]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]],
     boutiqueName: ['', [Validators.required, Validators.minLength(2)]],
     activity: ['', [Validators.required, Validators.minLength(2)]],
@@ -65,6 +65,7 @@ export class ActivateAccountComponent {
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.error = 'Veuillez corriger les champs invalides du formulaire.';
       return;
     }
     if (!this.activationUserId || !this.activationToken) {
@@ -75,6 +76,17 @@ export class ActivateAccountComponent {
     const password = this.form.get('password')?.value ?? '';
     const confirm = this.form.get('confirmPassword')?.value ?? '';
 
+    if (password !== confirm) {
+      this.error = 'Les mots de passe ne correspondent pas.';
+      return;
+    }
+
+    this.performActivation();
+  }
+
+  private performActivation(): void {
+    const password = this.form.get('password')?.value ?? '';
+    const confirm = this.form.get('confirmPassword')?.value ?? '';
     if (password !== confirm) {
       this.error = 'Les mots de passe ne correspondent pas.';
       return;
@@ -111,7 +123,7 @@ export class ActivateAccountComponent {
       )
       .subscribe({
       next: (res) => {
-        this.success = res.message || 'Compte active avec succes.';
+        this.success = res.message || 'Traitement termine.';
 
         if (isPlatformBrowser(this.platformId) && res?.boutique?.logo) {
           localStorage.setItem('ti.boutique.logo', res.boutique.logo);

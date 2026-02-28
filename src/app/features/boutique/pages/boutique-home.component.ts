@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, DestroyRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthStore } from '../../../core/auth/auth.store';
+import { RealtimeService } from '../../../core/realtime/realtime.service';
 import {
   BoutiqueDashboardDto,
   DashboardFulfillmentStatus,
@@ -20,6 +21,8 @@ import { SalesApiService } from '../services/sales-api.service';
 export class BoutiqueHomePageComponent {
   private readonly api = inject(SalesApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly realtime = inject(RealtimeService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly store = inject(AuthStore);
   readonly loading = signal(true);
@@ -28,6 +31,7 @@ export class BoutiqueHomePageComponent {
   readonly dashboard = signal<BoutiqueDashboardDto | null>(null);
 
   readonly periodChoices = [7, 30, 90];
+  readonly currentCredit = computed(() => Number(this.store.user()?.credit || 0));
 
   readonly maxRevenue = computed(() =>
     Math.max(...(this.dashboard()?.charts.dailyRevenue.map((point) => point.revenue) ?? [0]))
@@ -82,7 +86,14 @@ export class BoutiqueHomePageComponent {
   );
 
   constructor() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     this.loadDashboard();
+    const cleanup = this.realtime.onEvent('dashboard:boutique:update', () => {
+      this.loadDashboard();
+    });
+    this.destroyRef.onDestroy(cleanup);
   }
 
   changePeriod(days: number) {

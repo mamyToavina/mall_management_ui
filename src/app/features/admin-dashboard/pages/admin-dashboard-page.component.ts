@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, DestroyRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
@@ -7,6 +7,7 @@ import {
   AdminDashboardStatusPoint
 } from '../../admin-billing/models/admin-billing.models';
 import { AdminBillingApiService } from '../../admin-billing/services/admin-billing-api.service';
+import { RealtimeService } from '../../../core/realtime/realtime.service';
 
 @Component({
   selector: 'app-admin-dashboard-page',
@@ -18,6 +19,8 @@ import { AdminBillingApiService } from '../../admin-billing/services/admin-billi
 export class AdminDashboardPageComponent {
   private readonly api = inject(AdminBillingApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly realtime = inject(RealtimeService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
@@ -34,7 +37,14 @@ export class AdminDashboardPageComponent {
   );
 
   constructor() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     this.load();
+    const cleanup = this.realtime.onEvent('dashboard:admin:update', () => {
+      this.load();
+    });
+    this.destroyRef.onDestroy(cleanup);
   }
 
   load() {

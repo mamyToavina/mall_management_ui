@@ -42,6 +42,47 @@ export class PublicCatalogApiService {
       );
   }
 
+  searchPublic(params: {
+    type?: 'PROMO' | 'BOUTIQUE' | 'ALL';
+    query?: string;
+    category?: string;
+    minPrice?: number | null;
+    maxPrice?: number | null;
+    minRating?: number | null;
+    limit?: number;
+  }) {
+    let httpParams = new HttpParams();
+    if (params.type) httpParams = httpParams.set('type', params.type);
+    if (params.query) httpParams = httpParams.set('query', params.query);
+    if (params.category) httpParams = httpParams.set('category', params.category);
+    if (params.minPrice !== null && params.minPrice !== undefined) {
+      httpParams = httpParams.set('minPrice', String(params.minPrice));
+    }
+    if (params.maxPrice !== null && params.maxPrice !== undefined) {
+      httpParams = httpParams.set('maxPrice', String(params.maxPrice));
+    }
+    if (params.minRating !== null && params.minRating !== undefined) {
+      httpParams = httpParams.set('minRating', String(params.minRating));
+    }
+    if (params.limit) httpParams = httpParams.set('limit', String(params.limit));
+
+    return this.http.get<{
+      promotions: PublicPromotionListResponseDto;
+      boutiques: PublicBoutiqueListResponseDto;
+    }>(`${environment.apiBaseUrl}/public/search`, { params: httpParams }).pipe(
+      map((res) => ({
+        promotions: {
+          ...res.promotions,
+          data: (res.promotions?.data || []).map((item) => this.normalizePromotion(item))
+        },
+        boutiques: {
+          ...res.boutiques,
+          data: (res.boutiques?.data || []).map((item) => this.normalizeBoutique(item))
+        }
+      }))
+    );
+  }
+
   getPublicBoutiques(limit = 24) {
     const params = new HttpParams().set('limit', String(limit));
     return this.http

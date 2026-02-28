@@ -1,56 +1,174 @@
-.login-container {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-  }
-  
-  .login-card {
-    width: 350px;
-    padding: 40px;
-    border-radius: 12px;
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  }
-  
-  .login-card h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .login-card input {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-  }
-  
-  .login-card input:focus {
-    outline: none;
-    border-color: #2563eb;
-  }
-  
-  .login-card button {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #2563eb;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .login-card button:hover {
-    background: #1d4ed8;
-  }
-  
-  .error {
-    color: red;
-    font-size: 13px;
-    text-align: center;
-  }
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  gap: 36px;
+  padding: clamp(28px, 5vw, 56px);
+  background:
+    radial-gradient(1200px 480px at 0% 0%, #f8c9ef 0%, transparent 65%),
+    radial-gradient(900px 520px at 100% 8%, #f3b7e6 0%, transparent 70%),
+    linear-gradient(148deg, #fff9fe 0%, #fdf1fa 40%, #f9e6f4 100%);
+  color: #2e1232;
+  font-family: Bahnschrift, "Segoe UI Variable", "Trebuchet MS", sans-serif;
+}
+
+.login-hero {
+  max-width: 720px;
+  display: grid;
+  gap: 12px;
+}
+
+.hero-badge {
+  width: fit-content;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: #fbe4f5;
+  color: #8f1d7c;
+  box-shadow: 0 8px 18px rgba(215, 29, 184, 0.15);
+}
+
+.login-hero h1 {
+  font-size: clamp(26px, 3.5vw, 38px);
+  margin: 0;
+}
+
+.hero-sub {
+  margin: 0;
+  color: #6a456f;
+  font-size: 16px;
+}
+
+.hero-note {
+  margin: 0;
+  color: #8c6b90;
+  font-size: 14px;
+}
+
+.hero-error {
+  margin: 6px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #ffe7ef;
+  color: #a1145b;
+  font-weight: 600;
+}
+
+.login-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.login-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  display: grid;
+  gap: 14px;
+  box-shadow: 0 18px 30px rgba(145, 16, 123, 0.12);
+  border: 1px solid rgba(215, 29, 184, 0.18);
+}
+
+.login-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.login-card h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f8d5f1;
+  color: #851870;
+}
+
+.login-card label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #6a456f;
+  font-weight: 600;
+}
+
+.login-card input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #f0c6e6;
+  background: #fff7fc;
+  font-size: 14px;
+  color: #2e1232;
+}
+
+.login-card select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #f0c6e6;
+  background: #fff7fc;
+  font-size: 14px;
+  color: #2e1232;
+}
+
+.profile-block {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(215, 29, 184, 0.35);
+  background: #fff3fb;
+}
+
+.profile-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #8f1d7c;
+}
+
+.profile-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.profile-note {
+  margin: 0;
+  font-size: 11px;
+  color: #8c6b90;
+}
+
+@media (max-width: 620px) {
+  .profile-grid { grid-template-columns: 1fr; }
+}
+
+.login-card button {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #d71db8, #a1148d 60%, #7b106d);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.login-card button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(149, 20, 124, 0.25);
+}
+
+.login-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
   
