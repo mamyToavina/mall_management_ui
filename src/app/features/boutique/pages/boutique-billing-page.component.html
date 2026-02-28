@@ -269,7 +269,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (item of s.commission.items; track item.traceId) {
+                @for (item of commissionItemsPaged(); track item.traceId) {
                   <tr>
                     <td>{{ item.saleReference }}</td>
                     <td>{{ item.clientName }}</td>
@@ -286,6 +286,16 @@
                 }
               </tbody>
             </table>
+          </div>
+
+          <div class="history-pagination" *ngIf="commissionPages() > 1">
+            <button type="button" class="btn-secondary" (click)="previousCommissionPage()" [disabled]="commissionPage() <= 1">
+              Pr&eacute;c&eacute;dent
+            </button>
+            <span>Page {{ commissionPage() }} / {{ commissionPages() }}</span>
+            <button type="button" class="btn-secondary" (click)="nextCommissionPage()" [disabled]="commissionPage() >= commissionPages()">
+              Suivant
+            </button>
           </div>
         </section>
       }
@@ -333,7 +343,19 @@
 
     @if (activeTab() === 'traces') {
       <section class="table-wrap">
-        <h2 class="trace-title">Historique de facturation</h2>
+        <div class="trace-head">
+          <h2 class="trace-title">Historique de facturation</h2>
+          <label class="field inline">
+            <span>Cat&eacute;gorie</span>
+            <select [ngModel]="traceCategory()" (ngModelChange)="setTraceCategory($event)">
+              <option [ngValue]="'ALL'">Toutes</option>
+              <option [ngValue]="'RENT'">Loyer</option>
+              <option [ngValue]="'ELECTRICITY'">&Eacute;lectricit&eacute;</option>
+              <option [ngValue]="'PENALTY'">P&eacute;nalit&eacute;</option>
+              <option [ngValue]="'COMMISSION'">Commission</option>
+            </select>
+          </label>
+        </div>
         <table>
           <thead>
             <tr>
@@ -348,7 +370,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (trace of traces(); track trackByTrace($index, trace)) {
+            @for (trace of traceItemsPaged(); track trackByTrace($index, trace)) {
               <tr>
                 <td>{{ trace.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ trace.category }}</td>
@@ -364,6 +386,16 @@
             }
           </tbody>
         </table>
+
+        <div class="history-pagination" *ngIf="tracePages() > 1">
+          <button type="button" class="btn-secondary" (click)="previousTracePage()" [disabled]="tracePage() <= 1">
+            Pr&eacute;c&eacute;dent
+          </button>
+          <span>Page {{ tracePage() }} / {{ tracePages() }}</span>
+          <button type="button" class="btn-secondary" (click)="nextTracePage()" [disabled]="tracePage() >= tracePages()">
+            Suivant
+          </button>
+        </div>
       </section>
     }
   }

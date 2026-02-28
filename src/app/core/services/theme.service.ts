@@ -8,7 +8,7 @@ export class ThemeService {
   private readonly STORAGE_KEY = 'app.theme';
   private readonly isBrowser: boolean;
 
-  readonly mode = signal<ThemeMode>('light');
+  readonly mode = signal<ThemeMode>('dark');
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -41,11 +41,7 @@ export class ThemeService {
   private readInitialModeBrowser(): ThemeMode {
     const stored = localStorage.getItem(this.STORAGE_KEY) as ThemeMode | null;
     if (stored === 'light' || stored === 'dark') return stored;
-
-    const prefersDark =
-      window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-
-    return prefersDark ? 'dark' : 'light';
+    return 'dark';
   }
 }
 

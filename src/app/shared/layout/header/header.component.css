@@ -59,6 +59,7 @@
 
 .icon-btn:active{ transform: translateY(1px); }
 .icon-btn.danger{ color: #ef4444; }
+.theme-toggle{ user-select: none; }
 
 .user{
   display: inline-flex;

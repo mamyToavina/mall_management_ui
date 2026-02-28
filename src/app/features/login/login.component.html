@@ -1,34 +1,71 @@
-<div class="login-container">
-    <form (ngSubmit)="login()" class="login-card">
-  
-      <h2>Connexion Admin</h2>
-  
-      <input 
-        type="email" 
-        placeholder="Email"
-        [(ngModel)]="email"
-        name="email"
-        required />
-  
-      <input 
-        type="password" 
-        placeholder="Mot de passe"
-        [(ngModel)]="password"
-        name="password"
-        required />
-  
-      <button type="submit" [disabled]="loading()">
-        <span *ngIf="!loading()">Se connecter</span>
-        <span *ngIf="loading()" class="dice-loader dice-loader--sm" aria-hidden="true">
+<section class="login-shell">
+  <div class="login-hero">
+    <div class="hero-badge">Accès de démonstration</div>
+    <h1>Connexion de test pour l’examinateur</h1>
+    <p class="hero-sub">
+      Utilisez un compte pré‑rempli pour tester l’acheteur, la boutique ou l’admin.
+    </p>
+    <p class="hero-note">
+      Les identifiants ci‑dessous sont fournis uniquement pour l’évaluation.
+    </p>
+    <p class="hero-error" *ngIf="error()">{{ error() }}</p>
+  </div>
+
+  <div class="login-grid">
+    <form class="login-card" *ngFor="let preset of presets" (ngSubmit)="loginAs(preset.id)">
+      <header>
+        <h2>{{ preset.title }}</h2>
+        <span class="chip">Test</span>
+      </header>
+
+      <label>
+        Email
+        <input type="email" [(ngModel)]="preset.email" [name]="'email-' + preset.id" />
+      </label>
+
+      <label>
+        Mot de passe
+        <input type="password" [(ngModel)]="preset.password" [name]="'password-' + preset.id" />
+      </label>
+
+      <div class="profile-block">
+        <div class="profile-title">Infos profil (optionnel)</div>
+        <div class="profile-grid">
+          <label>
+            Pseudo
+            <input type="text" [(ngModel)]="preset.pseudo" [name]="'pseudo-' + preset.id" />
+          </label>
+          <label>
+            Prenom
+            <input type="text" [(ngModel)]="preset.firstName" [name]="'firstName-' + preset.id" />
+          </label>
+          <label>
+            Nom
+            <input type="text" [(ngModel)]="preset.lastName" [name]="'lastName-' + preset.id" />
+          </label>
+          <label>
+            Genre
+            <select [(ngModel)]="preset.gender" [name]="'gender-' + preset.id">
+              <option value="">Non defini</option>
+              <option value="Male">Homme</option>
+              <option value="Female">Femme</option>
+              <option value="Other">Autre</option>
+            </select>
+          </label>
+        </div>
+        <p class="profile-note">Ces infos ne sont pas utilisees pour la connexion.</p>
+      </div>
+
+      <button type="submit" [disabled]="loadingRole() === preset.id">
+        <span *ngIf="loadingRole() !== preset.id">Se connecter</span>
+        <span *ngIf="loadingRole() === preset.id" class="dice-loader dice-loader--sm" aria-hidden="true">
           <span class="die d1"></span>
           <span class="die d2"></span>
           <span class="die d3"></span>
         </span>
-        <span *ngIf="loading()" class="sr-only">Connexion en cours</span>
+        <span *ngIf="loadingRole() === preset.id" class="sr-only">Connexion en cours</span>
       </button>
-  
-      <p class="error" *ngIf="error()">{{ error() }}</p>
-  
     </form>
   </div>
+</section>
   

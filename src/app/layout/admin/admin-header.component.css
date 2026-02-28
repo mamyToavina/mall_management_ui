@@ -74,9 +74,10 @@
     border-color: color-mix(in oklab, var(--primary) 35%, var(--border));
     background: color-mix(in oklab, var(--surface) 86%, var(--primary) 14%);
   }
-  
+
   .icon-btn:active{ transform: translateY(1px); }
   .icon-btn.danger{ color: #ef4444; }
+  .theme-toggle{ user-select: none; }
   
   .user{
     display: inline-flex;
@@ -100,6 +101,7 @@
   .meta{ line-height: 1.1; }
   .name{ font-weight: 700; font-size: 14px; }
   .role{ font-size: 12px; color: var(--muted); }
+  .user{ cursor: pointer; }
   
   .mobile-only{ display: none; }
   .desktop-only{ display: inline-flex; }
@@ -113,5 +115,114 @@
   @media (max-width: 520px){
     .meta{ display: none; }
     .user{ padding: 6px; }
+  }
+
+  .profile-backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 12, 16, 0.55);
+    z-index: 60;
+  }
+
+  .profile-modal{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(680px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    z-index: 61;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    padding: 20px;
+    display: grid;
+    gap: 16px;
+  }
+
+  .profile-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .profile-title{ font-weight: 800; font-size: 18px; }
+  .profile-subtitle{ color: var(--muted); font-size: 13px; }
+
+  .profile-form{ display: grid; gap: 14px; }
+
+  .profile-grid{
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field{
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .field input,
+  .field select{
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    color: var(--text);
+    padding: 0 12px;
+  }
+
+  .field input[type="file"]{
+    padding: 8px 10px;
+    height: auto;
+  }
+
+  .hint{
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .profile-divider{
+    height: 1px;
+    background: color-mix(in oklab, var(--border) 88%, transparent);
+  }
+
+  .actions{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .icon-btn.primary{
+    background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+    color: white;
+    border: none;
+  }
+
+  .notice{
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .notice.error{
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+  }
+
+  .notice.success{
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+
+  @media (max-width: 720px){
+    .profile-grid{ grid-template-columns: 1fr; }
   }
   

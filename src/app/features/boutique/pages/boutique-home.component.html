@@ -56,6 +56,11 @@
         <strong>{{ vm.finance.totalOutstanding | number: '1.0-0' }} {{ vm.finance.currency }}</strong>
         <small>Facturation en attente</small>
       </article>
+      <article class="kpi-card kpi-credit">
+        <span class="label">Credit disponible</span>
+        <strong>{{ currentCredit() | number: '1.0-0' }} Ar</strong>
+        <small>Solde compte boutique</small>
+      </article>
     </section>
 
     <section class="quick-strip">

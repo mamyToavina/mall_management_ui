@@ -27,6 +27,11 @@ export const PUBLIC_ROUTES: Routes = [
       import('./pages/public-events-page.component').then((m) => m.PublicEventsPageComponent)
   },
   {
+    path: 'search',
+    loadComponent: () =>
+      import('./pages/public-search-page.component').then((m) => m.PublicSearchPageComponent)
+  },
+  {
     path: 'panier',
     loadComponent: () =>
       import('./pages/public-cart-page.component').then((m) => m.PublicCartPageComponent)

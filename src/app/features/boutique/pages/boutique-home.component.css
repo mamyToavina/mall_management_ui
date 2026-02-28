@@ -61,7 +61,7 @@
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 
@@ -102,6 +102,13 @@
 
 .kpi-warning strong {
   color: color-mix(in oklab, #b3261e 66%, var(--text));
+}
+
+.kpi-credit {
+  background:
+    radial-gradient(circle at 85% 12%, color-mix(in oklab, #22c55e 20%, transparent), transparent 44%),
+    radial-gradient(circle at 8% 92%, color-mix(in oklab, #0ea5e9 14%, transparent), transparent 45%),
+    var(--surface);
 }
 
 .quick-strip {

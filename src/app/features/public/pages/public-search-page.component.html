@@ -1,0 +1,50 @@
+<section class="search-shell">
+  <div class="search-head">
+    <div>
+      <h1>Resultats de recherche</h1>
+      <p>Critere: <strong>{{ query() || 'Aucun' }}</strong></p>
+    </div>
+    <a class="link" routerLink="/">Retour a l'accueil</a>
+  </div>
+
+  <p class="empty" *ngIf="!query()">Veuillez saisir un mot de recherche depuis l'accueil.</p>
+  <p class="empty" *ngIf="loading()">Recherche en cours...</p>
+  <p class="empty" *ngIf="error()">{{ error() }}</p>
+
+  <section *ngIf="query() && !loading() && !error()">
+    <h2>Promotions</h2>
+    <div class="result-grid">
+      <article class="result-card" *ngFor="let item of promotions()">
+        <img
+          [src]="item.imageUrl || defaultPromotionImage"
+          [alt]="item.name"
+          loading="lazy"
+        />
+        <div class="result-body">
+          <span class="badge">-{{ item.discountRate }}%</span>
+          <h3>{{ item.name }}</h3>
+          <p class="shop">{{ item.boutique.name }}</p>
+          <strong>{{ item.promoPrice | number: '1.0-0' }} {{ item.currency }}</strong>
+          <a class="shop-link" [routerLink]="['/boutiques', item.boutique.id]">Voir boutique</a>
+        </div>
+      </article>
+    </div>
+    <p class="empty" *ngIf="!promotions().length">Aucune promotion trouvee.</p>
+  </section>
+
+  <section *ngIf="query() && !loading() && !error()">
+    <h2>Boutiques</h2>
+    <div class="result-grid">
+      <article class="result-card boutique" *ngFor="let item of boutiques()">
+        <img [src]="item.logoUrl || defaultBoutiqueLogo" [alt]="item.name" loading="lazy" />
+        <div class="result-body">
+          <h3>{{ item.name }}</h3>
+          <p class="shop">{{ item.activity || 'Boutique partenaire' }}</p>
+          <small>{{ item.marketingTagline || item.offerings }}</small>
+          <a class="shop-link" [routerLink]="['/boutiques', item.id]">Voir boutique</a>
+        </div>
+      </article>
+    </div>
+    <p class="empty" *ngIf="!boutiques().length">Aucune boutique trouvee.</p>
+  </section>
+</section>

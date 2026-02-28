@@ -8,6 +8,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const store = inject(AuthStore);
   const authService = inject(AuthService);
   const isRefreshRequest = req.url.includes('/auth/refresh');
+  const isAuthRequest = req.url.includes('/auth/');
 
   const token = store.accessToken();
 
@@ -17,6 +18,25 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         Authorization: `Bearer ${token}`
       }
     });
+  }
+
+  if (!token && !isRefreshRequest && !isAuthRequest) {
+    return authService.restoreSession().pipe(
+      switchMap((res: any) => {
+        const user = res?.user;
+        if (user && res?.accessToken) {
+          store.setSession(user, res.accessToken);
+          const newReq = req.clone({
+            setHeaders: {
+              Authorization: `Bearer ${res.accessToken}`
+            }
+          });
+          return next(newReq);
+        }
+        return next(req);
+      }),
+      catchError(() => next(req))
+    );
   }
 
   return next(req).pipe(

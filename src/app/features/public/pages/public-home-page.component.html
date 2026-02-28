@@ -29,6 +29,30 @@
   </div>
 </section>
 
+<section class="section search-panel reveal-up delay-2">
+  <div class="section-head">
+    <div>
+      <h2>Recherche rapide</h2>
+      <p>Trouvez une boutique ou une promotion sans quitter l'accueil.</p>
+    </div>
+    <button type="button" class="link-btn" (click)="resetSearch()">Reinitialiser</button>
+  </div>
+
+  <form class="search-grid" (ngSubmit)="submitSearch()">
+    <label class="search-field full">
+      <span>Mot cle</span>
+      <input
+        type="text"
+        placeholder="Produit, boutique, categorie..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        name="public-search"
+      />
+    </label>
+    <button type="submit" class="btn search-btn">Rechercher</button>
+  </form>
+</section>
+
 <section class="section reveal-up delay-2">
   <div class="section-head">
     <div>

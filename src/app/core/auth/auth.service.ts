@@ -43,13 +43,18 @@ export class AuthService {
     private router: Router
   ) {}
 
-  login(credentials: { email: string; password: string }): Observable<LoginResponse> {
+  login(
+    credentials: { email: string; password: string },
+    options: { redirect?: boolean } = {}
+  ): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.api}/login`, credentials, { withCredentials: true })
       .pipe(
         tap((res) => {
           this.store.setSession(res.user, res.accessToken);
-          this.redirectByRole(res.user.role as Role);
+          if (options.redirect !== false) {
+            this.redirectByRole(res.user.role as Role);
+          }
         })
       );
   }
