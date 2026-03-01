@@ -1,9 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PLATFORM_ID } from '@angular/core';
 
-import { AuthService } from '../../core/auth/auth.service';
+import { AuthService, type Role } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +13,6 @@ import { AuthService } from '../../core/auth/auth.service';
 })
 export class LoginComponent {
   private authService = inject(AuthService);
-  private platformId = inject(PLATFORM_ID);
 
   error = signal<string | null>(null);
   loadingRole = signal<string | null>(null);
@@ -61,13 +59,8 @@ export class LoginComponent {
 
     this.authService.login({ email: preset.email, password: preset.password }, { redirect: false }).subscribe({
       next: (res) => {
-        if (isPlatformBrowser(this.platformId)) {
-          const role = res?.user?.role;
-          const target = this.routeByRole(role);
-          if (target) {
-            window.open(target, '_blank');
-          }
-        }
+        const role = (res?.user?.role ?? 'USER') as Role;
+        this.authService.redirectByRole(role);
         this.loadingRole.set(null);
       },
       error: (err) => {
@@ -82,18 +75,4 @@ export class LoginComponent {
     });
   }
 
-  private routeByRole(role?: string | null) {
-    switch (role) {
-      case 'ADMIN':
-        return '/admin/dashboard';
-      case 'BOUTIQUE':
-        return '/boutique/home';
-      case 'USER':
-        return '/';
-      case 'ACHETEUR':
-        return '/';
-      default:
-        return '/';
-    }
-  }
 }
