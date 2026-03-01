@@ -8,6 +8,7 @@ import { ProductStockMovementsPageComponent } from './pages/product-stock-moveme
 import { BoutiqueBillingPageComponent } from './pages/boutique-billing-page.component';
 import { BoutiqueOrdersPageComponent } from './pages/boutique-orders-page.component';
 import { BoutiqueDeliverySettingsPageComponent } from './pages/boutique-delivery-settings-page.component';
+import { BoutiqueCreditUsePageComponent } from './pages/boutique-credit-use-page.component';
 
 export const BOUTIQUE_ROUTES: Routes = [
   { path: 'home', component: BoutiqueHomePageComponent },
@@ -42,6 +43,10 @@ export const BOUTIQUE_ROUTES: Routes = [
   {
     path: 'delivery-settings',
     component: BoutiqueDeliverySettingsPageComponent
+  },
+  {
+    path: 'credit/use',
+    component: BoutiqueCreditUsePageComponent
   },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', redirectTo: 'home' }

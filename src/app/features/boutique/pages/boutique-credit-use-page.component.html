@@ -1,0 +1,86 @@
+<section class="credit-use-page">
+  <header class="page-header">
+    <h1>Utiliser un credit</h1>
+    <p>Appliquer un code credit et recharger votre solde boutique.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="feedback error">{{ errorMessage() }}</div>
+  }
+  @if (successMessage()) {
+    <div class="feedback success">{{ successMessage() }}</div>
+  }
+
+  <section class="card">
+    <div class="credit-form">
+      <label class="field" for="credit-code">
+        <span>Code credit</span>
+        <input
+          id="credit-code"
+          type="text"
+          [ngModel]="code()"
+          (ngModelChange)="code.set($event)"
+          placeholder="Ex: CRD-XXXX-XXXX"
+          autocomplete="off"
+        />
+      </label>
+
+      <div class="actions">
+        <button type="button" class="btn-primary" (click)="submitUseCredit()" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Validation...' : 'Utiliser le credit' }}
+        </button>
+      </div>
+    </div>
+
+    @if (newBalance() !== null) {
+      <p class="balance">Nouveau solde: <strong>{{ newBalance() | number: '1.0-0' }} Ar</strong></p>
+    }
+  </section>
+
+  @if (usedCredit()) {
+    <section class="card">
+      <h2>Dernier credit applique</h2>
+      <p><strong>Code:</strong> {{ usedCredit()?.code }}</p>
+      <p><strong>Valeur:</strong> {{ usedCredit()?.value }} Ar</p>
+      <p><strong>Status:</strong> {{ usedCredit()?.status }}</p>
+      <p><strong>Utilise le:</strong> {{ usedCredit()?.usedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+    </section>
+  }
+
+  <section class="card">
+    <h2>Historique recent</h2>
+    @if (historyLoading()) {
+      <div class="loading-state" role="status" aria-live="polite" aria-label="Chargement historique credits">
+        <div class="dice-loader" aria-hidden="true">
+          <span class="die d1"></span>
+          <span class="die d2"></span>
+          <span class="die d3"></span>
+        </div>
+        <span class="sr-only">Chargement historique credits</span>
+      </div>
+    } @else if (!myHistory().length) {
+      <p class="empty">Aucun credit utilise pour le moment.</p>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Valeur</th>
+              <th>Date d'utilisation</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of myHistory(); track item._id) {
+              <tr>
+                <td>{{ item.code }}</td>
+                <td>{{ item.value | number: '1.0-0' }} Ar</td>
+                <td>{{ item.usedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>

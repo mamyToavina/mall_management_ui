@@ -261,10 +261,19 @@ export class BoutiqueHeaderComponent {
   constructor() {
     if (!isPlatformBrowser(this.platformId)) return;
     this.restoreNotifications();
-    const cleanup = this.realtime.onEvent('notification:order', (payload) => {
+    const cleanupOrderNotifications = this.realtime.onEvent('notification:order', (payload) => {
       this.onOrderNotification(payload as any);
     });
-    this.destroyRef.onDestroy(cleanup);
+    const cleanupCreditUpdates = this.realtime.onEvent('credit:updated', (payload) => {
+      const credit = Number((payload as any)?.credit);
+      if (!Number.isFinite(credit)) return;
+      this.store.updateUser({ credit });
+    });
+
+    this.destroyRef.onDestroy(() => {
+      cleanupOrderNotifications();
+      cleanupCreditUpdates();
+    });
   }
 
   onMobileMenuClick(event: MouseEvent) {
