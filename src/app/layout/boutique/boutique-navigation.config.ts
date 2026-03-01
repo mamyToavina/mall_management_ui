@@ -66,5 +66,11 @@ export const BOUTIQUE_NAVIGATION: BoutiqueNavItem[] = [
     icon: '\u{1F69A}',
     route: '/boutique/delivery-settings',
     exact: true
+  },
+  {
+    label: 'Utiliser Credit',
+    icon: '\u{1F4B3}',
+    route: '/boutique/credit/use',
+    exact: true
   }
 ];
