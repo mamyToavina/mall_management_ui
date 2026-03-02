@@ -74,7 +74,6 @@ export class ProductCatalogPageComponent {
     description: ['', [Validators.maxLength(1200)]],
     tagsText: [''],
     price: [0, [Validators.required, Validators.min(0)]],
-    salePrice: [null as number | null, [Validators.min(0)]],
     costPrice: [null as number | null, [Validators.min(0)]],
     taxRate: [0, [Validators.min(0)]],
     unit: ['piece', [Validators.maxLength(30)]],
@@ -250,7 +249,6 @@ export class ProductCatalogPageComponent {
       description: product.description ?? '',
       tagsText: (product.tags ?? []).join(', '),
       price: product.price ?? 0,
-      salePrice: product.salePrice ?? null,
       costPrice: product.costPrice ?? null,
       taxRate: product.taxRate ?? 0,
       unit: product.unit ?? 'piece',
@@ -396,11 +394,6 @@ export class ProductCatalogPageComponent {
     const value = this.editForm.getRawValue();
     const basePrice = Number(value.price ?? 0);
 
-    if (value.salePrice !== null && value.salePrice > basePrice) {
-      this.onActionError('Le prix promo ne peut pas dépasser le prix de base.');
-      return;
-    }
-
     const payload = {
       name: value.name?.trim(),
       sku: value.sku?.trim(),
@@ -413,7 +406,6 @@ export class ProductCatalogPageComponent {
         .map((item) => item.trim())
         .filter((item) => item.length > 0),
       price: basePrice,
-      salePrice: value.salePrice ?? undefined,
       costPrice: value.costPrice ?? undefined,
       taxRate: value.taxRate ?? 0,
       unit: value.unit?.trim() || 'piece',

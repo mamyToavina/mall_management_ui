@@ -36,7 +36,9 @@ import { environment } from '../../../environments/environment';
         </button>
 
         <a class="brand" routerLink="/" aria-label="Accueil">
-          <span class="logo" aria-hidden="true">A</span>
+          <span class="logo" aria-hidden="true">
+            <img src="assets/logo_ti_commercial.png" alt="" />
+          </span>
           <span class="brand-text">Admin Panel</span>
         </a>
       </div>

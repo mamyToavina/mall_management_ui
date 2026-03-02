@@ -45,9 +45,12 @@ export class BoutiqueCreditUsePageComponent {
       next: (res) => {
         const payload = res?.data;
         this.usedCredit.set(payload?.credit ?? null);
-        this.newBalance.set(typeof payload?.newBalance === 'number' ? payload.newBalance : null);
-        if (typeof payload?.newBalance === 'number') {
-          this.authStore.updateUser({ credit: payload.newBalance });
+        const nextBalance = Number(payload?.newBalance);
+        if (Number.isFinite(nextBalance)) {
+          this.newBalance.set(nextBalance);
+          this.authStore.updateUser({ credit: nextBalance });
+        } else {
+          this.newBalance.set(null);
         }
 
         const replayed = Boolean(payload?.replayed);
