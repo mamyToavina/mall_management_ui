@@ -22,7 +22,9 @@ import { AuthService } from '../../../core/services/auth.service';
         </button>
 
         <a class="brand" href="/" aria-label="Accueil">
-          <span class="logo" aria-hidden="true">A</span>
+          <span class="logo" aria-hidden="true">
+            <img src="assets/logo_ti_commercial.png" alt="" />
+          </span>
           <span class="brand-text">AngularApp</span>
         </a>
       </div>
@@ -60,3 +62,4 @@ export class HeaderComponent {
     public auth: AuthService
   ) {}
 }
+

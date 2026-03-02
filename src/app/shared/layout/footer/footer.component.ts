@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
     <footer class="footer">
       <div class="inner">
         <div class="left">
-          © {{ year }} — Développé par <strong>Mamy Toavina</strong> & <strong>Irchad Houssen</strong>
+          (c) {{ year }} - Developpe par <strong>RABEHARISAINA Mamy Toavina</strong> & <strong>RANDREFAHANANA Irchad Houssen</strong>
         </div>
         <div class="right">
           Version 1.0
